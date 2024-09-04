@@ -35,7 +35,7 @@ t_log* iniciar_logger(char* modulo, char* path, char* log_level) {
     return logger;
 }
 
-void verificarKEY(t_config* config, char* KEY) {
+void verificar_KEY(t_config* config, char* KEY) {
     // Verificar la existencia de la KEY "LOG_LEVEL" en la config.
     if(!config_has_property(config, KEY)) {
         // Mostrar mensaje de error por consola.d
@@ -50,7 +50,7 @@ void iniciar_modulo(char* modulo, char* path_log, char* path_config, t_log** log
     *config = iniciar_config(modulo, path_config);
 
     // Verificar la existencia de la KEY "LOG_LEVEL" en la config.
-    verificarKEY(*config, "LOG_LEVEL");
+    verificar_KEY(*config, "LOG_LEVEL");
 
     // Crear e iniciar instancia de logger.
     *logger = iniciar_logger(modulo, path_log, config_get_string_value(*config, "LOG_LEVEL"));
@@ -64,7 +64,7 @@ void finalizar_modulo(char* modulo, t_log** logger, t_config** config) {
     log_info(*logger, "Finalizando modulo %s...\n", modulo);
 
     // Si existe un log, lo destruimos.
-	if(logger != NULL) log_destroy(*logger);
-	// Si existe una config, lo detruimos.
-	if(config != NULL) config_destroy(*config);
+    if(logger != NULL) log_destroy(*logger);
+    // Si existe una config, lo detruimos.
+    if(config != NULL) config_destroy(*config);
 }

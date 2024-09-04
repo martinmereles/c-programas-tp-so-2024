@@ -17,7 +17,7 @@ t_config* iniciar_config(char* modulo, char* path);
 // Generar e iniciar logger del modulo.
 t_log* iniciar_logger(char* modulo, char* path, char* log_level);
 // Verificar existencia de la KEY.
-void verificarKEY(t_config* config, char* KEY);
+void verificar_KEY(t_config* config, char* KEY);
 // Iniciar modulo.
 void iniciar_modulo(char* modulo, char* path_log, char* path_config, t_log** logger, t_config** config);
 // Finalizar modulo.
