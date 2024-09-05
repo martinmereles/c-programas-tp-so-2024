@@ -15,7 +15,7 @@ int iniciar_conexion(char* modulo, char* cliente, char* PUERTO, t_log** logger) 
     // Aceptar a un nuevo cliente.
     int fd_conexion = accept(fd_escucha, NULL, NULL);
 
-    // Loggear ek estado en conexion.
+    // Loggear el estado en conexion.
     log_info(*logger, "Se ha establecido conexion con el modulo %s", cliente);
 
     // Cerrar el socket de escucha del servidor.
