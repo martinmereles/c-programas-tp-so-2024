@@ -10,7 +10,7 @@ int iniciar_conexion(char* modulo, char* PUERTO, t_log** logger) {
     // Loggear el estado iniciado socket de escucha.
     log_info(*logger, "Se ha iniciado el socket de escucha del modulo %s correctamente", modulo);
     // Loggear el estado esperando cliente.
-    log_info(*logger, "Esperando conexion con cliente...");
+    log_info(*logger, "Esperando conexion con clientes...");
 
     // Aceptar a un nuevo cliente.
     int fd_conexion = accept(fd_escucha, NULL, NULL);
@@ -42,6 +42,10 @@ int iniciar_servidor(char* modulo, char* PUERTO) {
     obtener_info_red(modulo, NULL, PUERTO, &hints, &server_info);
     // Crear el socket de escucha.
     int fd_escucha = crear_socket(modulo, server_info);
+
+    // Permitir que varios sockets se puedan bindear a un puerto al mismo tiempo (Siempre y cuando pertenezcan al mismo usuario)
+    // permitir_conexiones(modulo, &fd_escucha);
+
     // Asociar el socket a un puerto.
     asociar_puerto(modulo, &fd_escucha, server_info);
     // Referenciar al socket que se utilizará para aceptar solicitudes de conexión entrantes.
@@ -52,6 +56,13 @@ int iniciar_servidor(char* modulo, char* PUERTO) {
 
     // Retornar el socket de escucha.
     return fd_escucha;
+}
+
+void permitir_conexiones(char* modulo, int* fd_escucha) {
+    // Permitir que varios sockets se puedan bindear a un puerto al mismo tiempo (Siempre y cuando pertenezcan al mismo usuario)
+    int err = setsockopt(*fd_escucha, SOL_SOCKET, SO_REUSEPORT, &(int){1}, sizeof(int));
+    // Verificar si hubo error al permitir que varios sockets se bindeen a un puerto.
+    verificar_socket(err, fd_escucha, modulo);
 }
 
 void asociar_puerto(char* modulo, int *fd_escucha, struct addrinfo *server_info) {
