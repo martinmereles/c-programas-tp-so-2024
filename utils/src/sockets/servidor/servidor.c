@@ -1,6 +1,6 @@
 #include <sockets/servidor/servidor.h>
 
-int iniciar_conexion(char* modulo, char* cliente, char* PUERTO, t_log** logger) {
+int iniciar_conexion(char* modulo, char* PUERTO, t_log** logger) {
     // Loggear el estado iniciando socket de escucha.
     log_info(*logger, "Iniciando socket de escucha del modulo %s...", modulo);
 
@@ -16,7 +16,7 @@ int iniciar_conexion(char* modulo, char* cliente, char* PUERTO, t_log** logger) 
     int fd_conexion = accept(fd_escucha, NULL, NULL);
 
     // Loggear el estado en conexion.
-    log_info(*logger, "Se ha establecido conexion con el modulo %s", cliente);
+    log_info(*logger, "Se ha establecido conexion con un modulo");
 
     // Cerrar el socket de escucha del servidor.
     close(fd_escucha);
