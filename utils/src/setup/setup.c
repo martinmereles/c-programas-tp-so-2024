@@ -36,7 +36,7 @@ t_log* iniciar_logger(char* modulo, char* path, char* log_level) {
 }
 
 void verificar_KEY(t_config* config, char* KEY) {
-    // Verificar la existencia de la KEY "LOG_LEVEL" en la config.
+    // Verificar la existencia de la KEY en la config.
     if(!config_has_property(config, KEY)) {
         // Mostrar mensaje de error por consola.d
         error_show("Error en la existencia de la KEY '%s'", KEY);
