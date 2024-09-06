@@ -212,24 +212,40 @@ void iterator(char *value)
 
 pthread_t iniciar_hilo_server(char *puerto)
 {
-		int socket_servidor = iniciar_servidor(puerto);
+	int socket_servidor = iniciar_servidor(puerto);
 	
 		pthread_t hiloAtencion;
 		pthread_create(&hiloAtencion,
 					   NULL,
-					   (void *)atender_cliente,
+					   (void *)hilo_cliente,
 					   socket_servidor);
 
 	return hiloAtencion;
 	
 }
 
-void atender_cliente(int socket_servidor)
+void hilo_cliente(int socket_servidor){
+	while(1){
+
+		int socket_cliente = esperar_cliente(socket_servidor);
+		pthread_t hiloCliente;
+		pthread_create(&hiloCliente,
+					   NULL,
+					   (void *)atender_cliente,
+					   socket_cliente);
+		pthread_detach(hiloCliente);
+
+	}
+
+}
+
+void atender_cliente(int socket_cliente)
 {	
-	int socket_cliente = esperar_cliente(socket_servidor);
+	
+
 	t_list *lista;
 	while (1)
-	{
+	{	
 		int cod_op = recibir_operacion(socket_cliente);
 		
 		switch (cod_op)

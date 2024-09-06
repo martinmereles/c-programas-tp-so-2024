@@ -73,4 +73,6 @@ int esperar_cliente(int socket_servidor);
 
 int iniciar_servidor(char *puerto);
 
+void hilo_cliente(int socket_servidor);
+
 #endif
