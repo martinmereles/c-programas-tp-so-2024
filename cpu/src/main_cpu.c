@@ -24,6 +24,13 @@ int main(int argc, char* argv[]) {
     char* puerto_interrupt = config_get_string_value(config, "PUERTO_ESCUCHA_INTERRUPT");
 	pthread_t hilo_servidor_interrupt = iniciar_hilo_server(puerto_interrupt);
 
+    //Inicio de ciclo de instruccion
+    while(1){
+		fetch();
+		decode();
+		execute();
+		check_interrupt();
+	}
     
     pthread_join(hilo_servidor_interrupt, NULL);
 
