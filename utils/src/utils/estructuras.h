@@ -17,7 +17,7 @@
 #include <commons/collections/queue.h>
 #include <semaphore.h>
 
-
+//estructuras para Kernel
 typedef enum {
     NEW,
     READY,
@@ -65,8 +65,6 @@ typedef struct
     uint32_t FX;
     uint32_t GX;
     uint32_t HX;
-    uint32_t BASE;
-    uint32_t LIMITE;
 }t_contexto;
 
 typedef struct {
@@ -81,6 +79,21 @@ typedef struct {
     int pid;
     int tid;
 } t_proceso_hilo;
+
+//estructuras para memoria
+typedef struct {
+    int pid;
+    int tid;
+    t_contexto* contexto_hilo;
+    t_list* instrucciones;
+}t_contexto_hilo;
+
+typedef struct {
+    int pid;
+    uint32_t BASE;
+    uint32_t LIMITE;
+}t_contexto_proceso;
+
 
 
 #endif

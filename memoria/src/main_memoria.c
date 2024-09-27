@@ -3,11 +3,16 @@
 t_log* logger;
 t_config* config;
 int socket_filesystem;
+char* esquema;
+t_list* procesos;
+t_list* hilos;
+
 
 int main(int argc, char* argv[]) {
 
     logger = iniciar_logger("./memoria.log", "memoria");
     config = iniciar_config(logger, "./memoria.config");
+    esquema = config_get_string_value(config, "ESQUEMA");
 
     //Inicia conexion con filesystem
     char* ip_filesystem = config_get_string_value(config, "IP_FILESYSTEM");
