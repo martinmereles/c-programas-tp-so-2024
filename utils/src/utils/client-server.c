@@ -268,3 +268,4 @@ void atender_cliente(int socket_cliente)
 		
 	}
 }
+

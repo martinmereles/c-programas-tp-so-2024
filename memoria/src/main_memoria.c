@@ -10,9 +10,12 @@ t_list* hilos;
 
 int main(int argc, char* argv[]) {
 
+    //Inicializacion de variables
     logger = iniciar_logger("./memoria.log", "memoria");
     config = iniciar_config(logger, "./memoria.config");
     esquema = config_get_string_value(config, "ESQUEMA");
+    procesos = list_create();
+    hilos = list_create();
 
     //Inicia conexion con filesystem
     char* ip_filesystem = config_get_string_value(config, "IP_FILESYSTEM");
