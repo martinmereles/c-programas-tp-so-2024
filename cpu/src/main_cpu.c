@@ -26,10 +26,10 @@ int main(int argc, char* argv[]) {
 
     //Inicio de ciclo de instruccion
     while(1){
-		fetch();
-		decode();
-		execute();
-		check_interrupt();
+		fetch(socket_memoria);
+		decode(socket_memoria);
+		execute(socket_memoria);
+		check_interrupt(socket_memoria);
 	}
     
     pthread_join(hilo_servidor_interrupt, NULL);

@@ -45,12 +45,16 @@ void set(char *registro, char *valor){
     //log_info(logger, "##TID: %d - Ejecutando: SET - %s %s", contexto->pid, registro, valor);
 }
 
-void read_mem(){
+void read_mem(char* registro_datos, char* registro_direccion){
     //TO DO
+    //Lee el valor de memoria correspondiente a la Dirección Lógica 
+    //que se encuentra en el Registro Dirección y lo almacena en el Registro Datos.
 }
 
-void write_mem(){
+void write_mem(char* registro_direccion, char* registro_datos){
     //TO DO
+    //Lee el valor del Registro Datos y lo escribe en la dirección 
+    //física de memoria obtenida a partir de la Dirección Lógica almacenada en el Registro Dirección.
 }
 
 void sum(char *registro_destino, char *registro_origen){
@@ -980,9 +984,70 @@ void jnz(char *registro, char *instruccion){
         default:
             break;
     }
-    log_info(logger, "##TID: %d - Ejecutando: JNZ - %s %s", contexto->pid, registro, instruccion);
+    //log_info(logger, "##TID: %d - Ejecutando: JNZ - %s %s", contexto->pid, registro, instruccion);
 }
 
-void log(){
+void log(char* registro){
     //TO DO
+    //Escribe en el archivo de log el valor del registro.
+    int valor_a_guardar;
+    switch (deCharAEnum(registro_destino)){
+        case AX:
+            valor_a_guardar = reg->AX;
+            break;
+        case BX:
+            valor_a_guardar = reg->bX;
+            break;
+        case CX:
+            valor_a_guardar = reg->CX;
+            break;
+        case DX:
+            valor_a_guardar = reg->DX;
+            break;
+        case EX:
+            valor_a_guardar = reg->EX;
+            break;
+        case FX:
+            valor_a_guardar = reg->FX;
+            break;
+        case GX:
+            valor_a_guardar = reg->GX;
+            break;
+        case HX:
+            valor_a_guardar = reg->HX;
+            break;
+        case PC:
+            valor_a_guardar = reg->PC;
+            break;
+        default:
+            break;
+    }
+    //log_info(logger, "##TID: %d - Ejecutando: LOG - %s %s", contexto->pid, registro, valor);
+}
+
+void ejecutarSentencia(int socket_cliente_memoria){
+
+    char* instruccion_exec;
+    char **sentenciasSplit = string_split(instruccion_exec, " ");
+    if (strcmp(sentenciasSplit[0], "SET") == 0){
+        set(sentenciasSplit[1], sentenciasSplit[2]);
+    }
+    if (strcmp(sentenciasSplit[0], "READ_MEM") == 0){
+        read_mem(sentenciasSplit[1], sentenciasSplit[2]);
+    }
+    if (strcmp(sentenciasSplit[0], "WRITE_MEM") == 0){
+        write_mem(sentenciasSplit[1], sentenciasSplit[2]);
+    }
+    if (strcmp(sentenciasSplit[0], "SUM") == 0){
+        sum(sentenciasSplit[1], sentenciasSplit[2]);
+    }
+    if (strcmp(sentenciasSplit[0], "SUB") == 0){
+        sub(sentenciasSplit[1], sentenciasSplit[2]);
+    }
+    if (strcmp(sentenciasSplit[0], "JNZ") == 0){
+        jnz(sentenciasSplit[1], sentenciasSplit[2]);
+    }
+    if (strcmp(sentenciasSplit[0], "LOG") == 0){
+        log(sentenciasSplit[1]);
+    }
 }
