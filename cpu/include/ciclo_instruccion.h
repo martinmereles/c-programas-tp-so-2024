@@ -1,9 +1,13 @@
 #ifndef CICLO_INSTRUCCION_H_
 #define CICLO_INSTRUCCION_H_
 
-void fetch();
-void decode();
-void execute();
-void check_interrupt()
+/*------------------------LIBRERIAS------------------------*/
+#include <commons/string.h>
+
+/*------------------------DECLARACIONES------------------------*/
+void fetch(int socket_cliente_memoria);
+void decode(int socket_cliente_memoria);
+void execute(int socket_cliente_memoria);
+void check_interrupt(int socket_cliente_memoria);
 
 #endif
