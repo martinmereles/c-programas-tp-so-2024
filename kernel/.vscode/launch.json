@@ -6,7 +6,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/bin/${workspaceFolderBasename}",
-      "args": [],
+      "args": ["prueba1.txt", "32" ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
