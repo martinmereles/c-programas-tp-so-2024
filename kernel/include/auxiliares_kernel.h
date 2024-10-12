@@ -20,5 +20,9 @@ extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_EXIT;
 extern int contador_pid;
 
+void crear_proceso (char* archivo, int tamanio, int prioridad);
+void finalizar_proceso (t_pcb* pcb;);
+bool es_pcb_buscado(int pid_buscado, void *elemento);
+
 
 #endif
