@@ -15,14 +15,15 @@ void crear_proceso (char* archivo, int tamanio, int prioridad){
     contador_pid ++;
     pcb->prioridad_hilo_main = prioridad;
     pcb->archivo = archivo;
+    pcb->tamanio = tamanio;
     
-    list_add (QUEUE_NEW, pcb)
+    list_add (QUEUE_NEW, pcb);
 
 
 }
 
-void finalizar_proceso (t_pcb* pcb;) {
-    //Cambio de estado el pcb del proceso
+void finalizar_proceso (t_pcb* pcb) {
+    /*/Cambio de estado el pcb del proceso
     pcb->estado = EXIT;
     //es necesario validar que los hilos esten finalizados? consultar
 
@@ -34,7 +35,7 @@ void finalizar_proceso (t_pcb* pcb;) {
     pcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pcb_buscado);
     list_add (QUEUE_EXIT, pcb_encontrado);
     
-
+*/
 
 }
 // funcion que busca pcb segun pid
@@ -66,7 +67,7 @@ void planificador_largo_plazo (){
         
         int tamanio_cola = list_size(QUEUE_NEW);
 
-        for (int i = 0; i < tamanio_cola i++)
+        for (int i = 0; i < tamanio_cola; i++)
         {
             t_pcb* pcb = list_get(QUEUE_NEW, i);
 
@@ -76,7 +77,7 @@ void planificador_largo_plazo (){
             string_append(&mensaje," ");
             string_append(&mensaje, string_itoa(pcb->tamanio));
             string_append(&mensaje," ");
-            string_append(&mensaje, string_itoa(pcb->prioridad));
+            string_append(&mensaje, string_itoa(pcb->prioridad_hilo_main));
             string_append(&mensaje," ");
             string_append(&mensaje, string_itoa(pcb->pid));
 
@@ -86,7 +87,7 @@ void planificador_largo_plazo (){
             if (hay_espacio)
             {
              
-               t_tcb* nuevo_hilo = crear_hilo(pcb->prioridad, pcb->pid, 0);
+               t_tcb* nuevo_hilo = crear_hilo(pcb->prioridad_hilo_main, pcb->pid, 0);
                list_add(QUEUE_READY, nuevo_hilo);
                list_remove(QUEUE_NEW, 0);
             }

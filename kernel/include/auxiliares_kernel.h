@@ -28,6 +28,8 @@ extern sem_t sem_largo_plazo;
 void crear_proceso (char* archivo, int tamanio, int prioridad);
 void finalizar_proceso (t_pcb* pcb;);
 bool es_pcb_buscado(int pid_buscado, void *elemento);
+void planificador_largo_plazo ();
+t_tcb* crear_hilo (int prioridad, int ppid, int tid);
 
 
 #endif

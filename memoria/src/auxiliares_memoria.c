@@ -195,7 +195,7 @@ t_contexto_hilo *find_by_pid_tid(t_list *hilos, int pid, int tid)
 
 void obtener_contexto(int pid, int tid, int socket_cliente)
 {
-  t_contexto_hilo *contexto = find_by_pid_tid(hilos, lista[1], lista[2]);
+  t_contexto_hilo *contexto = find_by_pid_tid(hilos, pid, tid);
   if (contexto == NULL)
   {
     enviar_mensaje("NO EXISTE PID-TID", socket_cliente);
@@ -204,15 +204,15 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
   t_paquete *paquete = crear_paquete();
   agregar_a_paquete(paquete, pid, sizeof(int));
   agregar_a_paquete(paquete, tid, sizeof(int));
-  agregar_a_paquete(paquete, contexto->PC, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->AX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->BX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->CX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->DX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->EX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->FX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->GX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->HX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->PC, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->AX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->BX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->CX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->DX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->EX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->FX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->GX, sizeof(uint32_t));
+  agregar_a_paquete(paquete, contexto->contexto_hilo->HX, sizeof(uint32_t));
 
   usleep(retardo_respuesta_cpu * 1000);
   enviar_paquete(paquete, socket_cliente);
@@ -220,25 +220,24 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
 
 void actualizar_contexto(t_list *lista, int socket_cliente)
 {
-  t_contexto_hilo *contexto = find_by_pid_tid(hilos, lista[1], lista[2]);
+  t_contexto_hilo *contexto = find_by_pid_tid(hilos, list_get(lista,1), list_get(lista,2));
 
-  contexto->PC = lista[3];
-  contexto->AX = lista[4];
-  contexto->BX = lista[5];
-  contexto->CX = lista[6];
-  contexto->DX = lista[7];
-  contexto->EX = lista[8];
-  contexto->FX = lista[9];
-  contexto->GX = lista[10];
-  contexto->HX = lista[11];
-
+  contexto->contexto_hilo->PC = list_get(lista,3);
+  contexto->contexto_hilo->AX = list_get(lista,4);
+  contexto->contexto_hilo->BX = list_get(lista,5);
+  contexto->contexto_hilo->CX = list_get(lista,6);
+  contexto->contexto_hilo->DX = list_get(lista,7);
+  contexto->contexto_hilo->EX = list_get(lista,8);
+  contexto->contexto_hilo->FX = list_get(lista,9);
+  contexto->contexto_hilo->GX = list_get(lista,10);
+  contexto->contexto_hilo->HX = list_get(lista,11);
   usleep(retardo_respuesta_cpu * 1000);
   enviar_mensaje("OK", socket_cliente);
 }
 
 void entender_paquete_memoria(t_list *lista, int socket_cliente)
 {
-  if (string_starts_with(lista[0], "ACTUALIZAR_CONTEXTO"))
+  if (string_starts_with(list_get(lista, 0), "ACTUALIZAR_CONTEXTO"))
   {
     actualizar_contexto(lista, socket_cliente);
   }

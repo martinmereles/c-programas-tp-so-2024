@@ -29,21 +29,21 @@ int main(int argc, char** argv) {
     char* archivo = argv [1];
     int tamanio_proceso = atoi(argv[2]);
 
+    crear_proceso(archivo, tamanio_proceso, 0);
 
-    //Inicia conexion con cpu dispatch
+    /*/Inicia conexion con cpu dispatch
     char* ip_cpu = config_get_string_value(config, "IP_CPU");
     char* puerto_cpu_dispatch = config_get_string_value(config, "PUERTO_CPU_DISPATCH");
     socket_cpu_dispatch = crear_conexion(ip_cpu,puerto_cpu_dispatch);
     enviar_mensaje("Me conecto desde kernel (dispatch)!",socket_cpu_dispatch);
     //TODO guardar el mensaje en caso de que se solicite creacion de un proceso
-    char*
 
 
     //Inicia conexion con cpu interrupt
     char* puerto_cpu_interrupt = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");
     socket_cpu_interrupt = crear_conexion(ip_cpu,puerto_cpu_interrupt);
     enviar_mensaje("Me conecto desde kernel (interrupt)!",socket_cpu_interrupt);
-
+*/
     //Inicia conexion con memoria
     char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
     char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
@@ -55,8 +55,10 @@ int main(int argc, char** argv) {
     pthread_create(&hilo_planificador_largo,
                            NULL,
                            (void *)planificador_largo_plazo,
-                           (void *)arg);
+                           NULL);
+    sem_post(&sem_largo_plazo);
     pthread_join(hilo_planificador_largo, NULL);
 
     return 0;
 }
+

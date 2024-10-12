@@ -5,5 +5,6 @@
 #include <utils/config.h>
 #include <utils/logger.h>
 #include <utils/estructuras.h>
+#include <../include/auxiliares_kernel.h>
 
 #endif
