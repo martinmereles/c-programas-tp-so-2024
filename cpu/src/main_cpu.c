@@ -3,6 +3,20 @@
 t_log* logger;
 t_config* config;
 int socket_memoria;
+int socket_kernel_dispatch;
+int pid;
+int tid;
+uint32_t PC;
+uint32_t AX;
+uint32_t BX;
+uint32_t CX;
+uint32_t DX;
+uint32_t EX;
+uint32_t FX;
+uint32_t GX;
+uint32_t HX;
+uint32_t BASE;
+uint32_t LIMITE;
 
 int main(int argc, char* argv[]) {
     
@@ -17,7 +31,8 @@ int main(int argc, char* argv[]) {
 
     //Iniciar hilo servidor dispatch
     char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");
-	pthread_t hilo_servidor_dispatch = iniciar_hilo_server(puerto_dispatch);
+	//pthread_t hilo_servidor_dispatch = iniciar_hilo_server(puerto_dispatch);
+    pthread_t hilo_servidor_dispatch = iniciar_hilo_server_cpu(puerto_dispatch);
     pthread_detach(hilo_servidor_dispatch);
     
     //Iniciar hilo servidor interrupt
