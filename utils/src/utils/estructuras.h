@@ -26,20 +26,6 @@ typedef enum {
     EXIT
 } T_ESTADO;
 
-typedef enum{
-    PC,
-    AX,
-    BX,
-    CX,
-    DX,
-    EX,
-    FX,
-    GX,
-    HX,
-    BASE,
-    LIMITE
-} enum_registro;
-
 typedef struct {
     int pid;
     t_list* tids;
