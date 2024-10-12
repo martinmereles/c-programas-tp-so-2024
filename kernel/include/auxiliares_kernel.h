@@ -7,6 +7,8 @@
 #include <utils/estructuras.h>
 #include <commons/collections/list.h>
 #include <semaphore.h>
+#include <commons/string.h>
+
 
 
 extern t_log* logger;

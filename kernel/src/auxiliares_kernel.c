@@ -66,7 +66,8 @@ void planificador_largo_plazo (){
 
         for (int i = 0; i < tamanio_cola i++)
         {
-            /* code */
+            char* mensaje = string_new ()
+            enviar_mensaje()
         }
         
         
