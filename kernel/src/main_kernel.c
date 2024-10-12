@@ -11,6 +11,7 @@ t_list* QUEUE_EXEC;
 t_list* QUEUE_BLOCKED;
 t_list* QUEUE_EXIT;
 int contador_pid;
+sem_t sem_largo_plazo;
 
 
 int main(int argc, char** argv) {
@@ -23,6 +24,7 @@ int main(int argc, char** argv) {
     QUEUE_BLOCKED = list_create();
     QUEUE_EXIT = list_create();
     contador_pid = 0;
+    sem_init(&sem_largo_plazo,0,0);
     
     char* archivo = argv [1];
     int tamanio_proceso = atoi(argv[2]);
@@ -46,6 +48,13 @@ int main(int argc, char** argv) {
     socket_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde kernel!",socket_memoria);
 
+    // se inicia hilo planificador de largo plazo
+    pthread_t hilo_planificador_largo;
+    pthread_create(&hilo_planificador_largo,
+                           NULL,
+                           (void *)planificador_largo_plazo,
+                           (void *)arg);
+    pthread_join(hilo_planificador_largo, NULL);
 
     return 0;
 }
