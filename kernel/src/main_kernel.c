@@ -46,5 +46,6 @@ int main(int argc, char** argv) {
     socket_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde kernel!",socket_memoria);
 
+
     return 0;
 }

@@ -3,6 +3,7 @@
 
 #include <utils/estructuras.h>
 #include <commons/string.h>
+#include <utils/client-server.h>
 
 //variables globales
 extern t_log* logger;
@@ -11,8 +12,17 @@ extern int socket_filesystem;
 extern char* esquema;
 extern t_list* procesos;
 extern t_list* hilos;
+extern int retardo_respuesta_cpu;
 
 void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int pid);
 void crear_hilo(char* archivo_instrucciones, int prioridad, int pid, int tid);
 void leer_instrucciones (char* path, t_list* lista_instrucciones);
+void atender_cliente_memoria(int socket_cliente);
+void hilo_cliente_memoria(int socket_servidor);
+pthread_t iniciar_hilo_server_memoria(char *puerto);
+void entender_mensaje_memoria(int socket_cliente);
+void proxima_instruccion(int pid, int tid, int pc, int socket_cliente);
+void obtener_contexto(int pid, int tid, int socket_cliente);
+t_contexto_hilo *find_by_pid_tid(t_list *hilos, int pid, int tid);
+void entender_paquete_memoria(t_list* lista, int socket_cliente);
 #endif

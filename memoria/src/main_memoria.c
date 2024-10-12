@@ -6,6 +6,7 @@ int socket_filesystem;
 char* esquema;
 t_list* procesos;
 t_list* hilos;
+int retardo_respuesta_cpu;
 
 
 int main(int argc, char* argv[]) {
@@ -14,6 +15,7 @@ int main(int argc, char* argv[]) {
     logger = iniciar_logger("./memoria.log", "memoria");
     config = iniciar_config(logger, "./memoria.config");
     esquema = config_get_string_value(config, "ESQUEMA");
+    retardo_respuesta_cpu = config_get_int_value(config, "RETARDO_RESPUESTA");
     procesos = list_create();
     hilos = list_create();
 
@@ -25,7 +27,7 @@ int main(int argc, char* argv[]) {
 
     //Iniciar hilo servidor
     char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
-	pthread_t hilo_servidor = iniciar_hilo_server(puerto);
+	pthread_t hilo_servidor = iniciar_hilo_server_memoria(puerto);
 
     pthread_join(hilo_servidor, NULL);
     
