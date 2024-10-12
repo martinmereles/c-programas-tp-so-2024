@@ -13,6 +13,8 @@ void crear_proceso (char* archivo, int tamanio, int prioridad){
     pcb->estado = NEW;
     pcb->pid = contador_pid;
     contador_pid ++;
+    pcb->prioridad_hilo_main = prioridad;
+    pcb->archivo = archivo;
     
     list_add (QUEUE_NEW, pcb)
 
@@ -66,8 +68,31 @@ void planificador_largo_plazo (){
 
         for (int i = 0; i < tamanio_cola i++)
         {
-            char* mensaje = string_new ()
-            enviar_mensaje()
+            t_pcb* pcb = list_get(QUEUE_NEW, i);
+
+            char* mensaje = string_new ();
+            string_append(&mensaje,"PROCESS_CREATE ");
+            string_append(&mensaje, pcb->archivo);
+            string_append(&mensaje," ");
+            string_append(&mensaje, string_itoa(pcb->tamanio));
+            string_append(&mensaje," ");
+            string_append(&mensaje, string_itoa(pcb->prioridad));
+            string_append(&mensaje," ");
+            string_append(&mensaje, string_itoa(pcb->pid));
+
+            enviar_mensaje(mensaje, socket_memoria);
+            //TODO recibir respuesta de memoria
+            bool hay_espacio = true; // validar segun respuesta de memoria
+            if (hay_espacio)
+            {
+             
+               t_tcb* nuevo_hilo = crear_hilo(pcb->prioridad, pcb->pid, 0);
+               list_add(QUEUE_READY, nuevo_hilo);
+               list_remove(QUEUE_NEW, 0);
+            }
+            else {
+                break;
+            }
         }
         
         

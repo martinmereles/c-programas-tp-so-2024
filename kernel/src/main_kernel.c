@@ -35,7 +35,9 @@ int main(int argc, char** argv) {
     char* puerto_cpu_dispatch = config_get_string_value(config, "PUERTO_CPU_DISPATCH");
     socket_cpu_dispatch = crear_conexion(ip_cpu,puerto_cpu_dispatch);
     enviar_mensaje("Me conecto desde kernel (dispatch)!",socket_cpu_dispatch);
-    
+    //TODO guardar el mensaje en caso de que se solicite creacion de un proceso
+    char*
+
 
     //Inicia conexion con cpu interrupt
     char* puerto_cpu_interrupt = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");

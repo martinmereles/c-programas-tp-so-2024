@@ -31,6 +31,9 @@ typedef struct {
     t_list* tids;
     t_list* mutex;
     T_ESTADO estado;
+    int prioridad_hilo_main;
+    int tamanio;
+    char* archivo;
 } t_pcb;
 
 typedef struct {
