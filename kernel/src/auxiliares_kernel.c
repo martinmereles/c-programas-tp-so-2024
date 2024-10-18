@@ -70,7 +70,7 @@ void planificador_largo_plazo (){
         for (int i = 0; i < tamanio_cola; i++)
         {
             t_pcb* pcb = list_get(QUEUE_NEW, i);
-
+            //armo mensaje para memoria
             char* mensaje = string_new ();
             string_append(&mensaje,"PROCESS_CREATE ");
             string_append(&mensaje, pcb->archivo);
@@ -80,7 +80,7 @@ void planificador_largo_plazo (){
             string_append(&mensaje, string_itoa(pcb->prioridad_hilo_main));
             string_append(&mensaje," ");
             string_append(&mensaje, string_itoa(pcb->pid));
-
+            //envio mensaje a memoria
             enviar_mensaje(mensaje, socket_memoria);
             //TODO recibir respuesta de memoria
             bool hay_espacio = true; // validar segun respuesta de memoria
@@ -99,4 +99,34 @@ void planificador_largo_plazo (){
         
     }
     
+}
+
+void finalizar_hilo (int pid, int tid, t_list* cola) {
+//funcion booleana para buscar tcb en colas
+bool _es_tcb_buscado(void *elemento)
+    {
+        return es_tcb_buscado(pid, tid, elemento);
+    }
+    t_tcb* tcb_encontrado;
+    tcb_encontrado = list_remove_by_condition(cola, _es_tcb_buscado);
+    list_add (QUEUE_EXIT, tcb_encontrado);
+    //enviamos mensaje a memoria para finalizar hilo
+     char* mensaje = string_new ();
+        string_append(&mensaje,"FINALIZAR_HILO ");
+        string_append(&mensaje, string_itoa(tcb_encontrado->ppid));
+        string_append(&mensaje," ");
+        string_append(&mensaje, string_itoa(tcb_encontrado->tid));
+
+        enviar_mensaje(mensaje, socket_memoria);
+        //recibir mensaje de confirmacion
+        log_info(logger, "< %i : %i> finaliza el hilo", tcb_encontrado->ppid, tcb_encontrado->tid);
+
+}
+
+bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento)
+{
+    t_tcb* aux = malloc(sizeof(t_pcb));
+    aux = elemento;
+    bool aux2 = (aux->tid == tid_buscado && aux->ppid == pid_buscado);
+    return (aux2);
 }

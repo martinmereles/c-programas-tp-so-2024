@@ -30,6 +30,9 @@ void finalizar_proceso (t_pcb* pcb;);
 bool es_pcb_buscado(int pid_buscado, void *elemento);
 void planificador_largo_plazo ();
 t_tcb* crear_hilo (int prioridad, int ppid, int tid);
+void finalizar_hilo (int pid, int tid, t_list* cola);
+bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento);
+
 
 
 #endif
