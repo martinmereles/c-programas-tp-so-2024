@@ -201,7 +201,12 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
     enviar_mensaje("NO EXISTE PID-TID", socket_cliente);
     return;
   }
+
+  char *mensaje = string_new();
+  string_append(&mensaje, "OBTENER_CONTEXTO");
+
   t_paquete *paquete = crear_paquete();
+  agregar_a_paquete(paquete, mensaje, sizeof(mensaje));
   agregar_a_paquete(paquete, pid, sizeof(int));
   agregar_a_paquete(paquete, tid, sizeof(int));
   agregar_a_paquete(paquete, contexto->contexto_hilo->PC, sizeof(uint32_t));
@@ -213,6 +218,7 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
   agregar_a_paquete(paquete, contexto->contexto_hilo->FX, sizeof(uint32_t));
   agregar_a_paquete(paquete, contexto->contexto_hilo->GX, sizeof(uint32_t));
   agregar_a_paquete(paquete, contexto->contexto_hilo->HX, sizeof(uint32_t));
+  //TO DO agregar BASE y LIMITE al paquete
 
   usleep(retardo_respuesta_cpu * 1000);
   enviar_paquete(paquete, socket_cliente);

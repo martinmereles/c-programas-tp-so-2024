@@ -4,5 +4,6 @@
 #include <utils/client-server.h>
 #include <utils/config.h>
 #include <utils/logger.h>
+#include <semaphore.h>
 
 #endif

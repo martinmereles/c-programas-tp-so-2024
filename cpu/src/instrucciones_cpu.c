@@ -6,47 +6,47 @@ void set(char *registro, char *valor)
 
     int valorASetear = atoi(valor);
 
-    if (registro == "PC")
+    if (strcmp(registro, "PC") == 0)
     {
         PC = valorASetear;
     }
-    if (registro == "AX")
+    if (strcmp(registro, "AX") == 0)
     {
         AX = valorASetear;
     }
-    if (registro == "BX")
+    if (strcmp(registro, "BX") == 0)
     {
         BX = valorASetear;
     }
-    if (registro == "CX")
+    if (strcmp(registro, "CX") == 0)
     {
         CX = valorASetear;
     }
-    if (registro == "DX")
+    if (strcmp(registro, "DX") == 0)
     {
         DX = valorASetear;
     }
-    if (registro == "EX")
+    if (strcmp(registro, "EX") == 0)
     {
         EX = valorASetear;
     }
-    if (registro == "FX")
+    if (strcmp(registro, "FX") == 0)
     {
         FX = valorASetear;
     }
-    if (registro == "GX")
+    if (strcmp(registro, "GX") == 0)
     {
         GX = valorASetear;
     }
-    if (registro == "HX")
+    if (strcmp(registro, "HX") == 0)
     {
         HX = valorASetear;
     }
-    if (registro == "BASE")
+    if (strcmp(registro, "BASE") == 0)
     {
         BASE = valorASetear;
     }
-    if (registro == "LIMITE")
+    if (strcmp(registro, "LIMITE") == 0)
     {
         LIMITE = valorASetear;
     }
@@ -70,284 +70,284 @@ void write_mem(char *registro_direccion, char *registro_datos)
 
 void sum(char *registro_destino, char *registro_origen)
 {
-    if (registro_destino == "PC")
+    if (strcmp(registro_destino, "PC") == 0)
     {   
-        if (registro_origen == "PC")
+        if (strcmp(registro_origen, "PC") == 0)
         {
             PC += PC;
         }
-        if (registro_origen == "AX")
+        if (strcmp(registro_origen, "AX") == 0)
         {
             PC += AX;
         }
-        if (registro_origen == "BX")
+        if (strcmp(registro_origen, "BX") == 0)
         {
             PC += BX;
         }
-        if (registro_origen == "CX")
+        if (strcmp(registro_origen, "CX") == 0)
         {
             PC += CX;
         }
-        if (registro_origen == "DX")
+        if (strcmp(registro_origen, "DX") == 0)
         {
             PC += DX;
         }
-        if (registro_origen == "EX")
+        if (strcmp(registro_origen, "EX") == 0)
         {
             PC += EX;
         }
-        if (registro_origen == "FX")
+        if (strcmp(registro_origen, "FX") == 0)
         {
             PC += FX;
         }
-        if (registro_origen == "GX")
+        if (strcmp(registro_origen, "GX") == 0)
         {
             PC += GX;
         }
-        if (registro_origen == "HX")
+        if (strcmp(registro_origen, "HX") == 0)
         {
             PC += HX;
         }
-        if (registro_origen == "BASE")
+        if (strcmp(registro_origen, "BASE") == 0)
         {
             PC += BASE;
         }
-        if (registro_origen == "LIMITE")
+        if (strcmp(registro_origen, "LIMITE") == 0)
         {
             PC += LIMITE;
         }
     }
-    if (registro_destino == "AX")
+    if (strcmp(registro_destino, "AX") == 0)
     {   
-        if (registro_origen == "PC")
+        if (strcmp(registro_origen, "PC") == 0)
         {
             AX += PC;
         }
-        if (registro_origen == "AX")
+        if (strcmp(registro_origen, "AX") == 0)
         {
             AX += AX;
         }
-        if (registro_origen == "BX")
+        if (strcmp(registro_origen, "BX") == 0)
         {
             AX += BX;
         }
-        if (registro_origen == "CX")
+        if (strcmp(registro_origen, "CX") == 0)
         {
             AX += CX;
         }
-        if (registro_origen == "DX")
+        if (strcmp(registro_origen, "DX") == 0)
         {
             AX += DX;
         }
-        if (registro_origen == "EX")
+        if (strcmp(registro_origen, "EX") == 0)
         {
             AX += EX;
         }
-        if (registro_origen == "FX")
+        if (strcmp(registro_origen, "FX") == 0)
         {
             AX += FX;
         }
-        if (registro_origen == "GX")
+        if (strcmp(registro_origen, "GX") == 0)
         {
             AX += GX;
         }
-        if (registro_origen == "HX")
+        if (strcmp(registro_origen, "HX") == 0)
         {
             AX += HX;
         }
-        if (registro_origen == "BASE")
+        if (strcmp(registro_origen, "BASE") == 0)
         {
             AX += BASE;
         }
-        if (registro_origen == "LIMITE")
+        if (strcmp(registro_origen, "LIMITE") == 0)
         {
             AX += LIMITE;
         }
     }
-    if (registro_destino == "BX")
+    if (strcmp(registro_destino, "BX") == 0)
     {
-        if (registro_origen == "PC")
+        if (strcmp(registro_origen, "PC") == 0)
         {
             BX += PC;
         }
-        if (registro_origen == "AX")
+        if (strcmp(registro_origen, "AX") == 0)
         {
             BX += AX;
         }
-        if (registro_origen == "BX")
+        if (strcmp(registro_origen, "BX") == 0)
         {
             BX += BX;
         }
-        if (registro_origen == "CX")
+        if (strcmp(registro_origen, "CX") == 0)
         {
             BX += CX;
         }
-        if (registro_origen == "DX")
+        if (strcmp(registro_origen, "DX") == 0)
         {
             BX += DX;
         }
-        if (registro_origen == "EX")
+        if (strcmp(registro_origen, "EX") == 0)
         {
             BX += EX;
         }
-        if (registro_origen == "FX")
+        if (strcmp(registro_origen, "FX") == 0)
         {
             BX += FX;
         }
-        if (registro_origen == "GX")
+        if (strcmp(registro_origen, "GX") == 0)
         {
             BX += GX;
         }
-        if (registro_origen == "HX")
+        if (strcmp(registro_origen, "HX") == 0)
         {
             BX += HX;
         }
-        if (registro_origen == "BASE")
+        if (strcmp(registro_origen, "BASE") == 0)
         {
             BX += BASE;
         }
-        if (registro_origen == "LIMITE")
+        if (strcmp(registro_origen, "LIMITE") == 0)
         {
             BX += LIMITE;
         }
     }
-    if (registro_destino == "CX")
+    if (strcmp(registro_destino, "CX") == 0)
     {
-        if (registro_origen == "PC")
+        if (strcmp(registro_origen, "PC") == 0)
         {
             CX += PC;
         }
-        if (registro_origen == "AX")
+        if (strcmp(registro_origen, "AX") == 0)
         {
             CX += AX;
         }
-        if (registro_origen == "BX")
+        if (strcmp(registro_origen, "BX") == 0)
         {
             CX += BX;
         }
-        if (registro_origen == "CX")
+        if (strcmp(registro_origen, "CX") == 0)
         {
             CX += CX;
         }
-        if (registro_origen == "DX")
+        if (strcmp(registro_origen, "DX") == 0)
         {
             CX += DX;
         }
-        if (registro_origen == "EX")
+        if (strcmp(registro_origen, "EX") == 0)
         {
             CX += EX;
         }
-        if (registro_origen == "FX")
+        if (strcmp(registro_origen, "FX") == 0)
         {
             CX += FX;
         }
-        if (registro_origen == "GX")
+        if (strcmp(registro_origen, "GX") == 0)
         {
             CX += GX;
         }
-        if (registro_origen == "HX")
+        if (strcmp(registro_origen, "HX") == 0)
         {
             CX += HX;
         }
-        if (registro_origen == "BASE")
+        if (strcmp(registro_origen, "BASE") == 0)
         {
             CX += BASE;
         }
-        if (registro_origen == "LIMITE")
+        if (strcmp(registro_origen, "LIMITE") == 0)
         {
             CX += LIMITE;
         }
     }
-    if (registro_destino == "DX")
+    if (strcmp(registro_destino, "DX") == 0)
     {
-        if (registro_origen == "PC")
+        if (strcmp(registro_origen, "PC") == 0)
         {
             DX += PC;
         }
-        if (registro_origen == "AX")
+        if (strcmp(registro_origen, "AX") == 0)
         {
             DX += AX;
         }
-        if (registro_origen == "BX")
+        if (strcmp(registro_origen, "BX") == 0)
         {
             DX += BX;
         }
-        if (registro_origen == "CX")
+        if (strcmp(registro_origen, "CX") == 0)
         {
             DX += CX;
         }
-        if (registro_origen == "DX")
+        if (strcmp(registro_origen, "DX") == 0)
         {
             DX += DX;
         }
-        if (registro_origen == "EX")
+        if (strcmp(registro_origen, "EX") == 0)
         {
             DX += EX;
         }
-        if (registro_origen == "FX")
+        if (strcmp(registro_origen, "FX") == 0)
         {
             DX += FX;
         }
-        if (registro_origen == "GX")
+        if (strcmp(registro_origen, "GX") == 0)
         {
             DX += GX;
         }
-        if (registro_origen == "HX")
+        if (strcmp(registro_origen, "HX") == 0)
         {
             DX += HX;
         }
-        if (registro_origen == "BASE")
+        if (strcmp(registro_origen, "BASE") == 0)
         {
             DX += BASE;
         }
-        if (registro_origen == "LIMITE")
+        if (strcmp(registro_origen, "LIMITE") == 0)
         {
             DX += LIMITE;
         }
     }
-    if (registro_destino == "EX")
+    if (strcmp(registro_destino, "EX") == 0)
     {
-        if (registro_origen == "PC")
+        if (strcmp(registro_origen, "PC") == 0)
         {
             EX += PC;
         }
-        if (registro_origen == "AX")
+        if (strcmp(registro_origen, "AX") == 0)
         {
             EX += AX;
         }
-        if (registro_origen == "BX")
+        if (strcmp(registro_origen, "BX") == 0)
         {
             EX += BX;
         }
-        if (registro_origen == "CX")
+        if (strcmp(registro_origen, "CX") == 0)
         {
             EX += CX;
         }
-        if (registro_origen == "DX")
+        if (strcmp(registro_origen, "DX") == 0)
         {
             EX += DX;
         }
-        if (registro_origen == "EX")
+        if (strcmp(registro_origen, "EX") == 0)
         {
             EX += EX;
         }
-        if (registro_origen == "FX")
+        if (strcmp(registro_origen, "FX") == 0)
         {
             EX += FX;
         }
-        if (registro_origen == "GX")
+        if (strcmp(registro_origen, "GX") == 0)
         {
             EX += GX;
         }
-        if (registro_origen == "HX")
+        if (strcmp(registro_origen, "HX") == 0)
         {
             EX += HX;
         }
-        if (registro_origen == "BASE")
+        if (strcmp(registro_origen, "BASE") == 0)
         {
             EX += BASE;
         }
-        if (registro_origen == "LIMITE")
+        if (strcmp(registro_origen, "LIMITE") == 0)
         {
             EX += LIMITE;
         }
@@ -1229,73 +1229,91 @@ void ejecutarSentencia(int socket_cliente_memoria)
     if (strcmp(sentenciasSplit[0], "SET") == 0)
     {
         set(sentenciasSplit[1], sentenciasSplit[2]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "READ_MEM") == 0)
     {
         read_mem(sentenciasSplit[1], sentenciasSplit[2]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "WRITE_MEM") == 0)
     {
         write_mem(sentenciasSplit[1], sentenciasSplit[2]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "SUM") == 0)
     {
         sum(sentenciasSplit[1], sentenciasSplit[2]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "SUB") == 0)
     {
         sub(sentenciasSplit[1], sentenciasSplit[2]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "JNZ") == 0)
     {
         jnz(sentenciasSplit[1], sentenciasSplit[2]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "LOG") == 0)
     {
         log(sentenciasSplit[1]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "PROCESS_CREATE") == 0)
     {
         process_create(sentenciasSplit[1], sentenciasSplit[2], sentenciasSplit[3]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "PROCESS_EXIT") == 0)
     {
         process_exit();
+        return;
     }
     if (strcmp(sentenciasSplit[0], "THREAD_CREATE") == 0)
     {
         thread_create(sentenciasSplit[1], sentenciasSplit[2]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "THREAD_JOIN") == 0)
     {
         thread_join(sentenciasSplit[1]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "THREAD_CANCEL") == 0)
     {
         thread_cancel(sentenciasSplit[1]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "THREAD_EXIT") == 0)
     {
         thread_exit();
+        return;
     }
     if (strcmp(sentenciasSplit[0], "MUTEX_CREATE") == 0)
     {
         mutex_create(sentenciasSplit[1]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "MUTEX_LOCK") == 0)
     {
         mutex_lock(sentenciasSplit[1]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "MUTEX_UNLOCK") == 0)
     {
         mutex_unlock(sentenciasSplit[1]);
+        return;
     }
     if (strcmp(sentenciasSplit[0], "DUMP_MEMORY") == 0)
     {
         dump_memory();
+        return;
     }
     if (strcmp(sentenciasSplit[0], "IO") == 0)
     {
         io(sentenciasSplit[1]);
+        return;
     }
 }

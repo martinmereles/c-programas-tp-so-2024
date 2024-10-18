@@ -18,7 +18,13 @@ uint32_t HX;
 uint32_t BASE;
 uint32_t LIMITE;
 
+sem_t sem_execute;
+bool se_ejecuto_syscall;
+
 int main(int argc, char* argv[]) {
+
+    sem_init(&sem_execute,0,0);
+    se_ejecuto_syscall = false;
     
     logger = iniciar_logger("./cpu.log", "cpu");
     config = iniciar_config(logger, "./cpu.config");
@@ -32,12 +38,19 @@ int main(int argc, char* argv[]) {
     //Iniciar hilo servidor dispatch
     char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");
 	//pthread_t hilo_servidor_dispatch = iniciar_hilo_server(puerto_dispatch);
-    pthread_t hilo_servidor_dispatch = iniciar_hilo_server_cpu(puerto_dispatch);
+    pthread_t hilo_servidor_dispatch = iniciar_hilo_server_dispatch(puerto_dispatch);
     pthread_detach(hilo_servidor_dispatch);
     
     //Iniciar hilo servidor interrupt
     char* puerto_interrupt = config_get_string_value(config, "PUERTO_ESCUCHA_INTERRUPT");
 	pthread_t hilo_servidor_interrupt = iniciar_hilo_server(puerto_interrupt);
+
+
+    //Seteo inicial contexto
+
+    //TODO
+    
+    sem_wait(&sem_execute);
 
     //Inicio de ciclo de instruccion
     while(1){
@@ -45,6 +58,10 @@ int main(int argc, char* argv[]) {
 		decode(socket_memoria);
 		execute(socket_memoria);
 		check_interrupt(socket_memoria);
+
+        if(se_ejecuto_syscall){
+            sem_wait(&sem_execute);
+        }
 	}
     
     pthread_join(hilo_servidor_interrupt, NULL);

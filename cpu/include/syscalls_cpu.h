@@ -19,6 +19,8 @@ extern uint32_t HX;
 extern uint32_t BASE;
 extern uint32_t LIMITE;
 
+extern bool se_ejecuto_syscall;
+
 
 void process_create(char * arch_instrucciones, char *tamanio, char *prioridad_tid);
 void process_exit();
