@@ -22,20 +22,29 @@ void crear_proceso (char* archivo, int tamanio, int prioridad){
 
 }
 
-void finalizar_proceso (t_pcb* pcb) {
-    /*/Cambio de estado el pcb del proceso
-    pcb->estado = EXIT;
-    //es necesario validar que los hilos esten finalizados? consultar
+void finalizar_proceso (int pid) {
 
        bool _es_pcb_buscado(void *elemento)
     {
-        return es_pcb_buscado(atoi(pid), elemento);
+        return es_pcb_buscado(pid, elemento);
     }
-    t_pcb* pcb_encontrado;
-    pcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pcb_buscado);
-    list_add (QUEUE_EXIT, pcb_encontrado);
-    
-*/
+    t_pcb* pcb_encontrado = list_find(PCB_EN_CICLO, _es_pcb_buscado);
+    pcb_encontrado->estado = EXIT;
+    int tid_a_remover;
+
+    for (int i = 0;  i < list_size(pcb_encontrado->tids); i++)
+    {
+       tid_a_remover = list_get(pcb_encontrado->tids, i); // d finalizar_hilo (int pid, int tid, t_list* cola)
+        finalizar_hilo (pcb_encontrado->pid, tid_a_remover, QUEUE_READY);
+        finalizar_hilo (pcb_encontrado->pid, tid_a_remover, QUEUE_BLOCKED);
+        finalizar_hilo (pcb_encontrado->pid, tid_a_remover, QUEUE_EXEC);
+    }
+     char* mensaje = string_new ();
+        string_append(&mensaje,"PROCESS_EXIT");
+        string_append(&mensaje, string_itoa(pcb_encontrado->pid));
+        enviar_mensaje(mensaje, socket_memoria);
+    //recibir mensaje de confirmacion de memoria
+
 
 }
 // funcion que busca pcb segun pid
@@ -89,7 +98,7 @@ void planificador_largo_plazo (){
              
                t_tcb* nuevo_hilo = crear_hilo(pcb->prioridad_hilo_main, pcb->pid, 0);
                list_add(QUEUE_READY, nuevo_hilo);
-               list_remove(QUEUE_NEW, 0);
+               list_add(PCB_EN_CICLO, list_remove(QUEUE_NEW, 0));
             }
             else {
                 break;
@@ -107,9 +116,18 @@ bool _es_tcb_buscado(void *elemento)
     {
         return es_tcb_buscado(pid, tid, elemento);
     }
-    t_tcb* tcb_encontrado;
+    t_tcb* tcb_encontrado = NULL;
     tcb_encontrado = list_remove_by_condition(cola, _es_tcb_buscado);
+   //chequeamos que exista el hilo en la cola
+   if (tcb_encontrado == NULL){
+     log_info(logger, "Hilo no encontrado");
+     return;   
+    }
+    else {
+    tcb_encontrado->estado = EXIT;
     list_add (QUEUE_EXIT, tcb_encontrado);
+    
+    
     //enviamos mensaje a memoria para finalizar hilo
      char* mensaje = string_new ();
         string_append(&mensaje,"FINALIZAR_HILO ");
@@ -120,7 +138,7 @@ bool _es_tcb_buscado(void *elemento)
         enviar_mensaje(mensaje, socket_memoria);
         //recibir mensaje de confirmacion
         log_info(logger, "< %i : %i> finaliza el hilo", tcb_encontrado->ppid, tcb_encontrado->tid);
-
+    }
 }
 
 bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento)

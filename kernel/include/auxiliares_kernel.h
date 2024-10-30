@@ -21,6 +21,7 @@ extern t_list* QUEUE_READY;
 extern t_list* QUEUE_EXEC;
 extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_EXIT;
+extern t_list* PCB_EN_CICLO;
 extern int contador_pid;
 
 extern sem_t sem_largo_plazo;
