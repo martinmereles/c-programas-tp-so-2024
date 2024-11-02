@@ -5,6 +5,6 @@
 #include <stdio.h>
 #include <commons/log.h>
 
-t_log *iniciar_logger(char *archivo, char *nombre);
+t_log *iniciar_logger(char *archivo, char *nombre, char* log_level_string);
 
 #endif

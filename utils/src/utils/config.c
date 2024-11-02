@@ -1,6 +1,6 @@
 #include <utils/config.h>
 
-t_config *iniciar_config(t_log *logger, char *archivo)
+t_config *iniciar_config(char *archivo)
 {
 	t_config *nuevo_config;
 
@@ -8,7 +8,6 @@ t_config *iniciar_config(t_log *logger, char *archivo)
 
 	if (nuevo_config == NULL)
 	{
-		log_info(logger, "No existe el archivo %s", archivo);
 		exit(EXIT_FAILURE);
 	}
 

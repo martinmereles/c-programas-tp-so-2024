@@ -26,8 +26,11 @@ int main(int argc, char* argv[]) {
     sem_init(&sem_execute,0,0);
     se_ejecuto_syscall = false;
     
-    logger = iniciar_logger("./cpu.log", "cpu");
-    config = iniciar_config(logger, "./cpu.config");
+    
+    
+    config = iniciar_config("./cpu.config");
+    char* log_level_string = config_get_string_value(config,"LOG_LEVEL");
+    logger = iniciar_logger("./cpu.log", "cpu",log_level_string);
 
     //Inicia conexion con memoria
     char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");

@@ -17,8 +17,10 @@ sem_t sem_largo_plazo;
 
 int main(int argc, char** argv) {
     
-    logger = iniciar_logger("./kernel.log", "kernel");
-    config = iniciar_config(logger, "./kernel.config");
+    
+    config = iniciar_config("./kernel.config");
+    char* log_level_string = config_get_string_value(config,"LOG_LEVEL");
+    logger = iniciar_logger("./kernel.log", "kernel", log_level_string);
     QUEUE_NEW = list_create();
     QUEUE_READY = list_create();
     QUEUE_EXEC = list_create();
