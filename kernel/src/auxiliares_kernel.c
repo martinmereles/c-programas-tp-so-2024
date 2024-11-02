@@ -148,3 +148,45 @@ bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento)
     bool aux2 = (aux->tid == tid_buscado && aux->ppid == pid_buscado);
     return (aux2);
 }
+
+
+//Planificador de corto plazo
+
+void planificador_corto_plazo(){
+
+    int socket_cpu_dispatch = atoi(config_get_string_value(config, "PUERTO_CPU_DISPATCH")); 
+    int socket_cpu_interrupt = atoi(config_get_string_value(config, "PUERTO_CPU_INTERRUPT"));
+
+    char* algoritmo = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
+
+    
+    if(!strcmp(algoritmo,"FIFO")){
+        ejecutar_fifo(socket_cpu_dispatch);
+    }else if(!strcmp(algoritmo,"PRIORIDADES")){
+        ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
+    }else if(!strcmp(algoritmo,"CMN")){
+        ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
+    }
+    config_destroy(config);
+
+}
+
+void ejecutar_fifo(socket_cpu_dispatch){
+        while(1){        
+
+        t_tcb* tcb_a_enviar = malloc(sizeof(t_tcb));
+        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
+        tcb_a_enviar = list_remove(QUEUE_READY, 0);
+        list_add(QUEUE_EXEC, tcb_a_enviar);
+        sem_post(&planificador_corto_plazo);
+        log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
+        
+    }
+}
+
+void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt){
+
+}
+void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
+
+}

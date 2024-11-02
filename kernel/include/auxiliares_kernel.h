@@ -25,6 +25,7 @@ extern t_list* PCB_EN_CICLO;
 extern int contador_pid;
 
 extern sem_t sem_largo_plazo;
+extern sem_t sem_corto_plazo;
 
 void crear_proceso (char* archivo, int tamanio, int prioridad);
 void finalizar_proceso (t_pcb* pcb;);
@@ -33,6 +34,10 @@ void planificador_largo_plazo ();
 t_tcb* crear_hilo (int prioridad, int ppid, int tid);
 void finalizar_hilo (int pid, int tid, t_list* cola);
 bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento);
+
+void ejecutar_fifo(socket_cpu_dispatch);
+void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
+void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
 
 
 
