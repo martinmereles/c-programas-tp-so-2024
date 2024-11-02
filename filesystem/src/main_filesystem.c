@@ -27,9 +27,15 @@ int main(int argc, char* argv[]) {
     iniciar_fs();
 
 
+    fs_create("hola.dmp", 68, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEF", 8);
+
+
     //Iniciar hilo servidor
     char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
 	pthread_t hilo_servidor = iniciar_hilo_server(puerto);
+
+
+
 
     pthread_join(hilo_servidor, NULL);
 

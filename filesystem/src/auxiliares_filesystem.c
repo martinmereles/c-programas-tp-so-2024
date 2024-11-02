@@ -81,6 +81,7 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
         proximo_bloque = primer_bloque_libre();
         list_add(bloques_reservados, proximo_bloque);
         set_bloque_usado(proximo_bloque);
+        log_info(logger,"## Bloque asignado: %d - Archivo: %s - Bloques Libres: %d",proximo_bloque,nombre_archivo, calcular_bloques_libres());
     }
 
     // Creamos el metadata
@@ -125,6 +126,7 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
         }
     }
     usleep(retardo * 1000);
+    log_info(logger,"## Acceso Bloque - Archivo: %s - Tipo Bloque: ÍNDICE - Bloque File System %d",nombre_archivo,bloque_index);
 
     // Grabamos bloques de datos
     int bloque_dato;
@@ -147,6 +149,7 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
         fseek(file_bloques, block_size * bloque_dato, SEEK_SET);
         fwrite(a_escribir, string_length(a_escribir), 1, file_bloques);
         usleep(retardo * 1000);
+        log_info(logger,"## Acceso Bloque - Archivo: %s - Tipo Bloque: DATOS - Bloque File System %d",nombre_archivo,bloque_dato);
     }
     fclose(file_bloques);
     list_destroy(bloques_reservados);
