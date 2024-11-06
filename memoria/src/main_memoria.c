@@ -27,6 +27,16 @@ int main(int argc, char* argv[]) {
     socket_filesystem = crear_conexion(ip_filesystem,puerto_filesystem);
     enviar_mensaje("Me conecto desde memoria!",socket_filesystem);
 
+    //INICIO PRUEBA FS
+    t_paquete* a = crear_paquete();
+    agregar_a_paquete(a,"DUMP_MEMORY",12);
+    agregar_a_paquete(a, "nombre-de-archivo",18);
+    int numero = 69;
+    agregar_a_paquete(a, string_itoa(numero), 3);
+    agregar_a_paquete(a,"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEF", 69);
+    enviar_paquete(a, socket_filesystem);
+    //FIN PRUEBA FS
+    
     //Iniciar hilo servidor
     char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
 	pthread_t hilo_servidor = iniciar_hilo_server_memoria(puerto);

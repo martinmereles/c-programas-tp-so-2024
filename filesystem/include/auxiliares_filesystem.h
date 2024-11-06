@@ -25,5 +25,8 @@ int calcular_bloques_libres();
 void set_bloque_usado(int posicion);
 void set_bloque_libre(int posicion);
 int primer_bloque_libre();
+void atender_cliente_fs(int socket_cliente);
+void hilo_cliente_fs(int socket_servidor);
+pthread_t iniciar_hilo_server_fs(char *puerto);
 
 #endif

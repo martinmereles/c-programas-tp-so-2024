@@ -156,7 +156,8 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
     list_destroy(bloques_datos);
     sem_post(&fs_en_uso);
     log_info(logger, "## Archivo Creado: %s - Tamaño: %d", nombre_archivo, tamanio);
-    log_info(logger, "## Fin de solicitud - Archivo: %s",nombre_archivo);
+    enviar_mensaje("OK", socket_memoria);
+    log_info(logger, "## Fin de solicitud - Archivo: %s", nombre_archivo);
 }
 
 int calcular_cantidad_bloques(int tamanio)
@@ -214,4 +215,61 @@ int primer_bloque_libre()
         posicion = -1;
     }
     return posicion;
+}
+
+pthread_t iniciar_hilo_server_fs(char *puerto)
+{
+    int socket_servidor = iniciar_servidor(puerto);
+
+    pthread_t hiloAtencion;
+    pthread_create(&hiloAtencion,
+                   NULL,
+                   (void *)hilo_cliente_fs,
+                   socket_servidor);
+
+    return hiloAtencion;
+}
+
+void hilo_cliente_fs(int socket_servidor)
+{
+    while (1)
+    {
+
+        int socket_cliente = esperar_cliente(socket_servidor);
+        pthread_t hiloCliente;
+        pthread_create(&hiloCliente,
+                       NULL,
+                       (void *)atender_cliente_fs,
+                       socket_cliente);
+        pthread_detach(hiloCliente);
+    }
+}
+
+void atender_cliente_fs(int socket_cliente)
+{
+
+    t_list *lista;
+    while (1)
+    {
+        int cod_op = recibir_operacion(socket_cliente);
+
+        switch (cod_op)
+        {
+        case MENSAJE:
+            recibir_mensaje(socket_cliente);
+            break;
+        case PAQUETE:
+            lista = recibir_paquete(socket_cliente);
+            if(string_starts_with(list_get(lista,0),"DUMP_MEMORY")){
+                fs_create(list_get(lista,1),atoi(list_get(lista,2)),list_get(lista,3),socket_cliente);
+            }
+            break;
+        case -1:
+            log_error(logger, "El cliente se desconecto.");
+            return EXIT_FAILURE;
+        default:
+            log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
+            break;
+        }
+    }
 }
