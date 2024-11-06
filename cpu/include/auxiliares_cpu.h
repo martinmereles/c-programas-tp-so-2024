@@ -33,5 +33,6 @@ void recibir_mensaje_cpu(int socket_cliente);
 void proximo_proceso(char* pid_nuevo, char* tid_nuevo);
 void entender_paquete_memoria(t_list*  lista);
 void actualizar_contexto_cpu(t_list* lista);
+uint32_t get_valor_registro(char * registro);
 
 #endif

@@ -1,8 +1,10 @@
 #ifndef SYSCALLS_CPU_H
 #define SYSCALLS_CPU_H
 
+/*------------------------LIBRERIAS------------------------*/
 #include <../include/auxiliares_cpu.h>
 
+/*------------------------VARIABLES------------------------*/
 extern int socket_kernel_dispatch;
 extern int socket_memoria;
 extern int pid;
@@ -18,10 +20,9 @@ extern uint32_t GX;
 extern uint32_t HX;
 extern uint32_t BASE;
 extern uint32_t LIMITE;
-
 extern bool se_ejecuto_syscall;
 
-
+/*------------------------DECLARACIONES------------------------*/
 void process_create(char * arch_instrucciones, char *tamanio, char *prioridad_tid);
 void process_exit();
 void thread_create(char * arch_instrucciones, char* prioridad);

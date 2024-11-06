@@ -1,8 +1,8 @@
 #include <../include/ciclo_instruccion.h>
 
-void fetch(int socket_cliente_memoria){
+void fetch(){
 
-    //log_info(logger, "## TID: %s - FETCH - Program Counter: %s", tid, program_counter);
+    log_info(logger, "## TID: %d - FETCH - Program Counter: %d", tid, PC);
     char* mensaje = string_new();
     string_append(&mensaje,"PROXIMA_INSTRUCCION ");
     string_append(&mensaje, pid);
@@ -10,11 +10,15 @@ void fetch(int socket_cliente_memoria){
     string_append(&mensaje, tid);
     string_append(&mensaje, " ");
     string_append(&mensaje, PC);
-    enviar_mensaje(mensaje ,socket_cliente_memoria);
+    enviar_mensaje(mensaje ,socket_memoria);
+    
     //Recibir respuesta de memoria
+    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
+
 }
 
-void decode(int socket_cliente_memoria){
+void decode(){
+
     char* instruccion_exec;
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     if(strcmp(instruccion_exec_split[0],"READ_MEM") == 0){
@@ -26,11 +30,13 @@ void decode(int socket_cliente_memoria){
     //TO DO
 }
 
-void execute(int socket_cliente_memoria){
-    ejecutarSentencia(socket_cliente_memoria);
+void execute(){
+
+    ejecutarSentencia(socket_memoria);
     //TO DO
 }
 
-void check_interrupt(int socket_cliente_memoria){
+void check_interrupt(){
+    
     //TO DO
 }

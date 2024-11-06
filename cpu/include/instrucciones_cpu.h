@@ -4,8 +4,11 @@
 /*------------------------LIBRERIAS------------------------*/
 #include <../include/auxiliares_cpu.h>
 #include <../include/syscalls_cpu.h>
+#include <../include/mmu.h>
 
+/*------------------------VARIABLES------------------------*/
 extern int socket_memoria;
+extern int socket_kernel_dispatch;
 extern int pid;
 extern int tid;
 extern uint32_t PC;

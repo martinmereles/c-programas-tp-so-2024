@@ -8,14 +8,16 @@
 #include <stdio.h>
 #include <unistd.h>
 
+/*------------------------VARIABLES------------------------*/
+extern int socket_memoria;
 extern int pid;
 extern int tid;
 extern uint32_t PC;
 
 /*------------------------DECLARACIONES------------------------*/
-void fetch(int socket_cliente_memoria);
-void decode(int socket_cliente_memoria);
-void execute(int socket_cliente_memoria);
-void check_interrupt(int socket_cliente_memoria);
+void fetch();
+void decode();
+void execute();
+void check_interrupt();
 
 #endif
