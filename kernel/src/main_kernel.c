@@ -14,6 +14,7 @@ t_list* PCB_EN_CICLO;
 int contador_pid;
 sem_t sem_largo_plazo;
 sem_t sem_corto_plazo;
+sem_t sem_contador_ready;
 
 
 int main(int argc, char** argv) {
@@ -31,6 +32,7 @@ int main(int argc, char** argv) {
     contador_pid = 0;
     sem_init(&sem_largo_plazo,0,0);
     sem_init(&sem_corto_plazo,0,0);
+    sem_init(&sem_contador_ready,0,0);
     
     char* archivo = argv [1];
     int tamanio_proceso = atoi(argv[2]);

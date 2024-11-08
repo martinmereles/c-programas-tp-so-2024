@@ -26,6 +26,7 @@ extern int contador_pid;
 
 extern sem_t sem_largo_plazo;
 extern sem_t sem_corto_plazo;
+extern sem_t sem_contador_ready;
 
 void crear_proceso (char* archivo, int tamanio, int prioridad);
 void finalizar_proceso (t_pcb* pcb;);

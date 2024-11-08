@@ -98,6 +98,7 @@ void planificador_largo_plazo (){
              
                t_tcb* nuevo_hilo = crear_hilo(pcb->prioridad_hilo_main, pcb->pid, 0);
                list_add(QUEUE_READY, nuevo_hilo);
+               sem_post(&sem_contador_ready);
                list_add(PCB_EN_CICLO, list_remove(QUEUE_NEW, 0));
             }
             else {
@@ -176,16 +177,26 @@ void ejecutar_fifo(socket_cpu_dispatch){
 
         t_tcb* tcb_a_enviar = malloc(sizeof(t_tcb));
         sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
+        if (list_size(QUEUE_READY) <0)
+        {
+            log_info(logger, "LA COLA READY SE ENCUENTRA VACIA");
+            sem_wait(&sem_contador_ready);
+        }
+        else {
+        sem_wait(&sem_contador_ready);
         tcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
         sem_post(&planificador_corto_plazo);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch)
+        }
         
     }
 }
 
 void ejecutar_prioridades(socket_cpu_dispatch){
+
+
 
 
 
