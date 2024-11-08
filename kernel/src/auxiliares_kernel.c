@@ -163,7 +163,7 @@ void planificador_corto_plazo(){
     if(!strcmp(algoritmo,"FIFO")){
         ejecutar_fifo(socket_cpu_dispatch);
     }else if(!strcmp(algoritmo,"PRIORIDADES")){
-        ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
+        ejecutar_prioridades(socket_cpu_dispatch);
     }else if(!strcmp(algoritmo,"CMN")){
         ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
     }
@@ -180,13 +180,34 @@ void ejecutar_fifo(socket_cpu_dispatch){
         list_add(QUEUE_EXEC, tcb_a_enviar);
         sem_post(&planificador_corto_plazo);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
+        dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch)
         
     }
 }
 
-void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt){
+void ejecutar_prioridades(socket_cpu_dispatch){
+
+
 
 }
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
+
+}
+
+void dispatcher(int tid, int pid, int socket_cpu_dispatch){
+    
+    char* tid_a_enviar = string_itoa(tid);
+    char* pid_a_enviar = string_itoa(pid);
+
+    char* mensaje = string_new();
+
+    string_append(&mensaje,"EJECUTAR_HILO PID:");
+    string_append(&mensaje, pid_a_enviar);
+    string_append(&mensaje," TID:");
+    string_append(&mensaje, tid_a_enviar);
+
+    enviar_mensaje(mensaje, socket_cpu_dispatch);
+
+
 
 }

@@ -39,6 +39,8 @@ void ejecutar_fifo(socket_cpu_dispatch);
 void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
 
+void dispatcher(int tid, int pid, int socket_cpu_dispatch);
+
 
 
 #endif
