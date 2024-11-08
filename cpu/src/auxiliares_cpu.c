@@ -10,20 +10,20 @@ t_paquete *crear_paquete_contexto()
     string_append(&mensaje, "ACTUALIZAR_CONTEXTO");
 
     // Agregar a paquete todos los registros
-    agregar_a_paquete(new_paquete, mensaje, sizeof(mensaje));
-    agregar_a_paquete(new_paquete, pid, sizeof(int));
-    agregar_a_paquete(new_paquete, tid, sizeof(int));
-    agregar_a_paquete(new_paquete, PC, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, AX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, BX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, CX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, DX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, EX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, FX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, GX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, HX, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, BASE, sizeof(u_int32_t));
-    agregar_a_paquete(new_paquete, LIMITE, sizeof(u_int32_t));
+    agregar_a_paquete(new_paquete, mensaje, string_length(mensaje) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(pid), string_length(string_itoa(pid))+1);
+    agregar_a_paquete(new_paquete, string_itoa(tid), string_length(string_itoa(tid))+1);
+    agregar_a_paquete(new_paquete, string_itoa(PC), string_length(string_itoa(PC)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(AX), string_length(string_itoa(AX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(BX), string_length(string_itoa(BX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(CX), string_length(string_itoa(CX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(DX), string_length(string_itoa(DX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(EX), string_length(string_itoa(EX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(FX), string_length(string_itoa(FX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(GX), string_length(string_itoa(GX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(HX), string_length(string_itoa(HX)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(BASE), string_length(string_itoa(BASE)) + 1);
+    agregar_a_paquete(new_paquete, string_itoa(LIMITE), string_length(string_itoa(LIMITE)) + 1);
 
     // Enviar paquete a memoria
     enviar_paquete(new_paquete, socket_memoria);
@@ -64,6 +64,7 @@ char *recibir_desde_memoria(int socket_cliente)
     }
 }
 
+// Funciones hilo dispatch
 pthread_t iniciar_hilo_server_dispatch(char *puerto)
 {
 
@@ -72,13 +73,13 @@ pthread_t iniciar_hilo_server_dispatch(char *puerto)
     pthread_t hiloAtencion;
     pthread_create(&hiloAtencion,
                    NULL,
-                   (void *)hilo_cliente_cpu,
+                   (void *)hilo_cliente_dispatch,
                    socket_servidor);
 
     return hiloAtencion;
 }
 
-void hilo_cliente_cpu(int socket_servidor)
+void hilo_cliente_dispatch(int socket_servidor)
 {
 
     while (1)
@@ -90,34 +91,6 @@ void hilo_cliente_cpu(int socket_servidor)
                        (void *)atender_cliente_dispatch,
                        socket_cliente);
         pthread_detach(hiloCliente);
-    }
-}
-
-void atender_cliente_cpu(int socket_cliente)
-{
-
-    t_list *lista;
-    while (1)
-    {
-        int cod_op = recibir_operacion(socket_cliente);
-
-        switch (cod_op)
-        {
-        case MENSAJE:
-            recibir_mensaje(socket_cliente);
-            break;
-        case PAQUETE:
-            lista = recibir_paquete(socket_cliente);
-            log_info(logger, "Me llegaron los siguientes valores:\n");
-            list_iterate(lista, (void *)iterator);
-            break;
-        case -1:
-            log_error(logger, "El cliente se desconecto.");
-            return EXIT_FAILURE;
-        default:
-            log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
-            break;
-        }
     }
 }
 
@@ -136,8 +109,9 @@ void atender_cliente_dispatch(int socket_servidor_dispatch)
             int size;
             char *buffer = recibir_buffer(&size, socket_servidor_dispatch);
             log_info(logger, "Me llego el mensaje %s", buffer);
-            char** mensaje_split = string_split(buffer, " ");
-            if (strcmp(mensaje_split[0], "PROXIMO_PROCESO") == 0){
+            char **mensaje_split = string_split(buffer, " ");
+            if (strcmp(mensaje_split[0], "PROXIMO_PROCESO") == 0)
+            {
                 proximo_proceso(mensaje_split[1], mensaje_split[2]);
             }
             free(buffer);
@@ -154,6 +128,37 @@ void atender_cliente_dispatch(int socket_servidor_dispatch)
             log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
             break;
         }
+    }
+}
+// Fin funciones dispatch
+
+// Inicio funciones interrupt
+pthread_t iniciar_hilo_server_interrupt(char *puerto)
+{
+
+    int socket_servidor = iniciar_servidor(puerto);
+
+    pthread_t hiloAtencion;
+    pthread_create(&hiloAtencion,
+                   NULL,
+                   (void *)hilo_cliente_interrupt,
+                   socket_servidor);
+
+    return hiloAtencion;
+}
+
+void hilo_cliente_interrupt(int socket_servidor)
+{
+
+    while (1)
+    {
+        int socket_cliente = esperar_cliente(socket_servidor);
+        pthread_t hiloCliente;
+        pthread_create(&hiloCliente,
+                       NULL,
+                       (void *)atender_cliente_interrupt,
+                       socket_cliente);
+        pthread_detach(hiloCliente);
     }
 }
 
@@ -184,6 +189,7 @@ void atender_cliente_interrupt(int socket_cliente)
         }
     }
 }
+// Fin funciones interrupt
 
 void recibir_mensaje_cpu(int socket_cliente)
 {
@@ -198,49 +204,67 @@ void recibir_mensaje_cpu(int socket_cliente)
     free(buffer);
 }
 
-void proximo_proceso(char* pid_nuevo, char* tid_nuevo){
+void proximo_proceso(char *pid_nuevo, char *tid_nuevo)
+{
 
-    //Actualizamos con nuevo pid y tid global
+    // Actualizamos con nuevo pid y tid global
     pid = atoi(pid_nuevo);
     tid = atoi(tid_nuevo);
 
-    //Mensaje a memoria para recibir contexto
-    char* mensaje = string_new();
-    string_append(&mensaje,"OBTENER_CONTEXTO ");
+    // Mensaje a memoria para recibir contexto
+    char *mensaje = string_new();
+    string_append(&mensaje, "OBTENER_CONTEXTO ");
     string_append(&mensaje, pid_nuevo);
     string_append(&mensaje, " ");
     string_append(&mensaje, tid_nuevo);
     enviar_mensaje(mensaje, socket_memoria);
     log_info(logger, "##TID: %d - Solicito Contexto Ejecución", tid_nuevo);
 
-    //Esperar respuesta memoria
-    t_list* lista;
-    lista = recibir_paquete(socket_memoria);
-    //Actualizamos registros contexto cpu
-    entender_paquete_memoria(lista);
+    // Esperar respuesta memoria
+    t_list *lista;
+
+    int cod_op = recibir_operacion(socket_memoria);
+
+    switch (cod_op)
+    {
+    case MENSAJE:
+        recibir_mensaje(socket_memoria);
+        break;
+    case PAQUETE:
+        lista = recibir_paquete(socket_memoria);
+        entender_paquete_memoria(lista);
+        break;
+    case -1:
+        log_error(logger, "El cliente se desconecto.");
+        return EXIT_FAILURE;
+    default:
+        log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
+        break;
+    }
 }
 
 void entender_paquete_memoria(t_list *lista)
 {
-  if (string_starts_with(list_get(lista, 0), "OBTENER_CONTEXTO"))
-  {
-    actualizar_contexto_cpu(lista);
-  }
+    if (string_starts_with(list_get(lista, 0), "OBTENER_CONTEXTO"))
+    {
+        actualizar_contexto_cpu(lista);
+    }
 }
 
-void actualizar_contexto_cpu(t_list* lista){
+void actualizar_contexto_cpu(t_list *lista)
+{
 
-    PC = list_get(lista, 3);
-    AX = list_get(lista, 4);
-    BX = list_get(lista, 5);
-    CX = list_get(lista, 6);
-    DX = list_get(lista, 7);
-    EX = list_get(lista, 8);
-    FX = list_get(lista, 9);
-    GX = list_get(lista, 10);
-    HX = list_get(lista, 11);
-    BASE = list_get(lista, 12);
-    LIMITE = list_get(lista, 13);
+    PC = atoi(list_get(lista, 3));
+    AX = atoi(list_get(lista, 4));
+    BX = atoi(list_get(lista, 5));
+    CX = atoi(list_get(lista, 6));
+    DX = atoi(list_get(lista, 7));
+    EX = atoi(list_get(lista, 8));
+    FX = atoi(list_get(lista, 9));
+    GX = atoi(list_get(lista, 10));
+    HX = atoi(list_get(lista, 11));
+    BASE = atoi(list_get(lista, 12));
+    LIMITE = atoi(list_get(lista, 13));
 }
 
 uint32_t get_valor_registro(char * registro){

@@ -4,6 +4,7 @@
 /*------------------------LIBRERIAS------------------------*/
 #include <utils/estructuras.h>
 #include <utils/client-server.h>
+#include <commons/string.h>
 
 /*------------------------VARIABLES------------------------*/
 extern int socket_kernel_dispatch;
@@ -24,9 +25,10 @@ extern uint32_t LIMITE;
 /*------------------------DECLARACIONES------------------------*/
 t_paquete* crear_paquete_contexto();
 char* recibir_desde_memoria(int socket_cliente);
-pthread_t iniciar_hilo_server_cpu(char *puerto);
-void hilo_cliente_cpu(int socket_servidor);
-void atender_cliente_cpu(int socket_cliente);
+pthread_t iniciar_hilo_server_dispatch(char *puerto);
+pthread_t iniciar_hilo_server_interrupt(char *puerto);
+void hilo_cliente_dispatch(int socket_servidor);
+void hilo_cliente_interrupt(int socket_servidor);
 void atender_cliente_dispatch(int socket_servidor_dispatch);
 void atender_cliente_interrupt(int socket_cliente);
 void recibir_mensaje_cpu(int socket_cliente);

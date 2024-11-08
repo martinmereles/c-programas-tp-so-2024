@@ -25,4 +25,5 @@ void proxima_instruccion(int pid, int tid, int pc, int socket_cliente);
 void obtener_contexto(int pid, int tid, int socket_cliente);
 t_contexto_hilo *find_by_pid_tid(t_list *hilos, int pid, int tid);
 void entender_paquete_memoria(t_list* lista, int socket_cliente);
+t_contexto_hilo *find_by_pid(t_list *procesos, int pid);
 #endif

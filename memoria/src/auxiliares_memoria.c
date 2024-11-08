@@ -1,5 +1,10 @@
 #include <../include/auxiliares_memoria.h>
 
+void iniciar_memoria(){
+
+}
+
+
 void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int pid)
 {
 
@@ -202,23 +207,26 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
     return;
   }
 
+  t_contexto_proceso *contexto_proceso = find_by_pid(procesos, pid);
+
   char *mensaje = string_new();
   string_append(&mensaje, "OBTENER_CONTEXTO");
 
-  t_paquete *paquete = crear_paquete();
-  agregar_a_paquete(paquete, mensaje, sizeof(mensaje));
-  agregar_a_paquete(paquete, pid, sizeof(int));
-  agregar_a_paquete(paquete, tid, sizeof(int));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->PC, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->AX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->BX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->CX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->DX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->EX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->FX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->GX, sizeof(uint32_t));
-  agregar_a_paquete(paquete, contexto->contexto_hilo->HX, sizeof(uint32_t));
-  //TO DO agregar BASE y LIMITE al paquete
+t_paquete *paquete = crear_paquete();
+  agregar_a_paquete(paquete, mensaje, string_length(mensaje)+1);
+  agregar_a_paquete(paquete, string_itoa(pid), string_length(string_itoa(pid))+1);
+  agregar_a_paquete(paquete, string_itoa(tid), string_length(string_itoa(tid))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->PC), string_length(string_itoa(contexto->contexto_hilo->PC))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->AX), string_length(string_itoa(contexto->contexto_hilo->AX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->BX), string_length(string_itoa(contexto->contexto_hilo->BX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->CX), string_length(string_itoa(contexto->contexto_hilo->CX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->DX), string_length(string_itoa(contexto->contexto_hilo->DX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->EX), string_length(string_itoa(contexto->contexto_hilo->EX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->FX), string_length(string_itoa(contexto->contexto_hilo->FX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->GX), string_length(string_itoa(contexto->contexto_hilo->GX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->HX), string_length(string_itoa(contexto->contexto_hilo->HX))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto_proceso->BASE),string_length(string_itoa(contexto_proceso->BASE))+1);
+  agregar_a_paquete(paquete, string_itoa(contexto_proceso->LIMITE),string_length(string_itoa(contexto_proceso->LIMITE))+1);
 
   usleep(retardo_respuesta_cpu * 1000);
   enviar_paquete(paquete, socket_cliente);
@@ -227,18 +235,17 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
 void actualizar_contexto(t_list *lista, int socket_cliente)
 {
   t_contexto_hilo *contexto = find_by_pid_tid(hilos, list_get(lista,1), list_get(lista,2));
-
-  contexto->contexto_hilo->PC = list_get(lista,3);
-  contexto->contexto_hilo->AX = list_get(lista,4);
-  contexto->contexto_hilo->BX = list_get(lista,5);
-  contexto->contexto_hilo->CX = list_get(lista,6);
-  contexto->contexto_hilo->DX = list_get(lista,7);
-  contexto->contexto_hilo->EX = list_get(lista,8);
-  contexto->contexto_hilo->FX = list_get(lista,9);
-  contexto->contexto_hilo->GX = list_get(lista,10);
-  contexto->contexto_hilo->HX = list_get(lista,11);
+  contexto->contexto_hilo->PC = atoi(list_get(lista,3));
+  contexto->contexto_hilo->AX = atoi(list_get(lista,4));
+  contexto->contexto_hilo->BX = atoi(list_get(lista,5));
+  contexto->contexto_hilo->CX = atoi(list_get(lista,6));
+  contexto->contexto_hilo->DX = atoi(list_get(lista,7));
+  contexto->contexto_hilo->EX = atoi(list_get(lista,8));
+  contexto->contexto_hilo->FX = atoi(list_get(lista,9));
+  contexto->contexto_hilo->GX = atoi(list_get(lista,10));
+  contexto->contexto_hilo->HX = atoi(list_get(lista,11));
   usleep(retardo_respuesta_cpu * 1000);
-  enviar_mensaje("OK", socket_cliente);
+  enviar_mensaje("CONTEXTO_GUARDADO", socket_cliente);
 }
 
 void entender_paquete_memoria(t_list *lista, int socket_cliente)
@@ -247,4 +254,21 @@ void entender_paquete_memoria(t_list *lista, int socket_cliente)
   {
     actualizar_contexto(lista, socket_cliente);
   }
+}
+
+t_contexto_hilo *find_by_pid(t_list *procesos, int pid)
+{
+  bool _pid(void *ptr)
+  {
+    t_contexto_proceso *contexto = (t_contexto_proceso *)ptr;
+    if (contexto->pid == pid)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  return list_find(procesos, _pid);
 }

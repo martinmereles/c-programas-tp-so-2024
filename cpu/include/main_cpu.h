@@ -6,6 +6,7 @@
 #include <utils/config.h>
 #include <utils/logger.h>
 #include <semaphore.h>
+#include <../include/auxiliares_cpu.h>
 
 /*------------------------VARIABLES------------------------*/
 

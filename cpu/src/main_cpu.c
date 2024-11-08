@@ -46,13 +46,15 @@ int main(int argc, char* argv[]) {
     
     //Iniciar hilo servidor interrupt
     char* puerto_interrupt = config_get_string_value(config, "PUERTO_ESCUCHA_INTERRUPT");
-	pthread_t hilo_servidor_interrupt = iniciar_hilo_server(puerto_interrupt);
-
+	pthread_t hilo_servidor_interrupt = iniciar_hilo_server_interrupt(puerto_interrupt);
+    pthread_detach(hilo_servidor_interrupt);
 
     //Seteo inicial contexto
-
     //TODO
     
+    //PRUEBA CONTEXTO
+    //proximo_proceso("1","0");
+
     sem_wait(&sem_execute);
 
     //Inicio de ciclo de instruccion
@@ -67,7 +69,7 @@ int main(int argc, char* argv[]) {
         }
 	}
     
-    pthread_join(hilo_servidor_interrupt, NULL);
+    //pthread_join(hilo_servidor_interrupt, NULL);
 
     return 0;
 }
