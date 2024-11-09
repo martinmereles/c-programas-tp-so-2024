@@ -49,7 +49,7 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   // Se valida que haya espacio
   if (!hay_espacio(tamanio))
   {
-    enviar_mensaje("MEMORIA_INSUFICIENTE", socket_cliente);
+    enviar_mensaje("PROCESS_CREATE MEMORIA_INSUFICIENTE", socket_cliente);
     return;
   }
 
@@ -65,6 +65,8 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   list_add(procesos, proceso);
   crear_hilo(archivo_instrucciones, prioridad, pid, 0, socket_cliente);
   usleep(retardo_respuesta_cpu * 1000);
+
+  enviar_mensaje("PROCESS_CREATE OK", socket_cliente);
 }
 
 t_particion *asignar_particion(tamanio)
@@ -75,7 +77,6 @@ t_particion *asignar_particion(tamanio)
   {
     if (strcmp(algoritmo, "FIRST") == 0)
     {
-
     }
     else if (strcmp(algoritmo, "BEST") == 0)
     {
@@ -98,20 +99,30 @@ t_particion *asignar_particion(tamanio)
     {
     }
   }
-
   return particion_asignada;
 }
 
-t_particion* first_fit(){
-
+t_particion *first_fit()
+{
+  int i = 0;
+  t_particion *particion;
+  while (i < list_size(lista_particiones) && respuesta == false)
+  {
+    particion = list_get(lista_particiones, i);
+    if (particion->pid == -1 && tamanio_necesario <= (particion->LIMITE - particion->BASE + 1))
+    {
+      respuesta = true;
+    }
+    i++;
+  }
 }
 
-t_particion* best_fit(){
-  
+t_particion *best_fit()
+{
 }
 
-t_particion* worst_fit(){
-  
+t_particion *worst_fit()
+{
 }
 
 void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, int socket_cliente)
