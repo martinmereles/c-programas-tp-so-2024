@@ -10,7 +10,7 @@ void iniciar_memoria_fija(char **particiones_array)
     particion->pid = -1;
     particion->BASE = posicion;
     posicion += atoi(particiones_array[i]);
-    particion->LIMITE = posicion - 1;
+    particion->LIMITE = particiones_array[i];
     list_add(lista_particiones, particion);
     i++;
   }
@@ -21,7 +21,7 @@ void iniciar_memoria_dinamica()
   t_particion *particion = malloc(sizeof(t_particion));
   particion->pid = -1;
   particion->BASE = 0;
-  particion->LIMITE = tamanio_memoria - 1;
+  particion->LIMITE = tamanio_memoria;
   list_add(lista_particiones, particion);
 }
 
@@ -33,10 +33,10 @@ bool hay_espacio(int tamanio_necesario)
   while (i < list_size(lista_particiones) && respuesta == false)
   {
     particion = list_get(lista_particiones, i);
-    if (particion->pid == -1 && tamanio_necesario <= (particion->LIMITE - particion->BASE + 1))
-    {
-      respuesta = true;
-    }
+    if (particion->pid == -1 && tamanio_necesario <= particion->LIMITE))
+      {
+        respuesta = true;
+      }
     i++;
   }
 
@@ -54,13 +54,13 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   }
 
   // Se obtiene la particion asignada
-  t_particion *particion_asignada = asignar_particion(tamanio);
+  t_particion *particion_asignada = asignar_particion(tamanio, pid);
 
   t_contexto_proceso *proceso = malloc(sizeof(t_contexto_proceso));
 
   proceso->pid = pid;
   proceso->BASE = particion_asignada->BASE;
-  proceso->LIMITE = particion_asignada->BASE + tamanio;
+  proceso->LIMITE = tamanio;
 
   list_add(procesos, proceso);
   crear_hilo(archivo_instrucciones, prioridad, pid, 0, socket_cliente);
@@ -69,60 +69,149 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   enviar_mensaje("PROCESS_CREATE OK", socket_cliente);
 }
 
-t_particion *asignar_particion(tamanio)
+t_particion *asignar_particion(int tamanio, int pid)
 {
   t_particion *particion_asignada;
 
-  if (strcmp(esquema, "FIJAS") == 0)
+  if (strcmp(algoritmo, "FIRST") == 0)
   {
-    if (strcmp(algoritmo, "FIRST") == 0)
-    {
-    }
-    else if (strcmp(algoritmo, "BEST") == 0)
-    {
-    }
-
-    else if (strcmp(algoritmo, "WORST") == 0)
-    {
-    }
+    particion_asignada = first_fit(tamanio, pid);
   }
-  else if (strcmp(esquema, "DINAMICAS") == 0)
+  else if (strcmp(algoritmo, "BEST") == 0)
   {
-    if (strcmp(algoritmo, "FIRST") == 0)
-    {
-    }
-    else if (strcmp(algoritmo, "BEST") == 0)
-    {
-    }
-
-    else if (strcmp(algoritmo, "WORST") == 0)
-    {
-    }
+    particion_asignada = best_fit(tamanio, pid);
   }
+
+  else if (strcmp(algoritmo, "WORST") == 0)
+  {
+    particion_asignada = worst_fit(tamanio, pid);
+  }
+
   return particion_asignada;
 }
 
-t_particion *first_fit()
+t_particion *first_fit(int tamanio_necesario, int pid)
 {
-  int i = 0;
+
   t_particion *particion;
-  while (i < list_size(lista_particiones) && respuesta == false)
+
+  int i = 0;
+  for (i; i < list_size(lista_particiones); i++)
   {
+
     particion = list_get(lista_particiones, i);
-    if (particion->pid == -1 && tamanio_necesario <= (particion->LIMITE - particion->BASE + 1))
+    if (particion->pid == -1 && tamanio_necesario <= particion->LIMITE)
     {
-      respuesta = true;
+      break;
     }
-    i++;
   }
+
+  if (strcmp(esquema, "DINAMICAS"))
+  {
+    if (particion->LIMITE > tamanio_necesario)
+    {
+
+      t_particion *particion_siguiente = malloc(sizeof(t_particion));
+      particion_siguiente->pid = -1;
+      particion_siguiente->BASE = particion->BASE + tamanio_necesario;
+      particion_siguiente->LIMITE = particion->LIMITE - tamanio_necesario;
+
+      particion->LIMITE = tamanio_necesario;
+      list_add_in_index(lista_particiones, i + 1, particion_siguiente);
+    }
+  }
+
+  particion->pid = pid;
+  return particion;
 }
 
-t_particion *best_fit()
+t_particion *best_fit(int tamanio_necesario, int pid)
 {
+  t_particion *particion_aux;
+  t_particion *particion_best;
+  int i = 0;
+  for (i; i < list_size(lista_particiones); i++)
+  {
+
+    particion_aux = list_get(lista_particiones, i);
+    if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE)
+    {
+      particion_best= particion_aux;
+      break;
+    }
+  }
+
+  i++;
+  for (i; i < list_size(lista_particiones); i++)
+  {
+    particion_aux = list_get(lista_particiones, i);
+    if(particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE < particion_best->LIMITE){
+      particion_best = particion_aux;
+    }
+
+  }
+
+  if (strcmp(esquema, "DINAMICAS"))
+  {
+    if (particion_best->LIMITE > tamanio_necesario)
+    {
+
+      t_particion *particion_siguiente = malloc(sizeof(t_particion));
+      particion_siguiente->pid = -1;
+      particion_siguiente->BASE = particion->BASE + tamanio_necesario;
+      particion_siguiente->LIMITE = particion->LIMITE - tamanio_necesario;
+
+      particion_best->LIMITE = tamanio_necesario;
+      list_add_in_index(lista_particiones, i + 1, particion_siguiente);
+    }
+  }
+
+  particion_best->pid = pid;
+  return particion_best;
 }
 
-t_particion *worst_fit()
-{
+t_particion *worst_fit(int tamanio_necesario, int pid)
+{  t_particion *particion_aux;
+  t_particion *particion_worst;
+  int i = 0;
+  for (i; i < list_size(lista_particiones); i++)
+  {
+
+    particion_aux = list_get(lista_particiones, i);
+    if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE)
+    {
+      particion_worst= particion_aux;
+      break;
+    }
+  }
+
+  i++;
+  for (i; i < list_size(lista_particiones); i++)
+  {
+    particion_aux = list_get(lista_particiones, i);
+    if(particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE > particion_worst->LIMITE){
+      particion_worst = particion_aux;
+    }
+
+  }
+
+  if (strcmp(esquema, "DINAMICAS"))
+  {
+    if (particion_worst->LIMITE > tamanio_necesario)
+    {
+
+      t_particion *particion_siguiente = malloc(sizeof(t_particion));
+      particion_siguiente->pid = -1;
+      particion_siguiente->BASE = particion->BASE + tamanio_necesario;
+      particion_siguiente->LIMITE = particion->LIMITE - tamanio_necesario;
+
+      particion_worst->LIMITE = tamanio_necesario;
+      list_add_in_index(lista_particiones, i + 1, particion_siguiente);
+    }
+  }
+
+  particion_worst->pid = pid;
+  return particion_worst;
 }
 
 void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, int socket_cliente)
@@ -255,7 +344,7 @@ void entender_mensaje_memoria(int socket_cliente)
 void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)
 {
   char *instruccion = string_new();
-  string_append(&instruccion,"PROXIMA_INSTRUCCION ");
+  string_append(&instruccion, "PROXIMA_INSTRUCCION ");
   t_contexto_hilo *contexto = find_by_pid_tid(hilos, pid, tid);
 
   if (contexto != NULL)

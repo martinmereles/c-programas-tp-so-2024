@@ -33,5 +33,8 @@ void iniciar_memoria_fija(char** particiones_array);
 void iniciar_memoria_dinamica();
 bool hay_espacio(int tamanio_necesario);
 t_particion* asignar_particion(int tamanio);
+t_particion *first_fit(int tamanio_necesario);
+t_particion *best_fit(int tamanio_necesario);
+t_particion *worst_fit(int tamanio_necesario);
 
 #endif

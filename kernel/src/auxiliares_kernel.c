@@ -288,8 +288,9 @@ int get_index (int prioridad){
     t_tcb* elemento = list_get (QUEUE_READY, 0);
 
     while( elemento->prioridad <= prioridad && index< list_size(QUEUE_READY)) {
-        index++;
+        
         elemento = list_get (QUEUE_READY, index);
+        index++;
     }
     }
     return index;
