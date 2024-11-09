@@ -16,6 +16,9 @@ sem_t sem_largo_plazo;
 sem_t sem_corto_plazo;
 sem_t sem_contador_ready;
 
+char* algoritmo_planificacion;
+int quantum;
+
 
 int main(int argc, char** argv) {
     
@@ -36,7 +39,10 @@ int main(int argc, char** argv) {
     
     char* archivo = argv [1];
     int tamanio_proceso = atoi(argv[2]);
-
+    algoritmo_planificacion = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
+    if (strcmp(algoritmo_planificacion,"CMN") == 0 ) {
+        quantum = config_get_int_value(config, "QUANTUM");
+    }
     crear_proceso(archivo, tamanio_proceso, 0);
 
     /*/Inicia conexion con cpu dispatch

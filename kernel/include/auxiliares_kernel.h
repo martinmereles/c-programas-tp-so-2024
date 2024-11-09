@@ -13,6 +13,10 @@
 
 extern t_log* logger;
 extern t_config* config;
+
+extern char* algoritmo_planificacion;
+extern int quantum;
+
 extern int socket_cpu_dispatch;
 extern int socket_cpu_interrupt;
 extern int socket_memoria;
@@ -41,6 +45,10 @@ void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
 
 void dispatcher(int tid, int pid, int socket_cpu_dispatch);
+
+int get_index (int prioridad);
+
+char *recibir_desde_memoria(int socket_cliente);
 
 
 

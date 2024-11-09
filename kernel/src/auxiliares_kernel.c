@@ -92,16 +92,27 @@ void planificador_largo_plazo (){
             //envio mensaje a memoria
             enviar_mensaje(mensaje, socket_memoria);
             //TODO recibir respuesta de memoria
-            bool hay_espacio = true; // validar segun respuesta de memoria
-            if (hay_espacio)
+
+            char* mensaje_resultado = recibir_desde_memoria(socket_memoria);
+
+            ; // validar segun respuesta de memoria
+            if (strcmp (mensaje_resultado, "PROCESS_CREATE OK")==0)
             {
              
                t_tcb* nuevo_hilo = crear_hilo(pcb->prioridad_hilo_main, pcb->pid, 0);
+               if (strcmp(algoritmo_planificacion, "FIFO")) {
                list_add(QUEUE_READY, nuevo_hilo);
                sem_post(&sem_contador_ready);
                list_add(PCB_EN_CICLO, list_remove(QUEUE_NEW, 0));
+               }
+               else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0||strcmp(algoritmo_planificacion, "CMN") == 0){
+                int index = get_index(nuevo_hilo->prioridad);
+
+                list_add_in_index(QUEUE_READY, index, nuevo_hilo);
+
+               }
             }
-            else {
+            else if (strcmp (mensaje_resultado, "PROCESS_CREATE MEMORIA_INSUFICIENTE")==0){ 
                 break;
             }
         }
@@ -199,26 +210,11 @@ void ejecutar_fifo(socket_cpu_dispatch){
 void ejecutar_prioridades(socket_cpu_dispatch){
  while(1){        
 
-        t_tcb* tcb_a_enviar = malloc(sizeof(t_tcb));
-        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
         
-        if (list_size(QUEUE_READY) <0)//valido que la lista no este vacia, si esta hago wait del semaforo para que no quede loopeando
-        {
-            log_info(logger, "LA COLA READY SE ENCUENTRA VACIA");
-            sem_wait(&sem_contador_ready);
-        }
-        else {
+        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
         sem_wait(&sem_contador_ready);
-
-        void* _mayor_prioridad(void* a, void* b) {
-        t_tcb* tcb_a = (t_tcb*) a;
-        t_tcb* tcb_b = (t_tcb*) b;
-        return tcb_a->prioridad <= tcb_b->prioridad ? tcb_a : tcb_b;
-        }
-        tcb_a_enviar = list_get_minimum(QUEUE_READY, _mayor_prioridad);
+        t_tcb* tcb_a_enviar = list_remove(QUEUE_READY,0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
-
-        list_remove_element(QUEUE_READY, tcb_a_enviar);
         sem_post(&planificador_corto_plazo);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
@@ -226,10 +222,20 @@ void ejecutar_prioridades(socket_cpu_dispatch){
 
 
 }
-}
+
 
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
-    
+     while(1){        
+
+        
+        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
+        sem_wait(&sem_contador_ready);
+        t_tcb* tcb_a_enviar = list_remove(QUEUE_READY,0);
+        list_add(QUEUE_EXEC, tcb_a_enviar);
+        sem_post(&planificador_corto_plazo);
+        log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
+        dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
+        }
 
 }
 
@@ -240,10 +246,86 @@ void dispatcher(int tid, int pid, int socket_cpu_dispatch) {
 
     char* mensaje = string_new();
 
-    string_append(&mensaje,"EJECUTAR_HILO PID:");
+    string_append(&mensaje,"PROXIMO_PROCESO ");
     string_append(&mensaje, pid_a_enviar);
-    string_append(&mensaje," TID:");
+    string_append(&mensaje," ");
     string_append(&mensaje, tid_a_enviar);
 
     enviar_mensaje(mensaje, socket_cpu_dispatch);
+}
+
+/*void ejecutar_round_robin(int socket_cpu_dispatch, int socket_cpu_interrupt, int quantum_int, t_list* cola){
+    while(1) {
+        
+       
+        
+        t_tcb* tcb_a_enviar = list_remove(cola, 0);
+        list_add(QUEUE_EXEC, tcb_a_enviar);
+        log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
+        
+       
+        dispatcher(tcb_a_enviar->tid,tcb_a_enviar->pid, socket_cpu_dispatch);
+
+        char* mensaje = string_new();
+        string_append(&mensaje, "FIN_QUANTUM ");
+        string_append(&mensaje, string_itoa(pcb_a_enviar->pid));
+        //Inicio hilo quantum
+       	pthread_t hilo_quantum;
+	    pthread_create(&hilo_quantum,
+                        NULL,
+                        aviso_quantum,
+                        mensaje);
+	    pthread_detach(hilo_quantum);
+        
+
+    }
+}
+*/
+int get_index (int prioridad){
+
+    int index = 0;
+    if (list_size (QUEUE_READY)>0){
+    t_tcb* elemento = list_get (QUEUE_READY, 0);
+
+    while( elemento->prioridad <= prioridad && index< list_size(QUEUE_READY)) {
+        index++;
+        elemento = list_get (QUEUE_READY, index);
+    }
+    }
+    return index;
+
+}
+
+char *recibir_desde_memoria(int socket_cliente)
+{
+
+    t_list *lista;
+    int cod_op = recibir_operacion(socket_cliente);
+    switch (cod_op)
+    {
+    case MENSAJE:
+        int size;
+        char *buffer = recibir_buffer(&size, socket_cliente);
+        log_info(logger, "Me llego el mensaje %s", buffer);
+        // void * mensaje;
+        char *mensaje;
+        if (string_starts_with(buffer, "PROCESS_CREATE "))
+        {
+            mensaje = buffer;
+        }
+        free(buffer);
+        return mensaje;
+        break;
+    case PAQUETE:
+        lista = recibir_paquete(socket_cliente);
+        log_info(logger, "Me llegaron los siguientes valores:\n");
+        list_iterate(lista, (void *)iterator);
+        break;
+    case -1:
+        log_error(logger, "el cliente se desconecto.");
+        return EXIT_FAILURE;
+    default:
+        log_warning(logger, "Operacion desconocida. No quieras meter la pata");
+        break;
+    }
 }
