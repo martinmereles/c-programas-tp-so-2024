@@ -254,16 +254,17 @@ void entender_mensaje_memoria(int socket_cliente)
 
 void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)
 {
-  char *instruccion;
+  char *instruccion = string_new();
+  string_append(&instruccion,"PROXIMA_INSTRUCCION ");
   t_contexto_hilo *contexto = find_by_pid_tid(hilos, pid, tid);
 
   if (contexto != NULL)
   {
-    instruccion = list_get(contexto->instrucciones, pc);
+    string_append(&instruccion, list_get(contexto->instrucciones, pc));
   }
   else
   {
-    instruccion = "No exite dicho PID-TID";
+    string_append(&instruccion, "No exite dicho PID-TID");
   }
 
   usleep(retardo_respuesta_cpu * 1000);

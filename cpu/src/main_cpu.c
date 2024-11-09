@@ -20,6 +20,8 @@ uint32_t LIMITE;
 
 sem_t sem_execute;
 bool se_ejecuto_syscall;
+char* instruccion_exec;
+int direccion_fisica;
 
 int main(int argc, char* argv[]) {
 
@@ -48,9 +50,6 @@ int main(int argc, char* argv[]) {
     char* puerto_interrupt = config_get_string_value(config, "PUERTO_ESCUCHA_INTERRUPT");
 	pthread_t hilo_servidor_interrupt = iniciar_hilo_server_interrupt(puerto_interrupt);
     pthread_detach(hilo_servidor_interrupt);
-
-    //Seteo inicial contexto
-    //TODO
     
     //PRUEBA CONTEXTO
     //proximo_proceso("1","0");
@@ -59,12 +58,13 @@ int main(int argc, char* argv[]) {
 
     //Inicio de ciclo de instruccion
     while(1){
-		fetch(socket_memoria);
-		decode(socket_memoria);
-		execute(socket_memoria);
-		check_interrupt(socket_memoria);
+		fetch();
+		decode();
+		execute();
+		check_interrupt();
 
         if(se_ejecuto_syscall){
+            se_ejecuto_syscall = false;
             sem_wait(&sem_execute);
         }
 	}
