@@ -83,5 +83,11 @@ typedef struct {
     uint32_t LIMITE;
 }t_contexto_proceso;
 
+typedef struct {
+    int pid;
+    uint32_t BASE;
+    uint32_t LIMITE;
+}t_particion;
+
 
 #endif

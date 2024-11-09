@@ -10,6 +10,7 @@ t_list *lista_particiones;
 t_list *procesos;
 t_list *hilos;
 int retardo_respuesta_cpu;
+void *memoria_principal;
 
 int main(int argc, char *argv[])
 {
@@ -23,15 +24,20 @@ int main(int argc, char *argv[])
     algoritmo = config_get_string_value(config, "ALGORITMO_BUSQUEDA");
     retardo_respuesta_cpu = config_get_int_value(config, "RETARDO_RESPUESTA");
     tamanio_memoria = config_get_int_value(config, "TAM_MEMORIA");
+    memoria_principal = malloc(tamanio_memoria);
     lista_particiones = list_create();
-    if (string_equals_ignore_case(algoritmo, "FIJAS"))
-    {   
-        char** particiones_array = config_get_array_value(config, "PARTICIONES");
-
+    if (string_equals_ignore_case(esquema, "FIJAS"))
+    {
+        char **particiones_array = config_get_array_value(config, "PARTICIONES");
+        iniciar_memoria_fija(particiones_array);
+    }
+    else if (string_equals_ignore_case(esquema, "DINAMICAS"))
+    {
+        iniciar_memoria_dinamica();
     }
     procesos = list_create();
     hilos = list_create();
-
+    
     // Inicia conexion con filesystem
     char *ip_filesystem = config_get_string_value(config, "IP_FILESYSTEM");
     char *puerto_filesystem = config_get_string_value(config, "PUERTO_FILESYSTEM");
@@ -54,7 +60,6 @@ int main(int argc, char *argv[])
     enviar_paquete(a, socket_filesystem);
     // FIN PRUEBA FS
     */
-
 
     // Iniciar hilo servidor
     char *puerto = config_get_string_value(config, "PUERTO_ESCUCHA");

@@ -1,42 +1,80 @@
 #include <../include/auxiliares_memoria.h>
 
-void iniciar_memoria(){
-
+void iniciar_memoria_fija(char **particiones_array)
+{
+  int posicion = 0;
+  int i = 0;
+  while (particiones_array[i] != NULL)
+  {
+    t_particion *particion = malloc(sizeof(t_particion));
+    particion->pid = -1;
+    particion->BASE = posicion;
+    posicion += atoi(particiones_array[i]);
+    particion->LIMITE = posicion - 1;
+    list_add(lista_particiones, particion);
+    i++;
+  }
 }
 
+void iniciar_memoria_dinamica()
+{
+  t_particion *particion = malloc(sizeof(t_particion));
+  particion->pid = -1;
+  particion->BASE = 0;
+  particion->LIMITE = tamanio_memoria - 1;
+  list_add(lista_particiones, particion);
+}
 
-void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int pid)
+bool hay_espacio(int tamanio_necesario)
+{
+  bool respuesta = false;
+  int i = 0;
+  t_particion *particion;
+  while (i < list_size(lista_particiones) && respuesta == false)
+  {
+    particion = list_get(lista_particiones, i);
+    if (particion->pid == -1 && tamanio_necesario <= (particion->LIMITE - particion->BASE + 1))
+    {
+      respuesta = true;
+    }
+    i++;
+  }
+
+  return respuesta;
+}
+
+void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int pid, int socket_cliente)
 {
 
-  /* /TODO se valida que haya espacio
-  if (!hay_espacio())
+  // Se valida que haya espacio
+  if (!hay_espacio(tamanio))
   {
-    //responder a kernel que no hay espacio
+    enviar_mensaje("MEMORIA_INSUFICIENTE", socket_cliente);
     return;
   }
 
-  //se valida el esquema
-  if (esquema == "FIJAS") {
-    return;
+  // Se obtiene la particion asignada
+  t_particion *particion_asignada = asignar_particion(tamanio);
 
-  }else if (esquema == "DINAMICAS")
-  {
-
-  return;
-  }
-*/
   t_contexto_proceso *proceso = malloc(sizeof(t_contexto_proceso));
 
   proceso->pid = pid;
-  proceso->BASE = 0; // TODO calcular base
-  proceso->LIMITE = proceso->BASE + tamanio;
+  proceso->BASE = particion_asignada->BASE; 
+  proceso->LIMITE = particion_asignada->BASE + tamanio; 
 
   list_add(procesos, proceso);
-  crear_hilo(archivo_instrucciones, prioridad, pid, 0);
+  crear_hilo(archivo_instrucciones, prioridad, pid, 0, socket_cliente);
   usleep(retardo_respuesta_cpu * 1000);
 }
 
-void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid)
+t_particion *asignar_particion(tamanio)
+{
+  t_particion *particion_asignada;
+    //TODO encontrar particion segun algoritmo
+  return particion_asignada;
+}
+
+void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, int socket_cliente)
 {
   t_contexto_hilo *hilo = malloc(sizeof(t_contexto_hilo));
   hilo->pid = pid;
@@ -153,11 +191,11 @@ void entender_mensaje_memoria(int socket_cliente)
   }
   else if (string_starts_with(buffer, "PROCESS_CREATE"))
   {
-    crear_proceso(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]));
+    crear_proceso(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
   }
   else if (string_starts_with(buffer, "THREAD_CREATE"))
   {
-    crear_hilo(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]));
+    crear_hilo(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
   }
 
   free(buffer);
@@ -212,21 +250,21 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
   char *mensaje = string_new();
   string_append(&mensaje, "OBTENER_CONTEXTO");
 
-t_paquete *paquete = crear_paquete();
-  agregar_a_paquete(paquete, mensaje, string_length(mensaje)+1);
-  agregar_a_paquete(paquete, string_itoa(pid), string_length(string_itoa(pid))+1);
-  agregar_a_paquete(paquete, string_itoa(tid), string_length(string_itoa(tid))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->PC), string_length(string_itoa(contexto->contexto_hilo->PC))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->AX), string_length(string_itoa(contexto->contexto_hilo->AX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->BX), string_length(string_itoa(contexto->contexto_hilo->BX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->CX), string_length(string_itoa(contexto->contexto_hilo->CX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->DX), string_length(string_itoa(contexto->contexto_hilo->DX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->EX), string_length(string_itoa(contexto->contexto_hilo->EX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->FX), string_length(string_itoa(contexto->contexto_hilo->FX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->GX), string_length(string_itoa(contexto->contexto_hilo->GX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->HX), string_length(string_itoa(contexto->contexto_hilo->HX))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto_proceso->BASE),string_length(string_itoa(contexto_proceso->BASE))+1);
-  agregar_a_paquete(paquete, string_itoa(contexto_proceso->LIMITE),string_length(string_itoa(contexto_proceso->LIMITE))+1);
+  t_paquete *paquete = crear_paquete();
+  agregar_a_paquete(paquete, mensaje, string_length(mensaje) + 1);
+  agregar_a_paquete(paquete, string_itoa(pid), string_length(string_itoa(pid)) + 1);
+  agregar_a_paquete(paquete, string_itoa(tid), string_length(string_itoa(tid)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->PC), string_length(string_itoa(contexto->contexto_hilo->PC)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->AX), string_length(string_itoa(contexto->contexto_hilo->AX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->BX), string_length(string_itoa(contexto->contexto_hilo->BX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->CX), string_length(string_itoa(contexto->contexto_hilo->CX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->DX), string_length(string_itoa(contexto->contexto_hilo->DX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->EX), string_length(string_itoa(contexto->contexto_hilo->EX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->FX), string_length(string_itoa(contexto->contexto_hilo->FX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->GX), string_length(string_itoa(contexto->contexto_hilo->GX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto->contexto_hilo->HX), string_length(string_itoa(contexto->contexto_hilo->HX)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto_proceso->BASE), string_length(string_itoa(contexto_proceso->BASE)) + 1);
+  agregar_a_paquete(paquete, string_itoa(contexto_proceso->LIMITE), string_length(string_itoa(contexto_proceso->LIMITE)) + 1);
 
   usleep(retardo_respuesta_cpu * 1000);
   enviar_paquete(paquete, socket_cliente);
@@ -234,16 +272,16 @@ t_paquete *paquete = crear_paquete();
 
 void actualizar_contexto(t_list *lista, int socket_cliente)
 {
-  t_contexto_hilo *contexto = find_by_pid_tid(hilos, list_get(lista,1), list_get(lista,2));
-  contexto->contexto_hilo->PC = atoi(list_get(lista,3));
-  contexto->contexto_hilo->AX = atoi(list_get(lista,4));
-  contexto->contexto_hilo->BX = atoi(list_get(lista,5));
-  contexto->contexto_hilo->CX = atoi(list_get(lista,6));
-  contexto->contexto_hilo->DX = atoi(list_get(lista,7));
-  contexto->contexto_hilo->EX = atoi(list_get(lista,8));
-  contexto->contexto_hilo->FX = atoi(list_get(lista,9));
-  contexto->contexto_hilo->GX = atoi(list_get(lista,10));
-  contexto->contexto_hilo->HX = atoi(list_get(lista,11));
+  t_contexto_hilo *contexto = find_by_pid_tid(hilos, list_get(lista, 1), list_get(lista, 2));
+  contexto->contexto_hilo->PC = atoi(list_get(lista, 3));
+  contexto->contexto_hilo->AX = atoi(list_get(lista, 4));
+  contexto->contexto_hilo->BX = atoi(list_get(lista, 5));
+  contexto->contexto_hilo->CX = atoi(list_get(lista, 6));
+  contexto->contexto_hilo->DX = atoi(list_get(lista, 7));
+  contexto->contexto_hilo->EX = atoi(list_get(lista, 8));
+  contexto->contexto_hilo->FX = atoi(list_get(lista, 9));
+  contexto->contexto_hilo->GX = atoi(list_get(lista, 10));
+  contexto->contexto_hilo->HX = atoi(list_get(lista, 11));
   usleep(retardo_respuesta_cpu * 1000);
   enviar_mensaje("CONTEXTO_GUARDADO", socket_cliente);
 }
