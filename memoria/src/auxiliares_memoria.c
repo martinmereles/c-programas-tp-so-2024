@@ -33,7 +33,7 @@ bool hay_espacio(int tamanio_necesario)
   while (i < list_size(lista_particiones) && respuesta == false)
   {
     particion = list_get(lista_particiones, i);
-    if (particion->pid == -1 && tamanio_necesario <= particion->LIMITE))
+    if (particion->pid == -1 && tamanio_necesario <= particion->LIMITE)
       {
         respuesta = true;
       }
@@ -158,8 +158,8 @@ t_particion *best_fit(int tamanio_necesario, int pid)
 
       t_particion *particion_siguiente = malloc(sizeof(t_particion));
       particion_siguiente->pid = -1;
-      particion_siguiente->BASE = particion->BASE + tamanio_necesario;
-      particion_siguiente->LIMITE = particion->LIMITE - tamanio_necesario;
+      particion_siguiente->BASE = particion_best->BASE + tamanio_necesario;
+      particion_siguiente->LIMITE = particion_best->LIMITE - tamanio_necesario;
 
       particion_best->LIMITE = tamanio_necesario;
       list_add_in_index(lista_particiones, i + 1, particion_siguiente);
@@ -202,8 +202,8 @@ t_particion *worst_fit(int tamanio_necesario, int pid)
 
       t_particion *particion_siguiente = malloc(sizeof(t_particion));
       particion_siguiente->pid = -1;
-      particion_siguiente->BASE = particion->BASE + tamanio_necesario;
-      particion_siguiente->LIMITE = particion->LIMITE - tamanio_necesario;
+      particion_siguiente->BASE = particion_worst->BASE + tamanio_necesario;
+      particion_siguiente->LIMITE = particion_worst->LIMITE - tamanio_necesario;
 
       particion_worst->LIMITE = tamanio_necesario;
       list_add_in_index(lista_particiones, i + 1, particion_siguiente);
