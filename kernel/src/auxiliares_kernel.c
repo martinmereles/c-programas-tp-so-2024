@@ -186,20 +186,13 @@ void planificador_corto_plazo(){
 void ejecutar_fifo(socket_cpu_dispatch){
         while(1){        
 
-        t_tcb* tcb_a_enviar = malloc(sizeof(t_tcb));
-        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
-        sem_wait(&sem_array_estados[1].contador);
-        // sacar el primero de READY y pasarlo a RUNNING
-        sem_wait(&sem_array_estados[1].mutex);
-        sem_wait(&sem_array_estados[2].mutex);
-
-        tcb_a_enviar = list_remove(QUEUE_READY, 0);
+        
+        sem_wait(&sem_contador_ready);
+        sem_wait(&sem_corto_plazo);
+        sem_wait(&sem_mutex_colas);
+        t_tcb* tcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
-        sem_post(&planificador_corto_plazo);
-        sem_post(&sem_array_estados[1].mutex);
-        sem_post(&sem_array_estados[2].mutex);
-        sem_post(&sem_array_estados[2].contador);
-
+        sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
         
@@ -212,11 +205,12 @@ void ejecutar_prioridades(socket_cpu_dispatch){
  while(1){        
 
         
-        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
         sem_wait(&sem_contador_ready);
+        sem_wait(&sem_corto_plazo);
+        sem_wait(&sem_mutex_colas);
         t_tcb* tcb_a_enviar = list_remove(QUEUE_READY,0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
-        sem_post(&planificador_corto_plazo);
+        sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
         }
@@ -227,15 +221,29 @@ void ejecutar_prioridades(socket_cpu_dispatch){
 
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
      while(1){        
-
-        
-        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
         sem_wait(&sem_contador_ready);
+        sem_wait(&sem_corto_plazo);
+        sem_wait(&sem_mutex_colas);
+        
         t_tcb* tcb_a_enviar = list_remove(QUEUE_READY,0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
-        sem_post(&planificador_corto_plazo);
+        sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
+        char* mensaje = string_new();
+        string_append(&mensaje, "FIN_QUANTUM ");
+        string_append(&mensaje, string_itoa(tcb_a_enviar->ppid));
+        string_append(&mensaje, " ");
+        string_append(&mensaje, string_itoa(tcb_a_enviar->tid));
+        //Inicio hilo quantum
+       	pthread_t hilo_quantum;
+	    pthread_create(&hilo_quantum,
+                        NULL,
+                        aviso_quantum,
+                        mensaje);
+	    pthread_detach(hilo_quantum);
+        
+
         }
 
 }
@@ -330,4 +338,12 @@ char *recibir_desde_memoria(int socket_cliente)
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
         break;
     }
+}
+
+void aviso_quantum(char* mensaje){
+
+        int quantum_milisecons = quantum * 1000;
+        usleep(quantum_milisecons);
+        enviar_mensaje(mensaje, socket_cpu_interrupt);
+        log_info(logger, "Se envia el mensaje %s" , mensaje);
 }

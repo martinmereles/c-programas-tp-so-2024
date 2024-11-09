@@ -31,6 +31,7 @@ extern int contador_pid;
 extern sem_t sem_largo_plazo;
 extern sem_t sem_corto_plazo;
 extern sem_t sem_contador_ready;
+extern sem_t sem_mutex_colas;
 
 void crear_proceso (char* archivo, int tamanio, int prioridad);
 void finalizar_proceso (t_pcb* pcb;);
@@ -45,6 +46,7 @@ void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
 
 void dispatcher(int tid, int pid, int socket_cpu_dispatch);
+void aviso_quantum(char* mensaje);
 
 int get_index (int prioridad);
 
