@@ -226,13 +226,14 @@ void ejecutar_prioridades(socket_cpu_dispatch){
 
 
 }
+}
 
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
     
 
 }
 
-void dispatcher(int tid, int pid, int socket_cpu_dispatch){
+void dispatcher(int tid, int pid, int socket_cpu_dispatch) {
     
     char* tid_a_enviar = string_itoa(tid);
     char* pid_a_enviar = string_itoa(pid);
@@ -245,7 +246,4 @@ void dispatcher(int tid, int pid, int socket_cpu_dispatch){
     string_append(&mensaje, tid_a_enviar);
 
     enviar_mensaje(mensaje, socket_cpu_dispatch);
-
-
-
 }
