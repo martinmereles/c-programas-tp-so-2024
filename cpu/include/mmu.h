@@ -4,6 +4,8 @@
 /*------------------------LIBRERIAS------------------------*/
 
 /*------------------------VARIABLES------------------------*/
+extern int socket_kernel_dispatch;
+extern sem_t sem_execute;
 extern int pid;
 extern int tid;
 extern uint32_t PC;
@@ -17,6 +19,8 @@ extern uint32_t GX;
 extern uint32_t HX;
 extern uint32_t BASE;
 extern uint32_t LIMITE;
+
+extern int direccion_fisica;
 
 /*------------------------DECLARACIONES------------------------*/
 bool validar_direccion(int direccion);

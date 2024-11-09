@@ -28,6 +28,8 @@ t_paquete *crear_paquete_contexto()
     // Enviar paquete a memoria
     enviar_paquete(new_paquete, socket_memoria);
     log_info(logger, "##TID: %d - Actualizo Contexto Ejecución", tid);
+    //Esperar mensaje resultado ACTUALIZAR_CONTEXTO
+    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
 }
 
 char *recibir_desde_memoria(int socket_cliente)
@@ -94,30 +96,34 @@ void hilo_cliente_dispatch(int socket_servidor)
     }
 }
 
-void atender_cliente_dispatch(int socket_servidor_dispatch)
+void atender_cliente_dispatch(int socket_cliente_dispatch)
 {
 
     t_list *lista;
-    log_info(logger, "El socket_servidor_dispatch es : %d", socket_servidor_dispatch);
+    log_info(logger, "El socket_servidor_dispatch es : %d", socket_cliente_dispatch);
     while (1)
     {
-        int cod_op = recibir_operacion(socket_servidor_dispatch);
+        int cod_op = recibir_operacion(socket_cliente_dispatch);
 
         switch (cod_op)
         {
         case MENSAJE:
             int size;
-            char *buffer = recibir_buffer(&size, socket_servidor_dispatch);
+            char *buffer = recibir_buffer(&size, socket_cliente_dispatch);
             log_info(logger, "Me llego el mensaje %s", buffer);
             char **mensaje_split = string_split(buffer, " ");
-            if (strcmp(mensaje_split[0], "PROXIMO_PROCESO") == 0)
+            if (strcmp(buffer, "CONEXION_INICIAL_KERNEL_DISPATCH") == 0)
+            {
+                socket_kernel_dispatch = socket_cliente_dispatch;
+            }
+            else if (strcmp(mensaje_split[0], "PROXIMO_PROCESO") == 0)
             {
                 proximo_proceso(mensaje_split[1], mensaje_split[2]);
             }
             free(buffer);
             break;
         case PAQUETE:
-            lista = recibir_paquete(socket_servidor_dispatch);
+            lista = recibir_paquete(socket_cliente_dispatch);
             log_info(logger, "Me llegaron los siguientes valores:\n");
             list_iterate(lista, (void *)iterator);
             break;
@@ -162,21 +168,21 @@ void hilo_cliente_interrupt(int socket_servidor)
     }
 }
 
-void atender_cliente_interrupt(int socket_cliente)
+void atender_cliente_interrupt(int socket_cliente_interrupt)
 {
 
     t_list *lista;
     while (1)
     {
-        int cod_op = recibir_operacion(socket_cliente);
+        int cod_op = recibir_operacion(socket_cliente_interrupt);
 
         switch (cod_op)
         {
         case MENSAJE:
-            recibir_mensaje(socket_cliente);
+            recibir_mensaje(socket_cliente_interrupt);
             break;
         case PAQUETE:
-            lista = recibir_paquete(socket_cliente);
+            lista = recibir_paquete(socket_cliente_interrupt);
             log_info(logger, "Me llegaron los siguientes valores:\n");
             list_iterate(lista, (void *)iterator);
             break;
@@ -190,19 +196,6 @@ void atender_cliente_interrupt(int socket_cliente)
     }
 }
 // Fin funciones interrupt
-
-void recibir_mensaje_cpu(int socket_cliente)
-{
-
-    int size;
-    char *buffer = recibir_buffer(&size, socket_cliente);
-    if (string_starts_with(buffer, "CONEXION_INICIAL_KERNEL_DISPATCH"))
-    {
-        socket_kernel_dispatch = socket_cliente;
-    }
-    log_info(logger, "Me llego el mensaje %s", buffer);
-    free(buffer);
-}
 
 void proximo_proceso(char *pid_nuevo, char *tid_nuevo)
 {
@@ -265,6 +258,9 @@ void actualizar_contexto_cpu(t_list *lista)
     HX = atoi(list_get(lista, 11));
     BASE = atoi(list_get(lista, 12));
     LIMITE = atoi(list_get(lista, 13));
+
+    //Iniciar ciclo_instruccion
+    sem_post(&sem_execute);
 }
 
 uint32_t get_valor_registro(char * registro){

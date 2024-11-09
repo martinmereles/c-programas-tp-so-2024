@@ -12,28 +12,30 @@ void fetch(){
     string_append(&mensaje, PC);
     enviar_mensaje(mensaje ,socket_memoria);
     
-    //Recibir respuesta de memoria
+    //Recibir respuesta de memoria PROXIMA_INSTRUCCION "INSTRUCCION"
     char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
+    instruccion_exec = string_substring_from(respuesta_memoria, 19);
 
 }
 
 void decode(){
 
-    char* instruccion_exec;
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     if(strcmp(instruccion_exec_split[0],"READ_MEM") == 0){
-        //
+        char *registro_direccion = instruccion_exec_split[2];
+        int valor_registro_direccion = get_valor_registro(registro_direccion);
+        validar_direccion(valor_registro_direccion);
     }
     if(strcmp(instruccion_exec_split[0],"WRITE_MEM") == 0){
-        //
+        char *registro_direccion = instruccion_exec_split[1];
+        int valor_registro_direccion = get_valor_registro(registro_direccion);
+        validar_direccion(valor_registro_direccion);   
     }
-    //TO DO
 }
 
 void execute(){
 
-    ejecutarSentencia(socket_memoria);
-    //TO DO
+    ejecutarSentencia();
 }
 
 void check_interrupt(){

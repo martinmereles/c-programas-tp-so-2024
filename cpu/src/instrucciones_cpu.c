@@ -59,21 +59,10 @@ void read_mem(char *registro_datos, char *registro_direccion)
     // TO DO Pasar a decode
     // Lee el valor de memoria correspondiente a la Dirección Lógica
     // que se encuentra en el Registro Dirección y lo almacena en el Registro Datos.
-    int valor_registro_direccion = get_valor_registro(registro_direccion);
-    if(validar_direccion(valor_registro_direccion) != 0)
-    {
-        //Segmentation fault
-        //Mensaje a memoria para actualizar contexto
-        crear_paquete_contexto();
-        //Mensaje a Kernel con tid con motivo segmentation fault
-        char* mensaje = string_new();
-        string_append(&mensaje,"SEGMENTATION_FAULT ");
-        string_append(&mensaje, tid);
-        enviar_mensaje(mensaje ,socket_kernel_dispatch);
-    }
+    
     //Leer de Registro direccion
-
-    log_info(logger, "##TID: %d - Acción: LEER - Dirección Física: %d", tid, valor_registro_direccion);
+    //TO DO
+    log_info(logger, "##TID: %d - Acción: LEER - Dirección Física: %d", tid, direccion_fisica);
 
     log_info(logger, "##TID: %d - Ejecutando: READ_MEM - %s %s", tid, registro_datos, registro_direccion);
 }
@@ -83,21 +72,10 @@ void write_mem(char *registro_direccion, char *registro_datos)
     // TO DO Pasar a decode
     // Lee el valor del Registro Datos y lo escribe en la dirección
     // física de memoria obtenida a partir de la Dirección Lógica almacenada en el Registro Dirección.
-    int valor_registro_direccion = get_valor_registro(registro_direccion);
-    if(validar_direccion(valor_registro_direccion) != 0)
-    {
-        //Segmentation fault
-        //Mensaje a memoria para actualizar contexto
-        crear_paquete_contexto();
-        //Mensaje a Kernel con tid con motivo segmentation fault
-        char* mensaje = string_new();
-        string_append(&mensaje,"SEGMENTATION_FAULT ");
-        string_append(&mensaje, tid);
-        enviar_mensaje(mensaje ,socket_kernel_dispatch);
-    }
-    //escribir en la direccion
-
-    log_info(logger, "##TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, valor_registro_direccion);
+   
+    //Escribir en la direccion
+    //TO DO
+    log_info(logger, "##TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, direccion_fisica);
 
     log_info(logger, "##TID: %d - Ejecutando: WRITE_MEM - %s %s", tid, registro_direccion, registro_datos);
 }
@@ -1255,10 +1233,9 @@ void log(char *registro)
     log_info(logger, "##TID: %d - Ejecutando: LOG - %s", tid, registro);
 }
 
-void ejecutarSentencia(int socket_cliente_memoria)
+void ejecutarSentencia()
 {
 
-    char *instruccion_exec;
     char **sentenciasSplit = string_split(instruccion_exec, " ");
     if (strcmp(sentenciasSplit[0], "SET") == 0)
     {

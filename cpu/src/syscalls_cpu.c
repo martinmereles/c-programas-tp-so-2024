@@ -7,9 +7,6 @@ void process_create(char * arch_instrucciones, char *tamanio, char *prioridad_ti
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
     
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-
     //enviar mensaje a Kernel
     char* mensaje = string_new();
     string_append(&mensaje,"PROCESS_CREATE ");
@@ -31,9 +28,6 @@ void process_exit(){
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
 
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-
     //enviar mensaje a Kernel
     char* mensaje = string_new();
     string_append(&mensaje,"PROCESS_EXIT");
@@ -48,9 +42,6 @@ void thread_create(char * arch_instrucciones, char* prioridad){
 
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
-
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     
     //enviar mensaje a Kernel
     char* mensaje = string_new();
@@ -69,9 +60,6 @@ void thread_join(char* tid_var){
 
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
-
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     
     //enviar mensaje a Kernel
     char* mensaje = string_new();
@@ -89,9 +77,6 @@ void thread_cancel(char* tid_var){
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
 
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-
     //enviar mensaje a Kernel
     char* mensaje = string_new();
     string_append(&mensaje,"THREAD_CANCEL ");
@@ -107,9 +92,6 @@ void thread_exit(){
 
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
-
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     
     //enviar mensaje a Kernel
     char* mensaje = string_new();
@@ -126,9 +108,6 @@ void mutex_create(char* recurso){
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
 
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-
     //enviar mensaje a Kernel
     char* mensaje = string_new();
     string_append(&mensaje,"MUTEX_CREATE ");
@@ -144,9 +123,6 @@ void mutex_lock(char* recurso){
 
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
-    
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
 
     //enviar mensaje a Kernel
     char* mensaje = string_new();
@@ -163,9 +139,6 @@ void mutex_unlock(char* recurso){
 
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
-
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     
     //enviar mensaje a Kernel
     char* mensaje = string_new();
@@ -183,9 +156,6 @@ void dump_memory(){
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
 
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-
     //enviar mensaje a Kernel
     char* mensaje = string_new();
     string_append(&mensaje,"DUMP_MEMORY");
@@ -200,9 +170,6 @@ void io(char* tiempo){
 
     //Crear paquete y enviar a memoria
     crear_paquete_contexto();
-
-    //Esperar respuesta memoria
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     
     //enviar mensaje a Kernel
     char* mensaje = string_new();
