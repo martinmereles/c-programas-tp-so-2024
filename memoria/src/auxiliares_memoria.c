@@ -59,8 +59,8 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   t_contexto_proceso *proceso = malloc(sizeof(t_contexto_proceso));
 
   proceso->pid = pid;
-  proceso->BASE = particion_asignada->BASE; 
-  proceso->LIMITE = particion_asignada->BASE + tamanio; 
+  proceso->BASE = particion_asignada->BASE;
+  proceso->LIMITE = particion_asignada->BASE + tamanio;
 
   list_add(procesos, proceso);
   crear_hilo(archivo_instrucciones, prioridad, pid, 0, socket_cliente);
@@ -70,8 +70,48 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
 t_particion *asignar_particion(tamanio)
 {
   t_particion *particion_asignada;
-    //TODO encontrar particion segun algoritmo
+
+  if (strcmp(esquema, "FIJAS") == 0)
+  {
+    if (strcmp(algoritmo, "FIRST") == 0)
+    {
+
+    }
+    else if (strcmp(algoritmo, "BEST") == 0)
+    {
+    }
+
+    else if (strcmp(algoritmo, "WORST") == 0)
+    {
+    }
+  }
+  else if (strcmp(esquema, "DINAMICAS") == 0)
+  {
+    if (strcmp(algoritmo, "FIRST") == 0)
+    {
+    }
+    else if (strcmp(algoritmo, "BEST") == 0)
+    {
+    }
+
+    else if (strcmp(algoritmo, "WORST") == 0)
+    {
+    }
+  }
+
   return particion_asignada;
+}
+
+t_particion* first_fit(){
+
+}
+
+t_particion* best_fit(){
+  
+}
+
+t_particion* worst_fit(){
+  
 }
 
 void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, int socket_cliente)
