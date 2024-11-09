@@ -188,23 +188,24 @@ void ejecutar_fifo(socket_cpu_dispatch){
 
         t_tcb* tcb_a_enviar = malloc(sizeof(t_tcb));
         sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
-        if (list_size(QUEUE_READY) <0)
-        {
-            log_info(logger, "LA COLA READY SE ENCUENTRA VACIA");
-            sem_wait(&sem_contador_ready);
-            return;
-        }
-        else {
-        sem_wait(&sem_contador_ready);
+        sem_wait(&sem_array_estados[1].contador);
+        // sacar el primero de READY y pasarlo a RUNNING
+        sem_wait(&sem_array_estados[1].mutex);
+        sem_wait(&sem_array_estados[2].mutex);
+
         tcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
         sem_post(&planificador_corto_plazo);
+        sem_post(&sem_array_estados[1].mutex);
+        sem_post(&sem_array_estados[2].mutex);
+        sem_post(&sem_array_estados[2].contador);
+
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
-        return;
+        
         }
         
-    }
+    
 }
 
 void ejecutar_prioridades(socket_cpu_dispatch){
@@ -288,8 +289,9 @@ int get_index (int prioridad){
     t_tcb* elemento = list_get (QUEUE_READY, 0);
 
     while( elemento->prioridad <= prioridad && index< list_size(QUEUE_READY)) {
-        index++;
+        
         elemento = list_get (QUEUE_READY, index);
+        index++;
     }
     }
     return index;
