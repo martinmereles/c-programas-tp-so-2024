@@ -181,6 +181,7 @@ void ejecutar_fifo(socket_cpu_dispatch){
         {
             log_info(logger, "LA COLA READY SE ENCUENTRA VACIA");
             sem_wait(&sem_contador_ready);
+            return;
         }
         else {
         sem_wait(&sem_contador_ready);
@@ -188,20 +189,46 @@ void ejecutar_fifo(socket_cpu_dispatch){
         list_add(QUEUE_EXEC, tcb_a_enviar);
         sem_post(&planificador_corto_plazo);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
-        dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch)
+        dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
+        return;
         }
         
     }
 }
 
 void ejecutar_prioridades(socket_cpu_dispatch){
+ while(1){        
 
+        t_tcb* tcb_a_enviar = malloc(sizeof(t_tcb));
+        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
+        
+        if (list_size(QUEUE_READY) <0)//valido que la lista no este vacia, si esta hago wait del semaforo para que no quede loopeando
+        {
+            log_info(logger, "LA COLA READY SE ENCUENTRA VACIA");
+            sem_wait(&sem_contador_ready);
+        }
+        else {
+        sem_wait(&sem_contador_ready);
 
+        void* _mayor_prioridad(void* a, void* b) {
+        t_tcb* tcb_a = (t_tcb*) a;
+        t_tcb* tcb_b = (t_tcb*) b;
+        return tcb_a->prioridad <= tcb_b->prioridad ? tcb_a : tcb_b;
+        }
+        tcb_a_enviar = list_get_minimum(QUEUE_READY, _mayor_prioridad);
+        list_add(QUEUE_EXEC, tcb_a_enviar);
 
+        list_remove_element(QUEUE_READY, tcb_a_enviar);
+        sem_post(&planificador_corto_plazo);
+        log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
+        dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
+        }
 
 
 }
+
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
+    
 
 }
 
