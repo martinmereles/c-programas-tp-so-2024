@@ -1,5 +1,5 @@
-#ifndef _AUXILIARES_KERNEL_H_
-#define _AUXILIARES_KERNEL_H_
+#ifndef _SYSCALLS_H_
+#define _SYSCALLS_H_
 
 #include <utils/client-server.h>
 #include <utils/config.h>
@@ -34,12 +34,14 @@ extern sem_t sem_contador_ready;
 extern sem_t sem_mutex_colas;
 
 
-void process_create (char* archivo, int tamanio, int prioridad);
-void process_exit (int tid);
-void thread_create(char* archivo_ps, int tid);
-void thread_join (int tid):
-void thread_cancel (int tid);
-void thread_exit (int tid);
-void mutex_create ();
-void mutex_lock ();
-void mutex_unlock ();
+void sys_process_create (char* archivo, int tamanio, int prioridad);
+void sys_process_exit (int tid);
+void sys_thread_create(char* archivo_ps, int tid);
+void sys_thread_join (int tid);
+void sys_thread_cancel (int tid);
+void sys_thread_exit (int tid);
+void sys_mutex_create ();
+void sys_mutex_lock ();
+void sys_mutex_unlock ();
+
+#endif

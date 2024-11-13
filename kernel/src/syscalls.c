@@ -2,36 +2,35 @@
 #include <../include/auxiliares_kernel.h>
 
 
-void process_create (char* archivo, int tamanio, int prioridad){
+void sys_crear_proceso (char* archivo, int tamanio, int prioridad){
+}
+
+void sys_process_exit (int tid) {
 
 }
 
-void process_exit (int tid) {
+void sys_thread_create(char* archivo_ps, int tid) {
 
 }
 
-void thread_create(char* archivo_ps, int tid) {
+void sys_thread_join (int tid) {
 
 }
 
-void thread_join (int tid) {
+void sys_thread_cancel (int tid) {
 
 }
 
-void thread_cancel (int tid) {
+void sys_thread_exit (int tid) {
 
 }
 
-void thread_exit (int tid) {
+void sys_mutex_create () {
 
 }
 
-void mutex_create () {
-
+void sys_mutex_lock () {
 }
 
-void mutex_lock () {
-}
-
-void mutex_unlock () {
+void sys_mutex_unlock () {
 }
