@@ -195,7 +195,7 @@ void ejecutar_fifo(socket_cpu_dispatch){
         sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
-        
+        char* mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
         }
         
     
@@ -213,6 +213,7 @@ void ejecutar_prioridades(socket_cpu_dispatch){
         sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
+        char* mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
         }
 
 
@@ -242,7 +243,7 @@ void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
                         aviso_quantum,
                         mensaje);
 	    pthread_detach(hilo_quantum);
-        
+        char* mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
 
         }
 
@@ -347,3 +348,39 @@ void aviso_quantum(char* mensaje){
         enviar_mensaje(mensaje, socket_cpu_interrupt);
         log_info(logger, "Se envia el mensaje %s" , mensaje);
 }
+
+char *recibir_desde_cpu(int socket_cliente)
+{
+
+    t_list *lista;
+    int cod_op = recibir_operacion(socket_cliente);
+    switch (cod_op)
+    {
+    case MENSAJE: //validar que mensajes llegan desde CPU
+        int size;
+        char *buffer = recibir_buffer(&size, socket_cliente);
+        log_info(logger, "Me llego el mensaje %s", buffer);
+        // void * mensaje;
+        char *mensaje;
+        if (string_starts_with(buffer, "PROCESO "))
+        {
+            mensaje = buffer;
+        }
+        
+        free(buffer);
+        return mensaje;
+        break;
+    case PAQUETE:
+        lista = recibir_paquete(socket_cliente);
+        log_info(logger, "Me llegaron los siguientes valores:\n");
+        list_iterate(lista, (void *)iterator);
+        break;
+    case -1:
+        log_error(logger, "el cliente se desconecto.");
+        return EXIT_FAILURE;
+    default:
+        log_warning(logger, "Operacion desconocida. No quieras meter la pata");
+        break;
+    }
+}
+

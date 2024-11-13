@@ -33,26 +33,13 @@ extern sem_t sem_corto_plazo;
 extern sem_t sem_contador_ready;
 extern sem_t sem_mutex_colas;
 
-void crear_proceso (char* archivo, int tamanio, int prioridad);
-void finalizar_proceso (t_pcb* pcb;);
-bool es_pcb_buscado(int pid_buscado, void *elemento);
-void planificador_largo_plazo ();
-t_tcb* crear_hilo (int prioridad, int ppid, int tid);
-void finalizar_hilo (int pid, int tid, t_list* cola);
-bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento);
 
-void ejecutar_fifo(socket_cpu_dispatch);
-void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
-void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
-
-void dispatcher(int tid, int pid, int socket_cpu_dispatch);
-void aviso_quantum(char* mensaje);
-
-int get_index (int prioridad);
-
-char *recibir_desde_memoria(int socket_cliente);
-char *recibir_desde_cpu(int socket_cliente);
-
-
-
-#endif
+void process_create (char* archivo, int tamanio, int prioridad);
+void process_exit (int tid);
+void thread_create(char* archivo_ps, int tid);
+void thread_join (int tid):
+void thread_cancel (int tid);
+void thread_exit (int tid);
+void mutex_create ();
+void mutex_lock ();
+void mutex_unlock ();
