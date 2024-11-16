@@ -69,6 +69,12 @@ typedef struct {
     int tid;
 } t_proceso_hilo;
 
+typedef struct 
+{
+    sem_t mutex;
+    sem_t contador;
+}t_sem_estados;
+
 //estructuras para memoria
 typedef struct {
     int pid;

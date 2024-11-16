@@ -15,6 +15,7 @@ int contador_pid;
 sem_t sem_largo_plazo;
 sem_t sem_corto_plazo;
 sem_t sem_contador_ready;
+sem_t sem_mutex_colas;
 
 char* algoritmo_planificacion;
 int quantum;
@@ -36,6 +37,8 @@ int main(int argc, char** argv) {
     sem_init(&sem_largo_plazo,0,0);
     sem_init(&sem_corto_plazo,0,0);
     sem_init(&sem_contador_ready,0,0);
+    sem_init(&sem_mutex_colas,0,1);
+    
     
     char* archivo = argv [1];
     int tamanio_proceso = atoi(argv[2]);

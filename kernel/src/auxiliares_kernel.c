@@ -186,38 +186,34 @@ void planificador_corto_plazo(){
 void ejecutar_fifo(socket_cpu_dispatch){
         while(1){        
 
-        t_tcb* tcb_a_enviar = malloc(sizeof(t_tcb));
-        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
-        if (list_size(QUEUE_READY) <0)
-        {
-            log_info(logger, "LA COLA READY SE ENCUENTRA VACIA");
-            sem_wait(&sem_contador_ready);
-            return;
-        }
-        else {
+        
         sem_wait(&sem_contador_ready);
-        tcb_a_enviar = list_remove(QUEUE_READY, 0);
+        sem_wait(&sem_corto_plazo);
+        sem_wait(&sem_mutex_colas);
+        t_tcb* tcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
-        sem_post(&planificador_corto_plazo);
+        sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
-        return;
+        char* mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
         }
         
-    }
+    
 }
 
 void ejecutar_prioridades(socket_cpu_dispatch){
  while(1){        
 
         
-        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
         sem_wait(&sem_contador_ready);
+        sem_wait(&sem_corto_plazo);
+        sem_wait(&sem_mutex_colas);
         t_tcb* tcb_a_enviar = list_remove(QUEUE_READY,0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
-        sem_post(&planificador_corto_plazo);
+        sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
+        char* mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
         }
 
 
@@ -226,15 +222,29 @@ void ejecutar_prioridades(socket_cpu_dispatch){
 
 void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt){
      while(1){        
-
-        
-        sem_wait(&planificador_corto_plazo); // validar que no sean necesarios mas semaforos
         sem_wait(&sem_contador_ready);
+        sem_wait(&sem_corto_plazo);
+        sem_wait(&sem_mutex_colas);
+        
         t_tcb* tcb_a_enviar = list_remove(QUEUE_READY,0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
-        sem_post(&planificador_corto_plazo);
+        sem_post(&sem_mutex_colas);
         log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid, socket_cpu_dispatch);
+        char* mensaje = string_new();
+        string_append(&mensaje, "FIN_QUANTUM ");
+        string_append(&mensaje, string_itoa(tcb_a_enviar->ppid));
+        string_append(&mensaje, " ");
+        string_append(&mensaje, string_itoa(tcb_a_enviar->tid));
+        //Inicio hilo quantum
+       	pthread_t hilo_quantum;
+	    pthread_create(&hilo_quantum,
+                        NULL,
+                        aviso_quantum,
+                        mensaje);
+	    pthread_detach(hilo_quantum);
+        char* mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
+
         }
 
 }
@@ -330,3 +340,47 @@ char *recibir_desde_memoria(int socket_cliente)
         break;
     }
 }
+
+void aviso_quantum(char* mensaje){
+
+        int quantum_milisecons = quantum * 1000;
+        usleep(quantum_milisecons);
+        enviar_mensaje(mensaje, socket_cpu_interrupt);
+        log_info(logger, "Se envia el mensaje %s" , mensaje);
+}
+
+char *recibir_desde_cpu(int socket_cliente)
+{
+
+    t_list *lista;
+    int cod_op = recibir_operacion(socket_cliente);
+    switch (cod_op)
+    {
+    case MENSAJE: //validar que mensajes llegan desde CPU
+        int size;
+        char *buffer = recibir_buffer(&size, socket_cliente);
+        log_info(logger, "Me llego el mensaje %s", buffer);
+        // void * mensaje;
+        char *mensaje;
+        if (string_starts_with(buffer, "PROCESO "))
+        {
+            mensaje = buffer;
+        }
+        
+        free(buffer);
+        return mensaje;
+        break;
+    case PAQUETE:
+        lista = recibir_paquete(socket_cliente);
+        log_info(logger, "Me llegaron los siguientes valores:\n");
+        list_iterate(lista, (void *)iterator);
+        break;
+    case -1:
+        log_error(logger, "el cliente se desconecto.");
+        return EXIT_FAILURE;
+    default:
+        log_warning(logger, "Operacion desconocida. No quieras meter la pata");
+        break;
+    }
+}
+
