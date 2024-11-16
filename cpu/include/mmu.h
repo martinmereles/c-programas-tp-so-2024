@@ -2,7 +2,14 @@
 #define MMU_H
 
 /*------------------------LIBRERIAS------------------------*/
-
+#include <semaphore.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <string.h>
+#include <assert.h>
+#include <signal.h>
 /*------------------------VARIABLES------------------------*/
 extern int socket_kernel_dispatch;
 extern sem_t sem_execute;
@@ -23,7 +30,7 @@ extern uint32_t LIMITE;
 extern int direccion_fisica;
 
 /*------------------------DECLARACIONES------------------------*/
-bool validar_direccion(int direccion);
+void validar_direccion(int direccion);
 int obtener_direccion_fisica(int direccion_logica);
 
 #endif

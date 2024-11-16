@@ -291,46 +291,59 @@ void hilo_cliente_memoria(int socket_servidor)
 
 void atender_cliente_memoria(int socket_cliente)
 {
-  t_atencion* parem_atencion = malloc(sizeof(t_atencion));
-  
+  int cod_op;
+  int size;
+  char *buffer;
+  t_list *lista;
+
+  t_atencion_mensaje *param_atencion_mensaje = malloc(sizeof(t_atencion_mensaje));
+  t_atencion_paquete *param_atencion_paquete = malloc(sizeof(t_atencion_paquete));
   while (1)
   {
-    int cod_op = recibir_operacion(socket_cliente);
-    parem_atencion->cod_op = cod_op;
-    parem_atencion->socket_cliente = socket_cliente;
-    pthread_t hiloAtencion;
-    pthread_create(&hiloAtencion,
-                   NULL,
-                   (void *)atender_cliente_memoria,
-                   parem_atencion);
-    pthread_detach(hiloAtencion);
+    cod_op = recibir_operacion(socket_cliente);
+    switch (cod_op)
+    {
+    case MENSAJE:
+      buffer = recibir_buffer(&size, socket_cliente);
+
+      param_atencion_mensaje->buffer = buffer;
+      param_atencion_mensaje->socket_cliente = socket_cliente;
+      pthread_t hiloAtencionMensaje;
+      pthread_create(&hiloAtencionMensaje,
+                     NULL,
+                     (void *)entender_mensaje_memoria,
+                     param_atencion_mensaje);
+      pthread_detach(hiloAtencionMensaje);
+
+      break;
+    case PAQUETE:
+
+      lista = recibir_paquete(socket_cliente);
+
+      param_atencion_paquete->lista = lista;
+      param_atencion_paquete->socket_cliente = socket_cliente;
+      pthread_t hiloAtencionPaquete;
+      pthread_create(&hiloAtencionPaquete,
+                     NULL,
+                     (void *)entender_paquete_memoria,
+                     param_atencion_paquete);
+      pthread_detach(hiloAtencionPaquete);
+      break;
+    case -1:
+      log_error(logger, "El cliente se desconecto.");
+      return EXIT_FAILURE;
+    default:
+      log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
+      break;
+    }
   }
 }
 
-void atender_peticion(t_atencion* parem_atencion)
-{ t_list *lista;
-  switch (parem_atencion->cod_op)
-  {
-  case MENSAJE:
-    entender_mensaje_memoria(parem_atencion->socket_cliente);
-    break;
-  case PAQUETE:
-    lista = recibir_paquete(parem_atencion->socket_cliente);
-    entender_paquete_memoria(lista, parem_atencion->socket_cliente);
-    break;
-  case -1:
-    log_error(logger, "El cliente se desconecto.");
-    return EXIT_FAILURE;
-  default:
-    log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
-    break;
-  }
-}
-
-void entender_mensaje_memoria(int socket_cliente)
+void entender_mensaje_memoria(t_atencion_mensaje *param_atencion)
 {
-  int size;
-  char *buffer = recibir_buffer(&size, socket_cliente);
+  char *buffer = param_atencion->buffer;
+  int socket_cliente = param_atencion->socket_cliente;
+
   char **mensaje_split = string_split(buffer, " ");
 
   if (string_starts_with(buffer, "PROXIMA_INSTRUCCION"))
@@ -348,6 +361,12 @@ void entender_mensaje_memoria(int socket_cliente)
   else if (string_starts_with(buffer, "THREAD_CREATE"))
   {
     crear_hilo(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
+  }
+  else
+  {
+    printf("%s\n", buffer);
+    sleep(20);
+    printf("%s\n", "Termino");
   }
 
   free(buffer);
@@ -439,8 +458,11 @@ void actualizar_contexto(t_list *lista, int socket_cliente)
   enviar_mensaje("CONTEXTO_GUARDADO", socket_cliente);
 }
 
-void entender_paquete_memoria(t_list *lista, int socket_cliente)
+void entender_paquete_memoria(t_atencion_paquete *param_atencion)
 {
+  t_list *lista = param_atencion->lista;
+  int socket_cliente = param_atencion->socket_cliente;
+
   if (string_starts_with(list_get(lista, 0), "ACTUALIZAR_CONTEXTO"))
   {
     actualizar_contexto(lista, socket_cliente);

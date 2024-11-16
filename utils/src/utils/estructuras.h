@@ -96,8 +96,13 @@ typedef struct {
 }t_particion;
 
 typedef struct {
-    int cod_op;
+    char* buffer;
     int socket_cliente;
-}t_atencion;
+}t_atencion_mensaje;
+
+typedef struct {
+    t_list* lista;
+    int socket_cliente;
+}t_atencion_paquete;
 
 #endif

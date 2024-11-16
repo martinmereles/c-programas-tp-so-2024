@@ -23,11 +23,11 @@ void leer_instrucciones (char* path, t_list* lista_instrucciones);
 void atender_cliente_memoria(int socket_cliente);
 void hilo_cliente_memoria(int socket_servidor);
 pthread_t iniciar_hilo_server_memoria(char *puerto);
-void entender_mensaje_memoria(int socket_cliente);
+void entender_mensaje_memoria(t_atencion_mensaje* param_atencion);
 void proxima_instruccion(int pid, int tid, int pc, int socket_cliente);
 void obtener_contexto(int pid, int tid, int socket_cliente);
 t_contexto_hilo *find_by_pid_tid(t_list *hilos, int pid, int tid);
-void entender_paquete_memoria(t_list* lista, int socket_cliente);
+void entender_paquete_memoria(t_atencion_paquete* param_atencion);
 t_contexto_hilo *find_by_pid(t_list *procesos, int pid);
 void iniciar_memoria_fija(char** particiones_array);
 void iniciar_memoria_dinamica();
@@ -36,6 +36,5 @@ t_particion* asignar_particion(int tamanio, int pid);
 t_particion *first_fit(int tamanio_necesario, int pid);
 t_particion *best_fit(int tamanio_necesario, int pid);
 t_particion *worst_fit(int tamanio_necesario, int pid);
-void atender_peticion(t_atencion* parem_atencion);
 
 #endif
