@@ -34,9 +34,9 @@ bool hay_espacio(int tamanio_necesario)
   {
     particion = list_get(lista_particiones, i);
     if (particion->pid == -1 && tamanio_necesario <= particion->LIMITE)
-      {
-        respuesta = true;
-      }
+    {
+      respuesta = true;
+    }
     i++;
   }
 
@@ -136,7 +136,7 @@ t_particion *best_fit(int tamanio_necesario, int pid)
     particion_aux = list_get(lista_particiones, i);
     if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE)
     {
-      particion_best= particion_aux;
+      particion_best = particion_aux;
       break;
     }
   }
@@ -145,10 +145,10 @@ t_particion *best_fit(int tamanio_necesario, int pid)
   for (i; i < list_size(lista_particiones); i++)
   {
     particion_aux = list_get(lista_particiones, i);
-    if(particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE < particion_best->LIMITE){
+    if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE < particion_best->LIMITE)
+    {
       particion_best = particion_aux;
     }
-
   }
 
   if (strcmp(esquema, "DINAMICAS"))
@@ -171,7 +171,8 @@ t_particion *best_fit(int tamanio_necesario, int pid)
 }
 
 t_particion *worst_fit(int tamanio_necesario, int pid)
-{  t_particion *particion_aux;
+{
+  t_particion *particion_aux;
   t_particion *particion_worst;
   int i = 0;
   for (i; i < list_size(lista_particiones); i++)
@@ -180,7 +181,7 @@ t_particion *worst_fit(int tamanio_necesario, int pid)
     particion_aux = list_get(lista_particiones, i);
     if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE)
     {
-      particion_worst= particion_aux;
+      particion_worst = particion_aux;
       break;
     }
   }
@@ -189,10 +190,10 @@ t_particion *worst_fit(int tamanio_necesario, int pid)
   for (i; i < list_size(lista_particiones); i++)
   {
     particion_aux = list_get(lista_particiones, i);
-    if(particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE > particion_worst->LIMITE){
+    if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE > particion_worst->LIMITE)
+    {
       particion_worst = particion_aux;
     }
-
   }
 
   if (strcmp(esquema, "DINAMICAS"))
@@ -290,28 +291,39 @@ void hilo_cliente_memoria(int socket_servidor)
 
 void atender_cliente_memoria(int socket_cliente)
 {
-
-  t_list *lista;
+  t_atencion* parem_atencion = malloc(sizeof(t_atencion));
+  
   while (1)
   {
     int cod_op = recibir_operacion(socket_cliente);
+    parem_atencion->cod_op = cod_op;
+    parem_atencion->socket_cliente = socket_cliente;
+    pthread_t hiloAtencion;
+    pthread_create(&hiloAtencion,
+                   NULL,
+                   (void *)atender_cliente_memoria,
+                   parem_atencion);
+    pthread_detach(hiloAtencion);
+  }
+}
 
-    switch (cod_op)
-    {
-    case MENSAJE:
-      entender_mensaje_memoria(socket_cliente);
-      break;
-    case PAQUETE:
-      lista = recibir_paquete(socket_cliente);
-      entender_paquete_memoria(lista, socket_cliente);
-      break;
-    case -1:
-      log_error(logger, "El cliente se desconecto.");
-      return EXIT_FAILURE;
-    default:
-      log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
-      break;
-    }
+void atender_peticion(t_atencion* parem_atencion)
+{ t_list *lista;
+  switch (parem_atencion->cod_op)
+  {
+  case MENSAJE:
+    entender_mensaje_memoria(parem_atencion->socket_cliente);
+    break;
+  case PAQUETE:
+    lista = recibir_paquete(parem_atencion->socket_cliente);
+    entender_paquete_memoria(lista, parem_atencion->socket_cliente);
+    break;
+  case -1:
+    log_error(logger, "El cliente se desconecto.");
+    return EXIT_FAILURE;
+  default:
+    log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
+    break;
   }
 }
 

@@ -3,6 +3,7 @@
 
 /*------------------------LIBRERIAS------------------------*/
 #include <commons/string.h>
+#include <commons/log.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,6 +16,7 @@ extern int tid;
 extern uint32_t PC;
 extern uint32_t BASE;
 extern char* instruccion_exec;
+extern t_log* logger;
 
 /*------------------------DECLARACIONES------------------------*/
 void fetch();

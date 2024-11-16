@@ -18,7 +18,7 @@ int iniciar_servidor(char *puerto)
 	socket_servidor = socket(server_info->ai_family,
 							 server_info->ai_socktype,
 							 server_info->ai_protocol);
-	
+
 	// Para reutilizar socket sin esperar
 	int verdadero = 1;
 	if (setsockopt(socket_servidor, SOL_SOCKET, SO_REUSEPORT, &verdadero, sizeof(int)) < 0)
@@ -26,12 +26,12 @@ int iniciar_servidor(char *puerto)
 
 	// Asociamos el socket a un puerto
 	err = bind(socket_servidor, server_info->ai_addr, server_info->ai_addrlen);
-	
+
 	// Escuchamos las conexiones entrantes
 	err = listen(socket_servidor, SOMAXCONN);
-	
+
 	freeaddrinfo(server_info);
-	
+
 	return socket_servidor;
 }
 
@@ -213,19 +213,20 @@ void iterator(char *value)
 pthread_t iniciar_hilo_server(char *puerto)
 {
 	int socket_servidor = iniciar_servidor(puerto);
-	
-		pthread_t hiloAtencion;
-		pthread_create(&hiloAtencion,
-					   NULL,
-					   (void *)hilo_cliente,
-					   socket_servidor);
+
+	pthread_t hiloAtencion;
+	pthread_create(&hiloAtencion,
+				   NULL,
+				   (void *)hilo_cliente,
+				   socket_servidor);
 
 	return hiloAtencion;
-	
 }
 
-void hilo_cliente(int socket_servidor){
-	while(1){
+void hilo_cliente(int socket_servidor)
+{
+	while (1)
+	{
 
 		int socket_cliente = esperar_cliente(socket_servidor);
 		pthread_t hiloCliente;
@@ -234,20 +235,17 @@ void hilo_cliente(int socket_servidor){
 					   (void *)atender_cliente,
 					   socket_cliente);
 		pthread_detach(hiloCliente);
-
 	}
-
 }
 
 void atender_cliente(int socket_cliente)
-{	
-	
+{
 
 	t_list *lista;
 	while (1)
-	{	
+	{
 		int cod_op = recibir_operacion(socket_cliente);
-		
+
 		switch (cod_op)
 		{
 		case MENSAJE:
@@ -265,7 +263,5 @@ void atender_cliente(int socket_cliente)
 			log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
 			break;
 		}
-		
 	}
 }
-

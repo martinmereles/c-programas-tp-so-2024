@@ -36,5 +36,6 @@ t_particion* asignar_particion(int tamanio, int pid);
 t_particion *first_fit(int tamanio_necesario, int pid);
 t_particion *best_fit(int tamanio_necesario, int pid);
 t_particion *worst_fit(int tamanio_necesario, int pid);
+void atender_peticion(t_atencion* parem_atencion);
 
 #endif

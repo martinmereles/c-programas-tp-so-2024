@@ -89,5 +89,9 @@ typedef struct {
     uint32_t LIMITE;
 }t_particion;
 
+typedef struct {
+    int cod_op;
+    int socket_cliente;
+}t_atencion;
 
 #endif

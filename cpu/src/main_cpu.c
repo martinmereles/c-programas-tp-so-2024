@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
     char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
     socket_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde cpu!",socket_memoria);
+    enviar_mensaje("Me conecto desde cpu!",socket_memoria);
 
     //Iniciar hilo servidor dispatch
     char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");
