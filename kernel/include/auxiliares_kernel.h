@@ -53,6 +53,9 @@ int get_index (int prioridad);
 char *recibir_desde_memoria(int socket_cliente);
 char *recibir_desde_cpu(int socket_cliente);
 
+void replanificar_hilo( int pid , int tid);
+void atender_io(int pid, int tid, int tiempo);
+
 
 
 #endif

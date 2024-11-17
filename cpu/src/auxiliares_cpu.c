@@ -48,6 +48,7 @@ char *recibir_desde_memoria(int socket_cliente)
         if (string_starts_with(buffer, "CONTEXTO_GUARDADO"))
         {
             mensaje = buffer;
+            atender_mensaje_cpu(mensaje);
         }
         free(buffer);
         return mensaje;

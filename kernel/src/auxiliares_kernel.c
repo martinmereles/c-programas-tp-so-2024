@@ -360,11 +360,21 @@ char *recibir_desde_cpu(int socket_cliente)
         int size;
         char *buffer = recibir_buffer(&size, socket_cliente);
         log_info(logger, "Me llego el mensaje %s", buffer);
+        char * mensaje = buffer;
         // void * mensaje;
-        char *mensaje;
-        if (string_starts_with(buffer, "PROCESO "))
+        char** mensaje_split;
+        mensaje_split = string_split(mensaje, " ");
+        if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_QUATUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
         {
-            mensaje = buffer;
+            replanificar_hilo(atoi(mensaje_split[1]),atoi(mensaje_split[2]));
+        }
+        else if (strcmp(mensaje_split[3], "NTERRUPCION_FIN_HILO") == 0){
+
+            finalizar_hilo (atoi(mensaje_split[1]),atoi(mensaje_split[2]), QUEUE_EXEC);
+        }
+        else if (strcmp(mensaje_split[3], "INTERRUPCION_I_O") == 0)
+        {
+            atender_io (atoi(mensaje_split[1]),atoi(mensaje_split[2]), atoi((mensaje_split[3])));
         }
         
         free(buffer);
@@ -384,3 +394,39 @@ char *recibir_desde_cpu(int socket_cliente)
     }
 }
 
+void replanificar_hilo( int pid , int tid){
+    
+    bool _es_tcb_buscado(void *elemento)
+    {
+        return es_tcb_buscado(pid, tid, elemento);
+    }
+    t_tcb* tcb_encontrado;
+    sem_wait(&sem_mutex_colas);
+    tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado);
+    int index = get_index (tcb_encontrado->prioridad);
+    list_add_in_index(QUEUE_READY, index, tcb_encontrado);
+    sem_post(&sem_mutex_colas);
+
+
+
+}
+
+void atender_io(int pid, int tid, int tiempo) {
+    bool _es_tcb_buscado(void *elemento)
+    {
+        return es_tcb_buscado(pid, tid, elemento);
+    }
+    t_tcb* tcb_encontrado;
+    sem_wait(&sem_mutex_colas);
+    tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado);
+    list_add(QUEUE_BLOCKED, tcb_encontrado);
+    sem_post(&sem_mutex_colas);
+    int tiempo_miliseconds = tiempo *1000;
+    usleep(tiempo_miliseconds*1000);
+    sem_wait(&sem_mutex_colas);
+    list_remove_element(QUEUE_BLOCKED, tcb_encontrado);
+    int index = get_index (tcb_encontrado->prioridad);
+    list_add_in_index(QUEUE_READY, index, tcb_encontrado);
+    sem_post(&sem_mutex_colas);
+
+}

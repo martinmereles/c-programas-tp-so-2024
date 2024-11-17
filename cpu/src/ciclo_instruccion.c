@@ -38,7 +38,7 @@ void execute(){
     ejecutarSentencia();
 }
 
-void check_interrupt(){
+void check_interrupt(){ // desde kernel se entienden los mensajes: "HILO PID TID INTERRUPCION_FIN_QUATUM",  "HILO PID TID INTERRUPCION_FIN_HILO", "HILO PID TID INTERRUPCION_I_O"
     
     //TO DO
 }
