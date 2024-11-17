@@ -17,8 +17,9 @@
 #include <commons/collections/queue.h>
 #include <semaphore.h>
 
-//estructuras para Kernel
-typedef enum {
+// estructuras para Kernel
+typedef enum
+{
     NEW,
     READY,
     EXEC,
@@ -26,17 +27,19 @@ typedef enum {
     EXIT
 } T_ESTADO;
 
-typedef struct {
+typedef struct
+{
     int pid;
-    t_list* tids;
-    t_list* mutex;
+    t_list *tids;
+    t_list *mutex;
     T_ESTADO estado;
     int prioridad_hilo_main;
     int tamanio;
-    char* archivo;
+    char *archivo;
 } t_pcb;
 
-typedef struct {
+typedef struct
+{
     int tid;
     int ppid;
     int prioridad;
@@ -54,46 +57,62 @@ typedef struct
     uint32_t FX;
     uint32_t GX;
     uint32_t HX;
-}t_contexto;
+} t_contexto;
 
-typedef struct {
-    char* nombre;
+typedef struct
+{
+    char *nombre;
     int valor;
     int pid_asignado;
     int tid_asignado;
-    t_queue* bloqueados; 
-}t_mutex;
+    t_queue *bloqueados;
+} t_mutex;
 
-typedef struct {
+typedef struct
+{
     int pid;
     int tid;
 } t_proceso_hilo;
 
-typedef struct 
+typedef struct
 {
     sem_t mutex;
     sem_t contador;
-}t_sem_estados;
+} t_sem_estados;
 
-//estructuras para memoria
-typedef struct {
+// estructuras para memoria
+typedef struct
+{
     int pid;
     int tid;
-    t_contexto* contexto_hilo;
-    t_list* instrucciones;
-}t_contexto_hilo;
+    t_contexto *contexto_hilo;
+    t_list *instrucciones;
+} t_contexto_hilo;
 
-typedef struct {
+typedef struct
+{
     int pid;
     uint32_t BASE;
     uint32_t LIMITE;
-}t_contexto_proceso;
+} t_contexto_proceso;
 
-typedef struct {
+typedef struct
+{
     int pid;
     uint32_t BASE;
     uint32_t LIMITE;
-}t_particion;
+} t_particion;
 
+typedef struct
+{
+    char *buffer;
+    int socket_cliente;
+} t_atencion_mensaje;
+
+typedef struct
+{
+    t_list *lista;
+    int socket_cliente;
+} t_atencion_paquete;
 
 #endif

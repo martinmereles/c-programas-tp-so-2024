@@ -34,9 +34,9 @@ bool hay_espacio(int tamanio_necesario)
   {
     particion = list_get(lista_particiones, i);
     if (particion->pid == -1 && tamanio_necesario <= particion->LIMITE)
-      {
-        respuesta = true;
-      }
+    {
+      respuesta = true;
+    }
     i++;
   }
 
@@ -136,7 +136,7 @@ t_particion *best_fit(int tamanio_necesario, int pid)
     particion_aux = list_get(lista_particiones, i);
     if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE)
     {
-      particion_best= particion_aux;
+      particion_best = particion_aux;
       break;
     }
   }
@@ -145,10 +145,10 @@ t_particion *best_fit(int tamanio_necesario, int pid)
   for (i; i < list_size(lista_particiones); i++)
   {
     particion_aux = list_get(lista_particiones, i);
-    if(particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE < particion_best->LIMITE){
+    if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE < particion_best->LIMITE)
+    {
       particion_best = particion_aux;
     }
-
   }
 
   if (strcmp(esquema, "DINAMICAS"))
@@ -171,7 +171,8 @@ t_particion *best_fit(int tamanio_necesario, int pid)
 }
 
 t_particion *worst_fit(int tamanio_necesario, int pid)
-{  t_particion *particion_aux;
+{
+  t_particion *particion_aux;
   t_particion *particion_worst;
   int i = 0;
   for (i; i < list_size(lista_particiones); i++)
@@ -180,7 +181,7 @@ t_particion *worst_fit(int tamanio_necesario, int pid)
     particion_aux = list_get(lista_particiones, i);
     if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE)
     {
-      particion_worst= particion_aux;
+      particion_worst = particion_aux;
       break;
     }
   }
@@ -189,10 +190,10 @@ t_particion *worst_fit(int tamanio_necesario, int pid)
   for (i; i < list_size(lista_particiones); i++)
   {
     particion_aux = list_get(lista_particiones, i);
-    if(particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE > particion_worst->LIMITE){
+    if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE > particion_worst->LIMITE)
+    {
       particion_worst = particion_aux;
     }
-
   }
 
   if (strcmp(esquema, "DINAMICAS"))
@@ -290,20 +291,43 @@ void hilo_cliente_memoria(int socket_servidor)
 
 void atender_cliente_memoria(int socket_cliente)
 {
-
+  int cod_op;
+  int size;
+  char *buffer;
   t_list *lista;
+
+  t_atencion_mensaje *param_atencion_mensaje = malloc(sizeof(t_atencion_mensaje));
+  t_atencion_paquete *param_atencion_paquete = malloc(sizeof(t_atencion_paquete));
   while (1)
   {
-    int cod_op = recibir_operacion(socket_cliente);
-
+    cod_op = recibir_operacion(socket_cliente);
     switch (cod_op)
     {
     case MENSAJE:
-      entender_mensaje_memoria(socket_cliente);
+      buffer = recibir_buffer(&size, socket_cliente);
+
+      param_atencion_mensaje->buffer = buffer;
+      param_atencion_mensaje->socket_cliente = socket_cliente;
+      pthread_t hiloAtencionMensaje;
+      pthread_create(&hiloAtencionMensaje,
+                     NULL,
+                     (void *)entender_mensaje_memoria,
+                     param_atencion_mensaje);
+      pthread_detach(hiloAtencionMensaje);
+
       break;
     case PAQUETE:
+
       lista = recibir_paquete(socket_cliente);
-      entender_paquete_memoria(lista, socket_cliente);
+
+      param_atencion_paquete->lista = lista;
+      param_atencion_paquete->socket_cliente = socket_cliente;
+      pthread_t hiloAtencionPaquete;
+      pthread_create(&hiloAtencionPaquete,
+                     NULL,
+                     (void *)entender_paquete_memoria,
+                     param_atencion_paquete);
+      pthread_detach(hiloAtencionPaquete);
       break;
     case -1:
       log_error(logger, "El cliente se desconecto.");
@@ -315,10 +339,11 @@ void atender_cliente_memoria(int socket_cliente)
   }
 }
 
-void entender_mensaje_memoria(int socket_cliente)
+void entender_mensaje_memoria(t_atencion_mensaje *param_atencion)
 {
-  int size;
-  char *buffer = recibir_buffer(&size, socket_cliente);
+  char *buffer = param_atencion->buffer;
+  int socket_cliente = param_atencion->socket_cliente;
+
   char **mensaje_split = string_split(buffer, " ");
 
   if (string_starts_with(buffer, "PROXIMA_INSTRUCCION"))
@@ -337,8 +362,69 @@ void entender_mensaje_memoria(int socket_cliente)
   {
     crear_hilo(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
   }
+  else if (string_starts_with(buffer, "READ_MEM"))
+  {
+    read_mem(atoi(mensaje_split[2]), socket_cliente);
+  }
+  else if (string_starts_with(buffer, "CONEXION_INICIAL_KERNEL"))
+  {
+    conexion_inicial_kernel(socket_cliente);
+  }
+  else if (string_starts_with(buffer, "DUMP_MEMORY"))
+  {
+    dump_memory(atoi(mensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
+  }
 
   free(buffer);
+}
+
+void dump_memory(int pid, int tid, int socket_cliente)
+{
+  char *timestamp = temporal_get_string_time("%H:%M:%S:%MS");
+  char *nombre_archivo = string_new();
+  string_append(&nombre_archivo, string_itoa(pid));
+  string_append(&nombre_archivo, "-");
+  string_append(&nombre_archivo, string_itoa(tid));
+  string_append(&nombre_archivo, "-");
+  string_append(&nombre_archivo, timestamp);
+  free(timestamp);
+
+  t_paquete *paquete = crear_paquete();
+  agregar_a_paquete(paquete, "DUMP_MEMORY", 12);
+  agregar_a_paquete(paquete, nombre_archivo, string_length(nombre_archivo) + 1);
+  agregar_a_paquete(paquete, string_itoa(tamanio_memoria), string_length(string_itoa(tamanio_memoria)) + 1);
+  agregar_a_paquete(paquete, memoria_principal, tamanio_memoria);
+  enviar_paquete(paquete, socket_filesystem);
+  log_info(logger, "## Memory Dump solicitado - (PID:TID) - (%d:%d)", pid, tid);
+}
+
+void conexion_inicial_kernel(int socket_cliente)
+{
+  socket_kernel = socket_cliente;
+  log_info(logger, "## Kernel Conectado - FD del socket: %d", socket_kernel);
+}
+
+void read_mem(int direccion_fisica, int socket_cliente)
+{
+  t_paquete *respuesta = crear_paquete();
+  char *operacion = string_new();
+  string_append(&operacion, "READ_MEM");
+  agregar_a_paquete(respuesta, operacion, string_length(operacion) + 1);
+  void *dato = malloc(4);
+  agregar_a_paquete(respuesta, dato, 4);
+  usleep(retardo_respuesta_cpu * 1000);
+  // TODO log_info(logger, "## <Escritura/Lectura> - (PID:TID) - (<PID>:<TID>) - Dir. Física: <DIRECCIÓN_FÍSICA> - Tamaño: <TAMAÑO>");
+  enviar_paquete(respuesta, socket_cliente);
+}
+
+void write_mem(int direccion_fisica, void *datos, int socket_cliente)
+{
+  memcpy(memoria_principal + direccion_fisica, datos, 4);
+  usleep(retardo_respuesta_cpu * 1000);
+  char *respuesta = string_new();
+  usleep(retardo_respuesta_cpu * 1000);
+  // TODO log_info(logger, "## <Escritura/Lectura> - (PID:TID) - (<PID>:<TID>) - Dir. Física: <DIRECCIÓN_FÍSICA> - Tamaño: <TAMAÑO>");
+  string_append(&respuesta, "WRITE_MEM OK");
 }
 
 void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)
@@ -357,6 +443,7 @@ void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)
   }
 
   usleep(retardo_respuesta_cpu * 1000);
+  log_info(logger, "## Obtener instrucción - (PID:TID) - (%d:%d) - Instrucción: %s", pid, tid, list_get(contexto->instrucciones, pc));
   enviar_mensaje(instruccion, socket_cliente);
 }
 
@@ -408,6 +495,8 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
   agregar_a_paquete(paquete, string_itoa(contexto_proceso->LIMITE), string_length(string_itoa(contexto_proceso->LIMITE)) + 1);
 
   usleep(retardo_respuesta_cpu * 1000);
+  log_info(logger, "## Contexto Solicitado - (PID:TID) - (%d:%d)", pid, tid);
+
   enviar_paquete(paquete, socket_cliente);
 }
 
@@ -424,14 +513,23 @@ void actualizar_contexto(t_list *lista, int socket_cliente)
   contexto->contexto_hilo->GX = atoi(list_get(lista, 10));
   contexto->contexto_hilo->HX = atoi(list_get(lista, 11));
   usleep(retardo_respuesta_cpu * 1000);
+  log_info(logger, "## Contexto Actualizado - (PID:TID) - (%d:%d)", list_get(lista, 1), list_get(lista, 2));
+
   enviar_mensaje("CONTEXTO_GUARDADO", socket_cliente);
 }
 
-void entender_paquete_memoria(t_list *lista, int socket_cliente)
+void entender_paquete_memoria(t_atencion_paquete *param_atencion)
 {
+  t_list *lista = param_atencion->lista;
+  int socket_cliente = param_atencion->socket_cliente;
+
   if (string_starts_with(list_get(lista, 0), "ACTUALIZAR_CONTEXTO"))
   {
     actualizar_contexto(lista, socket_cliente);
+  }
+  else if (string_starts_with(list_get(lista, 0), "WRITE_MEM"))
+  {
+    write_mem(list_get(lista, 1), list_get(lista, 2), socket_cliente);
   }
 }
 

@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
     char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
     socket_memoria = crear_conexion(ip_memoria,puerto_memoria);
-    enviar_mensaje("Me conecto desde kernel!",socket_memoria);
+    enviar_mensaje("CONEXION_INICIAL_KERNEL",socket_memoria);
 
     // se inicia hilo planificador de largo plazo
     pthread_t hilo_planificador_largo;
