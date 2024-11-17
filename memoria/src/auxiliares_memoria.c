@@ -362,14 +362,69 @@ void entender_mensaje_memoria(t_atencion_mensaje *param_atencion)
   {
     crear_hilo(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
   }
-  else
+  else if (string_starts_with(buffer, "READ_MEM"))
   {
-    printf("%s\n", buffer);
-    sleep(20);
-    printf("%s\n", "Termino");
+    read_mem(atoi(mensaje_split[2]), socket_cliente);
+  }
+  else if (string_starts_with(buffer, "CONEXION_INICIAL_KERNEL"))
+  {
+    conexion_inicial_kernel(socket_cliente);
+  }
+  else if (string_starts_with(buffer, "DUMP_MEMORY"))
+  {
+    dump_memory(atoi(mensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
   }
 
   free(buffer);
+}
+
+void dump_memory(int pid, int tid, int socket_cliente)
+{
+  char *timestamp = temporal_get_string_time("%H:%M:%S:%MS");
+  char *nombre_archivo = string_new();
+  string_append(&nombre_archivo, string_itoa(pid));
+  string_append(&nombre_archivo, "-");
+  string_append(&nombre_archivo, string_itoa(tid));
+  string_append(&nombre_archivo, "-");
+  string_append(&nombre_archivo, timestamp);
+  free(timestamp);
+
+  t_paquete *paquete = crear_paquete();
+  agregar_a_paquete(paquete, "DUMP_MEMORY", 12);
+  agregar_a_paquete(paquete, nombre_archivo, string_length(nombre_archivo) + 1);
+  agregar_a_paquete(paquete, string_itoa(tamanio_memoria), string_length(string_itoa(tamanio_memoria)) + 1);
+  agregar_a_paquete(paquete, memoria_principal, tamanio_memoria);
+  enviar_paquete(paquete, socket_filesystem);
+  log_info(logger, "## Memory Dump solicitado - (PID:TID) - (%d:%d)", pid, tid);
+}
+
+void conexion_inicial_kernel(int socket_cliente)
+{
+  socket_kernel = socket_cliente;
+  log_info(logger, "## Kernel Conectado - FD del socket: %d", socket_kernel);
+}
+
+void read_mem(int direccion_fisica, int socket_cliente)
+{
+  t_paquete *respuesta = crear_paquete();
+  char *operacion = string_new();
+  string_append(&operacion, "READ_MEM");
+  agregar_a_paquete(respuesta, operacion, string_length(operacion) + 1);
+  void *dato = malloc(4);
+  agregar_a_paquete(respuesta, dato, 4);
+  usleep(retardo_respuesta_cpu * 1000);
+  // TODO log_info(logger, "## <Escritura/Lectura> - (PID:TID) - (<PID>:<TID>) - Dir. Física: <DIRECCIÓN_FÍSICA> - Tamaño: <TAMAÑO>");
+  enviar_paquete(respuesta, socket_cliente);
+}
+
+void write_mem(int direccion_fisica, void *datos, int socket_cliente)
+{
+  memcpy(memoria_principal + direccion_fisica, datos, 4);
+  usleep(retardo_respuesta_cpu * 1000);
+  char *respuesta = string_new();
+  usleep(retardo_respuesta_cpu * 1000);
+  // TODO log_info(logger, "## <Escritura/Lectura> - (PID:TID) - (<PID>:<TID>) - Dir. Física: <DIRECCIÓN_FÍSICA> - Tamaño: <TAMAÑO>");
+  string_append(&respuesta, "WRITE_MEM OK");
 }
 
 void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)
@@ -388,6 +443,7 @@ void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)
   }
 
   usleep(retardo_respuesta_cpu * 1000);
+  log_info(logger, "## Obtener instrucción - (PID:TID) - (%d:%d) - Instrucción: %s", pid, tid, list_get(contexto->instrucciones, pc));
   enviar_mensaje(instruccion, socket_cliente);
 }
 
@@ -439,6 +495,8 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
   agregar_a_paquete(paquete, string_itoa(contexto_proceso->LIMITE), string_length(string_itoa(contexto_proceso->LIMITE)) + 1);
 
   usleep(retardo_respuesta_cpu * 1000);
+  log_info(logger, "## Contexto Solicitado - (PID:TID) - (%d:%d)", pid, tid);
+
   enviar_paquete(paquete, socket_cliente);
 }
 
@@ -455,6 +513,8 @@ void actualizar_contexto(t_list *lista, int socket_cliente)
   contexto->contexto_hilo->GX = atoi(list_get(lista, 10));
   contexto->contexto_hilo->HX = atoi(list_get(lista, 11));
   usleep(retardo_respuesta_cpu * 1000);
+  log_info(logger, "## Contexto Actualizado - (PID:TID) - (%d:%d)", list_get(lista, 1), list_get(lista, 2));
+
   enviar_mensaje("CONTEXTO_GUARDADO", socket_cliente);
 }
 
@@ -466,6 +526,10 @@ void entender_paquete_memoria(t_atencion_paquete *param_atencion)
   if (string_starts_with(list_get(lista, 0), "ACTUALIZAR_CONTEXTO"))
   {
     actualizar_contexto(lista, socket_cliente);
+  }
+  else if (string_starts_with(list_get(lista, 0), "WRITE_MEM"))
+  {
+    write_mem(list_get(lista, 1), list_get(lista, 2), socket_cliente);
   }
 }
 

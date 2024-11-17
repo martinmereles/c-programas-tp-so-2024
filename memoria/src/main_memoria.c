@@ -11,6 +11,7 @@ t_list *procesos;
 t_list *hilos;
 int retardo_respuesta_cpu;
 void *memoria_principal;
+int socket_kernel;
 
 int main(int argc, char *argv[])
 {
@@ -37,29 +38,12 @@ int main(int argc, char *argv[])
     }
     procesos = list_create();
     hilos = list_create();
-    
+
     // Inicia conexion con filesystem
     char *ip_filesystem = config_get_string_value(config, "IP_FILESYSTEM");
     char *puerto_filesystem = config_get_string_value(config, "PUERTO_FILESYSTEM");
     socket_filesystem = crear_conexion(ip_filesystem, puerto_filesystem);
     enviar_mensaje("Me conecto desde memoria!", socket_filesystem);
-
-    /*
-    // INICIO PRUEBA MEMO
-    crear_proceso("archivo_prueba.txt", 500, 0, 1);
-    //obtener_contexto(1, 0, 8);
-    // FIN PRUEBA MEMO
-
-    // INICIO PRUEBA FS
-    t_paquete *a = crear_paquete();
-    agregar_a_paquete(a, "DUMP_MEMORY", 12);
-    agregar_a_paquete(a, "nombre-de-archivo", 18);
-    int numero = 69;
-    agregar_a_paquete(a, string_itoa(numero), 3);
-    agregar_a_paquete(a, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEF", 69);
-    enviar_paquete(a, socket_filesystem);
-    // FIN PRUEBA FS
-    */
 
     // Iniciar hilo servidor
     char *puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
