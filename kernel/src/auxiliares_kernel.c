@@ -364,7 +364,7 @@ char *recibir_desde_cpu(int socket_cliente)
         // void * mensaje;
         char** mensaje_split;
         mensaje_split = string_split(mensaje, " ");
-        if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_QUATUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
+        if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_QUANTUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
         {
             replanificar_hilo(atoi(mensaje_split[1]),atoi(mensaje_split[2]));
         }
