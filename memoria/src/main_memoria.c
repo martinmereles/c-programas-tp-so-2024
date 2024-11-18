@@ -12,6 +12,7 @@ t_list *hilos;
 int retardo_respuesta_cpu;
 void *memoria_principal;
 int socket_kernel;
+char *path_instrucciones;
 
 int main(int argc, char *argv[])
 {
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
     algoritmo = config_get_string_value(config, "ALGORITMO_BUSQUEDA");
     retardo_respuesta_cpu = config_get_int_value(config, "RETARDO_RESPUESTA");
     tamanio_memoria = config_get_int_value(config, "TAM_MEMORIA");
+    path_instrucciones = config_get_string_value(config, "PATH_INSTRUCCIONES");
     memoria_principal = malloc(tamanio_memoria);
     lista_particiones = list_create();
     if (string_equals_ignore_case(esquema, "FIJAS"))

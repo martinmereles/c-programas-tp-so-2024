@@ -66,7 +66,7 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   crear_hilo(archivo_instrucciones, prioridad, pid, 0, socket_cliente);
   usleep(retardo_respuesta_cpu * 1000);
 
-  enviar_mensaje("PROCESS_CREATE OK", socket_cliente);
+  //enviar_mensaje("PROCESS_CREATE OK", socket_cliente);
 }
 
 t_particion *asignar_particion(int tamanio, int pid)
@@ -106,7 +106,7 @@ t_particion *first_fit(int tamanio_necesario, int pid)
     }
   }
 
-  if (strcmp(esquema, "DINAMICAS"))
+  if (strcmp(esquema, "DINAMICAS") == 0)
   {
     if (particion->LIMITE > tamanio_necesario)
     {
@@ -151,7 +151,7 @@ t_particion *best_fit(int tamanio_necesario, int pid)
     }
   }
 
-  if (strcmp(esquema, "DINAMICAS"))
+  if (strcmp(esquema, "DINAMICAS") == 0)
   {
     if (particion_best->LIMITE > tamanio_necesario)
     {
@@ -196,7 +196,7 @@ t_particion *worst_fit(int tamanio_necesario, int pid)
     }
   }
 
-  if (strcmp(esquema, "DINAMICAS"))
+  if (strcmp(esquema, "DINAMICAS") == 0)
   {
     if (particion_worst->LIMITE > tamanio_necesario)
     {
@@ -237,10 +237,11 @@ void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, in
 
 void leer_instrucciones(char *path, t_list *lista_instrucciones)
 {
-  char *path_instrucciones = config_get_string_value(config, "PATH_INSTRUCCIONES");
-  string_append(&path_instrucciones, "/");
-  string_append(&path_instrucciones, path);
-  FILE *f = fopen(path_instrucciones, "r");
+  char* archivo_instrucciones =string_new();
+  string_append(&archivo_instrucciones, path_instrucciones);
+  string_append(&archivo_instrucciones, "/");
+  string_append(&archivo_instrucciones, path);
+  FILE *f = fopen(archivo_instrucciones, "r");
   fseek(f, 0L, SEEK_END);
   int size_file = ftell(f);
   rewind(f);
@@ -529,7 +530,7 @@ void entender_paquete_memoria(t_atencion_paquete *param_atencion)
   }
   else if (string_starts_with(list_get(lista, 0), "WRITE_MEM"))
   {
-    write_mem(list_get(lista, 1), list_get(lista, 2),list_get(lista, 3),list_get(lista, 4), socket_cliente);
+    write_mem(list_get(lista, 1), list_get(lista, 2), list_get(lista, 3), list_get(lista, 4), socket_cliente);
   }
 }
 
@@ -548,4 +549,55 @@ t_contexto_hilo *find_by_pid(t_list *procesos, int pid)
     }
   }
   return list_find(procesos, _pid);
+}
+
+void consolidar(int posicion)
+{
+  if (strcmp(esquema, "DINAMICAS") == 0 && list_size(lista_particiones) > 1)
+  {
+
+    if (posicion == 0)
+    {
+      t_particion *particion_posterior = list_get(lista_particiones, posicion + 1);
+      t_particion *particion = list_get(lista_particiones, posicion);
+      if (particion_posterior->pid == -1)
+      {
+        particion->LIMITE = particion->LIMITE + particion_posterior->LIMITE;
+        list_remove(lista_particiones, posicion + 1);
+      }
+    }
+    else if (posicion > 0 && posicion < list_size(lista_particiones) - 1)
+    {
+
+      t_particion *particion_anterior = list_get(lista_particiones, posicion - 1);
+      t_particion *particion = list_get(lista_particiones, posicion);
+      t_particion *particion_posterior = list_get(lista_particiones, posicion + 1);
+      if (particion_anterior->pid == -1 && particion_posterior->pid == -1)
+      {
+        particion_anterior->LIMITE = particion_anterior->LIMITE + particion_posterior->LIMITE + particion->LIMITE;
+        list_remove(lista_particiones, posicion + 1);
+        list_remove(lista_particiones, posicion);
+      }
+      else if (particion_anterior->pid != -1 && particion_posterior->pid == -1)
+      {
+        particion->LIMITE = particion_posterior->LIMITE + particion->LIMITE;
+        list_remove(lista_particiones, posicion + 1);
+      }
+      else if (particion_anterior->pid == -1 && particion_posterior->pid != -1)
+      {
+        particion_anterior->LIMITE = particion_anterior->LIMITE + particion->LIMITE;
+        list_remove(lista_particiones, posicion);
+      }
+    }
+    else if (posicion == list_size(lista_particiones) - 1)
+    {
+      t_particion *particion_anterior = list_get(lista_particiones, posicion - 1);
+      t_particion *particion = list_get(lista_particiones, posicion);
+      if (particion_anterior->pid == -1)
+      {
+        particion_anterior->LIMITE = particion_anterior->LIMITE + particion->LIMITE;
+        list_remove(lista_particiones, posicion);
+      }
+    }
+  }
 }
