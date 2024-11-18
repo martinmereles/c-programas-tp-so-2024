@@ -66,7 +66,7 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   crear_hilo(archivo_instrucciones, prioridad, pid, 0, socket_cliente);
   usleep(retardo_respuesta_cpu * 1000);
 
-  //enviar_mensaje("PROCESS_CREATE OK", socket_cliente);
+  enviar_mensaje("PROCESS_CREATE OK", socket_cliente);
 }
 
 t_particion *asignar_particion(int tamanio, int pid)
