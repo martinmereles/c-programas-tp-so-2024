@@ -39,8 +39,8 @@ t_particion *asignar_particion(int tamanio, int pid);
 t_particion *first_fit(int tamanio_necesario, int pid);
 t_particion *best_fit(int tamanio_necesario, int pid);
 t_particion *worst_fit(int tamanio_necesario, int pid);
-void read_mem(int direccion_fisica, int socket_cliente);
-void write_mem(int direccion_fisica, void *datos, int socket_cliente);
+void read_mem(int direccion_fisica, int pid, int tid, int socket_cliente);
+void write_mem(int direccion_fisica, void *datos, int pid, int tid, int socket_cliente);
 void dump_memory(int pid, int tid, int socket_cliente);
 
 #endif

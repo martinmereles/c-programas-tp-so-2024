@@ -364,7 +364,7 @@ void entender_mensaje_memoria(t_atencion_mensaje *param_atencion)
   }
   else if (string_starts_with(buffer, "READ_MEM"))
   {
-    read_mem(atoi(mensaje_split[2]), socket_cliente);
+    read_mem(atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
   }
   else if (string_starts_with(buffer, "CONEXION_INICIAL_KERNEL"))
   {
@@ -404,7 +404,7 @@ void conexion_inicial_kernel(int socket_cliente)
   log_info(logger, "## Kernel Conectado - FD del socket: %d", socket_kernel);
 }
 
-void read_mem(int direccion_fisica, int socket_cliente)
+void read_mem(int direccion_fisica, int pid, int tid, int socket_cliente)
 {
   t_paquete *respuesta = crear_paquete();
   char *operacion = string_new();
@@ -413,17 +413,17 @@ void read_mem(int direccion_fisica, int socket_cliente)
   void *dato = malloc(4);
   agregar_a_paquete(respuesta, dato, 4);
   usleep(retardo_respuesta_cpu * 1000);
-  // TODO log_info(logger, "## <Escritura/Lectura> - (PID:TID) - (<PID>:<TID>) - Dir. Física: <DIRECCIÓN_FÍSICA> - Tamaño: <TAMAÑO>");
+  log_info(logger, "## Lectura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
   enviar_paquete(respuesta, socket_cliente);
 }
 
-void write_mem(int direccion_fisica, void *datos, int socket_cliente)
+void write_mem(int direccion_fisica, void *datos, int pid, int tid, int socket_cliente)
 {
   memcpy(memoria_principal + direccion_fisica, datos, 4);
   usleep(retardo_respuesta_cpu * 1000);
   char *respuesta = string_new();
   usleep(retardo_respuesta_cpu * 1000);
-  // TODO log_info(logger, "## <Escritura/Lectura> - (PID:TID) - (<PID>:<TID>) - Dir. Física: <DIRECCIÓN_FÍSICA> - Tamaño: <TAMAÑO>");
+  log_info(logger, "## Escritura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
   string_append(&respuesta, "WRITE_MEM OK");
 }
 
@@ -529,7 +529,7 @@ void entender_paquete_memoria(t_atencion_paquete *param_atencion)
   }
   else if (string_starts_with(list_get(lista, 0), "WRITE_MEM"))
   {
-    write_mem(list_get(lista, 1), list_get(lista, 2), socket_cliente);
+    write_mem(list_get(lista, 1), list_get(lista, 2),list_get(lista, 3),list_get(lista, 4), socket_cliente);
   }
 }
 
