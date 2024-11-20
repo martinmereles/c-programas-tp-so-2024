@@ -601,3 +601,20 @@ void consolidar(int posicion)
     }
   }
 }
+
+void finalizar_hilo(int pid, int tid, int socket_cliente){
+
+  t_contexto_hilo *hilo_a_eliminar = find_by_pid_tid(hilos,pid,tid);
+  if(hilo_a_eliminar != NULL){
+  free(hilo_a_eliminar->contexto_hilo);
+  list_destroy(hilo_a_eliminar->instrucciones);
+  list_remove_element(hilos,hilo_a_eliminar);
+  free(hilo_a_eliminar);
+  }
+  enviar_mensaje("OK",socket_cliente);
+  
+}
+
+void finalizar_proceso(int pid, int socket_cliente){
+  //TODO
+}

@@ -44,6 +44,6 @@ void read_mem(int direccion_fisica, int pid, int tid, int socket_cliente);
 void write_mem(int direccion_fisica, void *datos, int pid, int tid, int socket_cliente);
 void dump_memory(int pid, int tid, int socket_cliente);
 void consolidar(int posicion);
-//TODO void finalizar_hilo();
-//TODO void finalizar_proceso();
+void finalizar_hilo(int pid, int tid, int socket_cliente);
+void finalizar_proceso(int pid, int socket_cliente);
 #endif
