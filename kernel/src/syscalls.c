@@ -17,7 +17,7 @@ void sys_process_exit (int pid, int tid) {
 
 }
 
-void sys_thread_create(char* archivo_ps, int, prioridad, int tid; int ppid) {
+void sys_thread_create(char* archivo_ps, int prioridad, int ppid, int tid) {
 
     t_tcb* new_thread = crear_hilo(prioridad, ppid, tid);
     sem_wait(&sem_mutex_colas);
@@ -38,9 +38,9 @@ void sys_thread_cancel (int tid) {
 
 }
 
-void sys_thread_exit (int tid) {
-    finalizar_hilo((int pid, int tid, QUEUE_EXEC));
-    
+void sys_thread_exit (int pid, int tid) {
+    finalizar_hilo( pid, tid, QUEUE_EXEC);
+
 }
 
 void sys_mutex_create () {
