@@ -430,6 +430,7 @@ void read_mem(int direccion_fisica, int pid, int tid, int socket_cliente)
   string_append(&operacion, "READ_MEM");
   agregar_a_paquete(respuesta, operacion, string_length(operacion) + 1);
   void *dato = malloc(4);
+  memcpy(dato, memoria_principal + direccion_fisica,  4);
   agregar_a_paquete(respuesta, dato, 4);
   usleep(retardo_respuesta_cpu * 1000);
   log_info(logger, "## Lectura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
@@ -444,6 +445,7 @@ void write_mem(int direccion_fisica, void *datos, int pid, int tid, int socket_c
   usleep(retardo_respuesta_cpu * 1000);
   log_info(logger, "## Escritura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
   string_append(&respuesta, "WRITE_MEM OK");
+  enviar_mensaje(respuesta, socket_cliente);
 }
 
 void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)

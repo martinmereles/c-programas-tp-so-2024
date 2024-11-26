@@ -50,18 +50,25 @@ void set(char *registro, char *valor)
     {
         LIMITE = valorASetear;
     }
-
-    log_info(logger, "##TID: %d - Ejecutando: SET - %s %s", tid, registro, valor);
 }
 
 void read_mem(char *registro_datos, char *registro_direccion)
 {
-    // TO DO Pasar a decode
     // Lee el valor de memoria correspondiente a la Dirección Lógica
     // que se encuentra en el Registro Dirección y lo almacena en el Registro Datos.
-    
     //Leer de Registro direccion
-    //TO DO
+    char* mensaje = string_new();
+    string_append(&mensaje,"READ_MEM ");
+    string_append(&mensaje, string_itoa(direccion_fisica));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, pid);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, tid);
+    //Enviar mensaje a memoria
+    enviar_mensaje(mensaje ,socket_memoria);
+    //Esperar paquete resultado READ_MEM 
+    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
+    
     log_info(logger, "##TID: %d - Acción: LEER - Dirección Física: %d", tid, direccion_fisica);
 
     log_info(logger, "##TID: %d - Ejecutando: READ_MEM - %s %s", tid, registro_datos, registro_direccion);
@@ -69,11 +76,22 @@ void read_mem(char *registro_datos, char *registro_direccion)
 
 void write_mem(char *registro_direccion, char *registro_datos)
 {
-    // TO DO Pasar a decode
     // Lee el valor del Registro Datos y lo escribe en la dirección
     // física de memoria obtenida a partir de la Dirección Lógica almacenada en el Registro Dirección.
-   
     //Escribir en la direccion
+    int valor_registro_datos = get_valor_registro(registro_datos);
+    t_paquete *paquete_memoria = crear_paquete();
+    char *operacion = string_new();
+    string_append(&operacion, "READ_MEM");
+    agregar_a_paquete(paquete_memoria, operacion, string_length(operacion) + 1);
+    agregar_a_paquete(paquete_memoria, string_itoa(direccion_fisica), string_length(string_itoa(direccion_fisica))+1);
+    agregar_a_paquete(paquete_memoria, string_itoa(valor_registro_datos), string_length(string_itoa(valor_registro_datos))+1);
+    agregar_a_paquete(paquete_memoria, string_itoa(pid), string_length(string_itoa(pid))+1);
+    agregar_a_paquete(paquete_memoria, string_itoa(tid), string_length(string_itoa(tid))+1);
+    //Enviar paquete a memoria
+    enviar_paquete(paquete_memoria, socket_memoria);
+    //Esperar mensaje resultado WRITE_MEM OK
+    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     //TO DO
     log_info(logger, "##TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, direccion_fisica);
 
@@ -1240,6 +1258,7 @@ void ejecutarSentencia()
     if (strcmp(sentenciasSplit[0], "SET") == 0)
     {
         set(sentenciasSplit[1], sentenciasSplit[2]);
+        log_info(logger, "##TID: %d - Ejecutando: SET - %s %s", tid, sentenciasSplit[1], sentenciasSplit[2]);
         return;
     }
     if (strcmp(sentenciasSplit[0], "READ_MEM") == 0)
