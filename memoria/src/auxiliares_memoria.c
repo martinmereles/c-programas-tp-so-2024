@@ -237,7 +237,7 @@ void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, in
 
 void leer_instrucciones(char *path, t_list *lista_instrucciones)
 {
-  char* archivo_instrucciones =string_new();
+  char *archivo_instrucciones = string_new();
   string_append(&archivo_instrucciones, path_instrucciones);
   string_append(&archivo_instrucciones, "/");
   string_append(&archivo_instrucciones, path);
@@ -389,14 +389,32 @@ void dump_memory(int pid, int tid, int socket_cliente)
   string_append(&nombre_archivo, "-");
   string_append(&nombre_archivo, timestamp);
   free(timestamp);
-
+  t_contexto_proceso *contexto_proceso = find_by_pid(procesos, pid);
   t_paquete *paquete = crear_paquete();
   agregar_a_paquete(paquete, "DUMP_MEMORY", 12);
   agregar_a_paquete(paquete, nombre_archivo, string_length(nombre_archivo) + 1);
-  agregar_a_paquete(paquete, string_itoa(tamanio_memoria), string_length(string_itoa(tamanio_memoria)) + 1);
-  agregar_a_paquete(paquete, memoria_principal, tamanio_memoria);
+  agregar_a_paquete(paquete, string_itoa(contexto_proceso->LIMITE), string_length(string_itoa(contexto_proceso->LIMITE)) + 1);
+  agregar_a_paquete(paquete, memoria_principal + (contexto_proceso->BASE), contexto_proceso->LIMITE);
   enviar_paquete(paquete, socket_filesystem);
   log_info(logger, "## Memory Dump solicitado - (PID:TID) - (%d:%d)", pid, tid);
+
+  int cod_op = recibir_operacion(socket_filesystem);
+  int size;
+  switch (cod_op)
+  {
+  case MENSAJE:
+    char *buffer = recibir_buffer(&size, socket_filesystem);
+    enviar_mensaje(buffer, socket_cliente);
+    break;
+  case PAQUETE:
+    break;
+  case -1:
+    log_error(logger, "El cliente se desconecto.");
+    return EXIT_FAILURE;
+  default:
+    log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
+    break;
+  }
 }
 
 void conexion_inicial_kernel(int socket_cliente)
@@ -412,6 +430,7 @@ void read_mem(int direccion_fisica, int pid, int tid, int socket_cliente)
   string_append(&operacion, "READ_MEM");
   agregar_a_paquete(respuesta, operacion, string_length(operacion) + 1);
   void *dato = malloc(4);
+  memcpy(dato, memoria_principal + direccion_fisica,  4);
   agregar_a_paquete(respuesta, dato, 4);
   usleep(retardo_respuesta_cpu * 1000);
   log_info(logger, "## Lectura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
@@ -426,6 +445,7 @@ void write_mem(int direccion_fisica, void *datos, int pid, int tid, int socket_c
   usleep(retardo_respuesta_cpu * 1000);
   log_info(logger, "## Escritura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
   string_append(&respuesta, "WRITE_MEM OK");
+  enviar_mensaje(respuesta, socket_cliente);
 }
 
 void proxima_instruccion(int pid, int tid, int pc, int socket_cliente)
@@ -602,19 +622,21 @@ void consolidar(int posicion)
   }
 }
 
-void finalizar_hilo(int pid, int tid, int socket_cliente){
+void finalizar_hilo(int pid, int tid, int socket_cliente)
+{
 
-  t_contexto_hilo *hilo_a_eliminar = find_by_pid_tid(hilos,pid,tid);
-  if(hilo_a_eliminar != NULL){
-  free(hilo_a_eliminar->contexto_hilo);
-  list_destroy(hilo_a_eliminar->instrucciones);
-  list_remove_element(hilos,hilo_a_eliminar);
-  free(hilo_a_eliminar);
+  t_contexto_hilo *hilo_a_eliminar = find_by_pid_tid(hilos, pid, tid);
+  if (hilo_a_eliminar != NULL)
+  {
+    free(hilo_a_eliminar->contexto_hilo);
+    list_destroy(hilo_a_eliminar->instrucciones);
+    list_remove_element(hilos, hilo_a_eliminar);
+    free(hilo_a_eliminar);
   }
-  enviar_mensaje("OK",socket_cliente);
-  
+  enviar_mensaje("OK", socket_cliente);
 }
 
-void finalizar_proceso(int pid, int socket_cliente){
-  //TODO
+void finalizar_proceso(int pid, int socket_cliente)
+{
+  // TODO
 }

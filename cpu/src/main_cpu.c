@@ -22,12 +22,13 @@ sem_t sem_execute;
 bool se_ejecuto_syscall;
 char* instruccion_exec;
 int direccion_fisica;
+t_list* interrupciones;
 
 int main(int argc, char* argv[]) {
 
     sem_init(&sem_execute,0,0);
     se_ejecuto_syscall = false;
-    
+    interrupciones = list_create();
     
     
     config = iniciar_config("./cpu.config");

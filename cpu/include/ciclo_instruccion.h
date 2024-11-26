@@ -2,6 +2,7 @@
 #define CICLO_INSTRUCCION_H_
 
 /*------------------------LIBRERIAS------------------------*/
+#include <utils/client-server.h>
 #include <commons/string.h>
 #include <commons/log.h>
 #include <stdint.h>
@@ -11,13 +12,15 @@
 
 /*------------------------VARIABLES------------------------*/
 extern int socket_memoria;
+extern int socket_kernel_dispatch;
 extern int pid;
 extern int tid;
 extern uint32_t PC;
 extern uint32_t BASE;
 extern char* instruccion_exec;
 extern t_log* logger;
-
+extern t_list* interrupciones;
+extern sem_t sem_execute;
 /*------------------------DECLARACIONES------------------------*/
 void fetch();
 void decode();

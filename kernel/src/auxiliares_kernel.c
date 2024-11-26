@@ -373,12 +373,12 @@ char *recibir_desde_cpu(int socket_cliente)
             log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", atoi(mensaje_split[2]));
             replanificar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
-        else if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_HILO") == 0)
+        else if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_HILO") == 0)//En que escenario CPU envia esta interrupcion?
         {
 
             finalizar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]), QUEUE_EXEC);
         }
-        else if (strcmp(mensaje_split[3], "INTERRUPCION_I_O") == 0)
+        else if (strcmp(mensaje_split[3], "INTERRUPCION_I_O") == 0)//En que escenario CPU envia esta interrupcion?
         {
             atender_io(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi((mensaje_split[3])));
         }
