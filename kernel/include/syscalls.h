@@ -8,6 +8,7 @@
 #include <commons/collections/list.h>
 #include <semaphore.h>
 #include <commons/string.h>
+#include <../include/auxiliares_kernel.h>
 
 
 
@@ -26,6 +27,7 @@ extern t_list* QUEUE_EXEC;
 extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_EXIT;
 extern t_list* PCB_EN_CICLO;
+extern t_list* TCB_BLOQUEADOS;
 extern int contador_pid;
 
 extern sem_t sem_largo_plazo;
@@ -37,7 +39,7 @@ extern sem_t sem_mutex_colas;
 void sys_process_create (char* archivo, int tamanio, int prioridad);
 void sys_process_exit (int pid, int tid);
 void sys_thread_create(char* archivo_ps, int prioridad, int ppid, int tid);
-void sys_thread_join (int tid);
+void sys_thread_join (int tid_join, int ppid, int tid);
 void sys_thread_cancel (int tid);
 void sys_thread_exit (int pid, int tid);
 void sys_mutex_create ();

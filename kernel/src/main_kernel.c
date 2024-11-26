@@ -11,6 +11,7 @@ t_list* QUEUE_EXEC;
 t_list* QUEUE_BLOCKED;
 t_list* QUEUE_EXIT;
 t_list* PCB_EN_CICLO;
+t_list* TCB_BLOQUEADOS;
 int contador_pid;
 sem_t sem_largo_plazo;
 sem_t sem_corto_plazo;
@@ -33,6 +34,7 @@ int main(int argc, char** argv) {
     QUEUE_BLOCKED = list_create();
     QUEUE_EXIT = list_create();
     PCB_EN_CICLO = list_create();
+    TCB_BLOQUEADOS = list_create();
     contador_pid = 0;
     sem_init(&sem_largo_plazo,0,0);
     sem_init(&sem_corto_plazo,0,0);

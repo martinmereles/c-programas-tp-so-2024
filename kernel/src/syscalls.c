@@ -24,11 +24,36 @@ void sys_thread_create(char* archivo_ps, int prioridad, int ppid, int tid) {
     int index = get_index(new_thread->prioridad);
     list_add_in_index(QUEUE_READY, index, new_thread);
     sem_post(&sem_mutex_colas);
-    //crear_hilo()
+    log_info(logger, "SE EJECUTO LA SYSCALL PROCESS_CREATE");
 
 }
 
-void sys_thread_join (int tid) {
+void sys_thread_join (int tid_join, int ppid, int tid) {
+
+    t_hilo_join* hilo_a_bloquear = malloc(sizeof(t_hilo_join));
+    hilo_a_bloquear->ppid = ppid;
+    hilo_a_bloquear->tid = tid;
+    hilo_a_bloquear->tid_join =tid_join;
+     t_tcb *tcb_encontrado = NULL;
+     bool _es_tcb_buscado(void *elemento)
+    {
+        return es_tcb_buscado(ppid, tid, elemento);
+    }
+    tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado);
+    // chequeamos que exista el hilo en la cola
+    if (tcb_encontrado == NULL)
+    {
+        log_info(logger, "Hilo no encontrado");
+        return;
+    }
+    else
+    {
+        tcb_encontrado->estado = BLOCKED;
+        list_add(QUEUE_BLOCKED, tcb_encontrado);
+        list_add(TCB_BLOQUEADOS, hilo_a_bloquear);
+    }
+        log_info(logger, "SE EJECUTO LA SYSCALL THREAD_JOIN");
+
 
 }
 

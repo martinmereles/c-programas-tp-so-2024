@@ -26,6 +26,7 @@ extern t_list* QUEUE_EXEC;
 extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_EXIT;
 extern t_list* PCB_EN_CICLO;
+extern t_list* TCB_BLOQUEADOS;
 extern int contador_pid;
 
 extern sem_t sem_largo_plazo;
@@ -55,6 +56,7 @@ char *recibir_desde_cpu(int socket_cliente);
 
 void replanificar_hilo( int pid , int tid);
 void atender_io(int pid, int tid, int tiempo);
+void desbloquear_hilos_join(int tid_join);
 
 
 

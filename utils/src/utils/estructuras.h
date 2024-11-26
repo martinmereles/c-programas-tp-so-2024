@@ -80,6 +80,14 @@ typedef struct
     sem_t contador;
 } t_sem_estados;
 
+typedef struct 
+{
+    int ppid;
+    int tid;
+    int tid_join;
+}t_hilo_join;
+
+
 // estructuras para memoria
 typedef struct
 {

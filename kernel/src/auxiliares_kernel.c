@@ -149,6 +149,7 @@ void finalizar_hilo(int pid, int tid, t_list *cola)
         enviar_mensaje(mensaje, socket_memoria);
         // recibir mensaje de confirmacion
         log_info(logger, "< %i : %i> finaliza el hilo", tcb_encontrado->ppid, tcb_encontrado->tid);
+        desbloquear_hilos_join(tcb_encontrado->tid);
     }
 }
 
@@ -476,4 +477,27 @@ void atender_io(int pid, int tid, int tiempo)
     list_add_in_index(QUEUE_READY, index, tcb_encontrado);
     sem_post(&sem_mutex_colas);
     log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", tid);
+}
+
+void desbloquear_hilos_join(int tid_join){
+    int tamanio_lista_bloqueados = list_size(TCB_BLOQUEADOS);
+    for (int i = 0; i < tamanio_lista_bloqueados ; i++)
+    {
+        t_hilo_join* hilo_a_debloquear = list_get(TCB_BLOQUEADOS, i);
+        if(hilo_a_debloquear->tid_join == tid_join){
+            bool _es_tcb_buscado(void *elemento)
+    {
+        return es_tcb_buscado(hilo_a_debloquear-> ppid, hilo_a_debloquear-> tid, elemento);
+    }
+    t_tcb *tcb_encontrado;
+    sem_wait(&sem_mutex_colas);
+    tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado);
+    int index = get_index(tcb_encontrado->prioridad);
+    list_add_in_index(QUEUE_READY, index, tcb_encontrado);
+    sem_post(&sem_mutex_colas);
+    log_info(logger, "TID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", tcb_encontrado->tid);
+        }
+    }
+    
+
 }
