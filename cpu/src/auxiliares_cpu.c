@@ -28,7 +28,7 @@ t_paquete *crear_paquete_contexto()
     // Enviar paquete a memoria
     enviar_paquete(new_paquete, socket_memoria);
     log_info(logger, "##TID: %d - Actualizo Contexto Ejecución", tid);
-    //Esperar mensaje resultado ACTUALIZAR_CONTEXTO
+    //Esperar mensaje resultado CONTEXTO_GUARDADO
     char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
 }
 
@@ -45,18 +45,21 @@ char *recibir_desde_memoria(int socket_cliente)
         log_info(logger, "Me llego el mensaje %s", buffer);
         // void * mensaje;
         char *mensaje;
-        if (string_starts_with(buffer, "CONTEXTO_GUARDADO"))
+        if (string_starts_with(buffer, "CONTEXTO_GUARDADO") || string_starts_with(buffer, "WRITE_MEM"))
         {
             mensaje = buffer;
-            atender_mensaje_cpu(mensaje);
+            //atender_mensaje_cpu(mensaje);??
         }
         free(buffer);
         return mensaje;
         break;
     case PAQUETE:
         lista = recibir_paquete(socket_cliente);
+        entender_paquete_memoria(lista);
+        char* mensaje = list_get(lista, 0);
         log_info(logger, "Me llegaron los siguientes valores:\n");
         list_iterate(lista, (void *)iterator);
+        return mensaje;
         break;
     case -1:
         log_error(logger, "el cliente se desconecto.");
@@ -242,6 +245,8 @@ void entender_paquete_memoria(t_list *lista)
     if (string_starts_with(list_get(lista, 0), "OBTENER_CONTEXTO"))
     {
         actualizar_contexto_cpu(lista);
+    }else if(string_starts_with(list_get(lista, 0), "READ_MEM")){
+        actualizar_registro(list_get(lista, 1));
     }
 }
 
@@ -262,6 +267,12 @@ void actualizar_contexto_cpu(t_list *lista)
 
     //Iniciar ciclo_instruccion
     sem_post(&sem_execute);
+}
+
+void actualizar_registro(char* dato){
+    char ** instruccion_exec_split = string_split(instruccion_exec, " ");
+    char *registro_datos = instruccion_exec_split[1];
+    set(registro_datos, dato);
 }
 
 uint32_t get_valor_registro(char * registro){
