@@ -1,6 +1,6 @@
 #include <../include/auxiliares_cpu.h>
 
-t_paquete *crear_paquete_contexto()
+void *crear_paquete_contexto()
 {
 
     // Crear paquete
@@ -183,7 +183,14 @@ void atender_cliente_interrupt(int socket_cliente_interrupt)
         switch (cod_op)
         {
         case MENSAJE:
-            recibir_mensaje(socket_cliente_interrupt);
+            char *buffer = recibir_buffer(&size, socket_cliente_interrupt);
+            char **mensaje_split = string_split(buffer, " ");
+            if (strcmp(mensaje_split[0], "FIN_QUANTUM") == 0){
+                char* nueva_interrupcion = string_new();
+                nueva_interrupcion = string_duplicate(buffer);
+                list_add(interrupciones, nueva_interrupcion);
+                log_info(logger, "## Llega interrupción al puerto Interrupt");
+            }
             break;
         case PAQUETE:
             lista = recibir_paquete(socket_cliente_interrupt);
@@ -273,6 +280,10 @@ void actualizar_registro(char* dato){
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     char *registro_datos = instruccion_exec_split[1];
     set(registro_datos, dato);
+}
+
+void validar_interrupcion(char* pid, char* tid){
+
 }
 
 uint32_t get_valor_registro(char * registro){
