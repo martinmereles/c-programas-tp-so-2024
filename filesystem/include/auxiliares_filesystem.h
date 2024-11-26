@@ -28,5 +28,7 @@ int primer_bloque_libre();
 void atender_cliente_fs(int socket_cliente);
 void hilo_cliente_fs(int socket_servidor);
 pthread_t iniciar_hilo_server_fs(char *puerto);
+void entender_mensaje_filesystem(t_atencion_mensaje *param_atencion);
+void entender_paquete_filesystem(t_atencion_paquete *param_atencion);
 
 #endif

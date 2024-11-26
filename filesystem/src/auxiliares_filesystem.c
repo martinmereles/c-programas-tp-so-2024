@@ -149,6 +149,7 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
         fseek(file_bloques, block_size * bloque_dato, SEEK_SET);
         fwrite(a_escribir, string_length(a_escribir), 1, file_bloques);
         usleep(retardo * 1000);
+
         log_info(logger, "## Acceso Bloque - Archivo: %s - Tipo Bloque: DATOS - Bloque File System %d", nombre_archivo, bloque_dato);
     }
     fclose(file_bloques);
@@ -247,22 +248,43 @@ void hilo_cliente_fs(int socket_servidor)
 
 void atender_cliente_fs(int socket_cliente)
 {
-
+    int cod_op;
+    int size;
+    char *buffer;
     t_list *lista;
+
+    t_atencion_mensaje *param_atencion_mensaje = malloc(sizeof(t_atencion_mensaje));
+    t_atencion_paquete *param_atencion_paquete = malloc(sizeof(t_atencion_paquete));
     while (1)
     {
-        int cod_op = recibir_operacion(socket_cliente);
-
+        cod_op = recibir_operacion(socket_cliente);
         switch (cod_op)
         {
         case MENSAJE:
-            recibir_mensaje(socket_cliente);
+            buffer = recibir_buffer(&size, socket_cliente);
+
+            param_atencion_mensaje->buffer = buffer;
+            param_atencion_mensaje->socket_cliente = socket_cliente;
+            pthread_t hiloAtencionMensaje;
+            pthread_create(&hiloAtencionMensaje,
+                           NULL,
+                           (void *)entender_mensaje_filesystem,
+                           param_atencion_mensaje);
+            pthread_detach(hiloAtencionMensaje);
+
             break;
         case PAQUETE:
+
             lista = recibir_paquete(socket_cliente);
-            if(string_starts_with(list_get(lista,0),"DUMP_MEMORY")){
-                fs_create(list_get(lista,1),atoi(list_get(lista,2)),list_get(lista,3),socket_cliente);
-            }
+
+            param_atencion_paquete->lista = lista;
+            param_atencion_paquete->socket_cliente = socket_cliente;
+            pthread_t hiloAtencionPaquete;
+            pthread_create(&hiloAtencionPaquete,
+                           NULL,
+                           (void *)entender_paquete_filesystem,
+                           param_atencion_paquete);
+            pthread_detach(hiloAtencionPaquete);
             break;
         case -1:
             log_error(logger, "El cliente se desconecto.");
@@ -271,5 +293,28 @@ void atender_cliente_fs(int socket_cliente)
             log_warning(logger, "Operacion desconocida. No quieras meter la pata.");
             break;
         }
+    }
+}
+
+void entender_mensaje_filesystem(t_atencion_mensaje *param_atencion)
+{
+    char *buffer = param_atencion->buffer;
+    int socket_cliente = param_atencion->socket_cliente;
+
+    char **mensaje_split = string_split(buffer, " ");
+
+    log_info(logger, "Me llego el mensaje %s", buffer);
+
+    free(buffer);
+}
+
+void entender_paquete_filesystem(t_atencion_paquete *param_atencion)
+{
+    t_list *lista = param_atencion->lista;
+    int socket_cliente = param_atencion->socket_cliente;
+
+    if (string_starts_with(list_get(lista, 0), "DUMP_MEMORY"))
+    {
+        fs_create(list_get(lista, 1), atoi(list_get(lista, 2)), list_get(lista, 3), socket_cliente);
     }
 }
