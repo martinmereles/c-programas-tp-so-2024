@@ -42,11 +42,11 @@ t_tcb* crear_hilo (int prioridad, int ppid, int tid);
 void finalizar_hilo (int pid, int tid, t_list* cola);
 bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento);
 
-void ejecutar_fifo(socket_cpu_dispatch);
-void ejecutar_prioridades(socket_cpu_dispatch, socket_cpu_interrupt);
-void ejecutar_cmn(socket_cpu_dispatch, socket_cpu_interrupt);
+void ejecutar_fifo();
+void ejecutar_prioridades();
+void ejecutar_cmn();
 
-void dispatcher(int tid, int pid, int socket_cpu_dispatch);
+void dispatcher(int tid, int pid);
 void aviso_quantum(char* mensaje);
 
 int get_index (int prioridad);
@@ -56,7 +56,7 @@ char *recibir_desde_cpu(int socket_cliente);
 
 void replanificar_hilo( int pid , int tid);
 void atender_io(int pid, int tid, int tiempo);
-void desbloquear_hilos_join(int tid_join);
+void desbloquear_hilos_join(int tid_join, int ppid);
 
 
 

@@ -32,7 +32,7 @@ typedef struct
     int pid;
     t_list *tids;
     t_list *mutex;
-    T_ESTADO estado;
+    //T_ESTADO estado;
     int prioridad_hilo_main;
     int tamanio;
     char *archivo;
@@ -43,7 +43,7 @@ typedef struct
     int tid;
     int ppid;
     int prioridad;
-    T_ESTADO estado;
+    //T_ESTADO estado;
 } t_tcb;
 
 typedef struct
