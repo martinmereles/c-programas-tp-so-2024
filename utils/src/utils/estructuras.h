@@ -65,7 +65,7 @@ typedef struct
     int valor;
     int pid_asignado;
     int tid_asignado;
-    t_queue *bloqueados;
+    t_list *bloqueados;
 } t_mutex;
 
 typedef struct

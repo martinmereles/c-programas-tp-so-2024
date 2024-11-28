@@ -42,8 +42,9 @@ void sys_thread_create(char* archivo_ps, int prioridad, int ppid, int tid);
 void sys_thread_join (int tid_join, int ppid, int tid);
 void sys_thread_cancel (int tid);
 void sys_thread_exit (int pid, int tid);
-void sys_mutex_create ();
-void sys_mutex_lock ();
-void sys_mutex_unlock ();
+void sys_mutex_create (char *nombre, int pid, int tid);
+void sys_mutex_lock (char *nombre, int pid, int tid);
+void sys_mutex_unlock (char *nombre, int pid, int tid);
+bool es_mutex_buscado(char* nombre, void* elemento);
 
 #endif
