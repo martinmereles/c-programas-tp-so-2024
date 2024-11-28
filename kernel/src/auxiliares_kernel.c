@@ -10,7 +10,7 @@ void crear_proceso(char *archivo, int tamanio, int prioridad)
     pcb->mutex = list_create();
 
     // inicializo las estructuras pcb
-   // pcb->estado = NEW;
+    // pcb->estado = NEW;
     pcb->pid = contador_pid;
     contador_pid++;
     pcb->prioridad_hilo_main = prioridad;
@@ -28,7 +28,7 @@ void finalizar_proceso(int pid)
         return es_pcb_buscado(pid, elemento);
     }
     t_pcb *pcb_encontrado = list_find(PCB_EN_CICLO, _es_pcb_buscado);
-    //pcb_encontrado->estado = EXIT;
+    // pcb_encontrado->estado = EXIT;
     int tid_a_remover;
 
     for (int i = 0; i < list_size(pcb_encontrado->tids); i++)
@@ -58,7 +58,7 @@ t_tcb *crear_hilo(int prioridad, int ppid, int tid)
 
     t_tcb *tcb = malloc(sizeof(t_tcb));
     // inicializo
-    //tcb->estado = READY;
+    // tcb->estado = READY;
     tcb->ppid = ppid;
     tcb->tid = tid;
     tcb->prioridad = prioridad;
@@ -136,7 +136,7 @@ void finalizar_hilo(int pid, int tid, t_list *cola)
     }
     else
     {
-       // tcb_encontrado->estado = EXIT;
+        // tcb_encontrado->estado = EXIT;
         list_add(QUEUE_EXIT, tcb_encontrado);
 
         // enviamos mensaje a memoria para finalizar hilo
@@ -461,8 +461,10 @@ void desbloquear_hilos_join(int tid_join, int ppid)
             list_add_in_index(QUEUE_READY, index, tcb_encontrado);
             sem_post(&sem_mutex_colas);
             log_info(logger, "TID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", tcb_encontrado->tid);
-            t_hilo_join* auxiliar_hilo = list_remove(TCB_BLOQUEADOS, i);
+            t_hilo_join *auxiliar_hilo = list_remove(TCB_BLOQUEADOS, i);
             free(auxiliar_hilo);
         }
+        // Agregar escenarios por algoritmo de planificacion
+        // TODO
     }
 }
