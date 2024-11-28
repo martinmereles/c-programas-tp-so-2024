@@ -37,7 +37,7 @@ void finalizar_proceso(int pid);
 bool es_pcb_buscado(int pid_buscado, void *elemento);
 t_tcb *crear_hilo(int prioridad, int ppid, int tid);
 void planificador_largo_plazo();
-void finalizar_hilo(int pid, int tid, t_list *cola);
+bool finalizar_hilo(int pid, int tid, t_list *cola);
 bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento);
 void planificador_corto_plazo();
 void ejecutar_fifo();
@@ -50,7 +50,7 @@ char *recibir_desde_memoria(int socket_cliente);
 void aviso_quantum(char *mensaje);
 char *recibir_desde_cpu(int socket_cliente);
 void replanificar_hilo(int pid, int tid);
-void atender_io(int pid, int tid, int tiempo);
 void desbloquear_hilos_join(int tid_join, int ppid);
+void esperar_respuesta_dump_memory();
 
 #endif

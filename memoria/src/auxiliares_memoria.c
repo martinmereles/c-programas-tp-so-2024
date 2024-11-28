@@ -359,6 +359,10 @@ void entender_mensaje_memoria(t_atencion_mensaje *param_atencion)
   {
     crear_proceso(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
   }
+  else if (string_starts_with(buffer, "PROCESS_EXIT"))
+  {
+    finalizar_proceso(atoi(mensaje_split[1]), socket_cliente);
+  }
   else if (string_starts_with(buffer, "THREAD_CREATE"))
   {
     crear_hilo(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);

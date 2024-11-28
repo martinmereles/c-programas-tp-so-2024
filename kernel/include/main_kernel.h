@@ -7,5 +7,6 @@
 #include <utils/logger.h>
 #include <utils/estructuras.h>
 #include <../include/auxiliares_kernel.h>
+#include <../include/syscalls.h>
 
 #endif

@@ -36,6 +36,7 @@ char *recibir_desde_memoria(int socket_cliente)
 {
 
     t_list *lista;
+    char* mensaje;
     int cod_op = recibir_operacion(socket_cliente);
     switch (cod_op)
     {
@@ -44,7 +45,6 @@ char *recibir_desde_memoria(int socket_cliente)
         char *buffer = recibir_buffer(&size, socket_cliente);
         log_info(logger, "Me llego el mensaje %s", buffer);
         // void * mensaje;
-        char *mensaje;
         if (string_starts_with(buffer, "CONTEXTO_GUARDADO") || string_starts_with(buffer, "WRITE_MEM"))
         {
             mensaje = buffer;
@@ -56,7 +56,7 @@ char *recibir_desde_memoria(int socket_cliente)
     case PAQUETE:
         lista = recibir_paquete(socket_cliente);
         entender_paquete_memoria(lista);
-        char* mensaje = list_get(lista, 0);
+        mensaje = list_get(lista, 0);
         log_info(logger, "Me llegaron los siguientes valores:\n");
         list_iterate(lista, (void *)iterator);
         return mensaje;
@@ -176,6 +176,7 @@ void atender_cliente_interrupt(int socket_cliente_interrupt)
 {
 
     t_list *lista;
+    int size;
     while (1)
     {
         int cod_op = recibir_operacion(socket_cliente_interrupt);

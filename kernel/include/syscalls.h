@@ -42,6 +42,8 @@ void sys_thread_exit(int pid, int tid);
 void sys_mutex_create(char *nombre, int pid, int tid);
 void sys_mutex_lock(char *nombre, int pid, int tid);
 void sys_mutex_unlock(char *nombre, int pid, int tid);
+void sys_dump_memory(int pid, int tid);
+void sys_io(int tiempo, int pid, int tid);
 bool es_mutex_buscado(char *nombre, void *elemento);
 void asignar_a_ready(t_tcb *tcb_a_asignar);
 

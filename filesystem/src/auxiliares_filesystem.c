@@ -68,7 +68,15 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
     int cantidad_bloques_libres = calcular_bloques_libres();
     if (cantidad_bloques_necesarios > cantidad_bloques_libres)
     {
-        enviar_mensaje("Espacio insuficiente", socket_memoria);
+        char** nombre_split = string_split(nombre_archivo, "-");
+
+        char* mensaje_memoria = string_new();
+        string_append(&mensaje_memoria, "DUMP_MEMORY_FAIL");
+        string_append(&mensaje_memoria, " ");
+        string_append(&mensaje_memoria, nombre_split[0]);
+        string_append(&mensaje_memoria, " ");
+        string_append(&mensaje_memoria, nombre_split[1]);
+        enviar_mensaje(mensaje_memoria, socket_memoria);
         return;
     }
 
@@ -157,7 +165,14 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
     list_destroy(bloques_datos);
     sem_post(&fs_en_uso);
     log_info(logger, "## Archivo Creado: %s - Tamaño: %d", nombre_archivo, tamanio);
-    enviar_mensaje("OK", socket_memoria);
+    char** nombre_split = string_split(nombre_archivo, "-");
+    char* mensaje_memoria = string_new();
+    string_append(&mensaje_memoria, "DUMP_MEMORY_SUCCESS");
+    string_append(&mensaje_memoria, " ");
+    string_append(&mensaje_memoria, nombre_split[0]);
+    string_append(&mensaje_memoria, " ");
+    string_append(&mensaje_memoria, nombre_split[1]);
+    enviar_mensaje(mensaje_memoria, socket_memoria);
     log_info(logger, "## Fin de solicitud - Archivo: %s", nombre_archivo);
 }
 

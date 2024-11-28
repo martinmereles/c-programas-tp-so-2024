@@ -34,7 +34,10 @@ void finalizar_proceso(int pid)
     for (int i = 0; i < list_size(pcb_encontrado->tids); i++)
     {
         tid_a_remover = list_get(pcb_encontrado->tids, i); // d finalizar_hilo (int pid, int tid, t_list* cola)
-        finalizar_hilo(pcb_encontrado->pid, tid_a_remover, QUEUE_READY);
+        bool resultado = finalizar_hilo(pcb_encontrado->pid, tid_a_remover, QUEUE_READY);
+        if(resultado){
+            sem_wait(&sem_contador_ready);
+        }
         finalizar_hilo(pcb_encontrado->pid, tid_a_remover, QUEUE_BLOCKED);
         finalizar_hilo(pcb_encontrado->pid, tid_a_remover, QUEUE_EXEC);
     }
@@ -74,6 +77,7 @@ void planificador_largo_plazo()
 
         int tamanio_cola = list_size(QUEUE_NEW);
 
+        sem_wait(&sem_mutex_colas);
         for (int i = 0; i < tamanio_cola; i++)
         {
             t_pcb *pcb = list_get(QUEUE_NEW, i);
@@ -89,11 +93,10 @@ void planificador_largo_plazo()
             string_append(&mensaje, string_itoa(pcb->pid));
             // envio mensaje a memoria
             enviar_mensaje(mensaje, socket_memoria);
-            // TODO recibir respuesta de memoria
 
             char *mensaje_resultado = recibir_desde_memoria(socket_memoria);
 
-            ; // validar segun respuesta de memoria
+            // validar segun respuesta de memoria
             if (strcmp(mensaje_resultado, "PROCESS_CREATE OK") == 0)
             {
 
@@ -116,10 +119,11 @@ void planificador_largo_plazo()
                 break;
             }
         }
+        sem_post(&sem_mutex_colas);
     }
 }
 
-void finalizar_hilo(int pid, int tid, t_list *cola)
+bool finalizar_hilo(int pid, int tid, t_list *cola)
 {
     // funcion booleana para buscar tcb en colas
     bool _es_tcb_buscado(void *elemento)
@@ -127,15 +131,18 @@ void finalizar_hilo(int pid, int tid, t_list *cola)
         return es_tcb_buscado(pid, tid, elemento);
     }
     t_tcb *tcb_encontrado = NULL;
+    sem_wait(&sem_mutex_colas);
     tcb_encontrado = list_remove_by_condition(cola, _es_tcb_buscado);
+    bool validacion;
     // chequeamos que exista el hilo en la cola
     if (tcb_encontrado == NULL)
     {
         log_info(logger, "Hilo no encontrado");
-        return;
+        validacion =false;
     }
     else
     {
+        
         // tcb_encontrado->estado = EXIT;
         list_add(QUEUE_EXIT, tcb_encontrado);
 
@@ -150,7 +157,10 @@ void finalizar_hilo(int pid, int tid, t_list *cola)
         // recibir mensaje de confirmacion
         log_info(logger, "< %i : %i> finaliza el hilo", tcb_encontrado->ppid, tcb_encontrado->tid);
         desbloquear_hilos_join(tcb_encontrado->tid, tcb_encontrado->ppid);
+        validacion = true;
     }
+    sem_post(&sem_mutex_colas);
+    return validacion;
 }
 
 bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento)
@@ -345,46 +355,55 @@ char *recibir_desde_cpu(int socket_cliente)
         {
             log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", atoi(mensaje_split[2]));
             replanificar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
-            sem_post(&sem_contador_ready);
         }
         else if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_HILO") == 0) // En que escenario CPU envia esta interrupcion?
         {
 
             finalizar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]), QUEUE_EXEC);
         }
-        else if (strcmp(mensaje_split[3], "INTERRUPCION_I_O") == 0) // En que escenario CPU envia esta interrupcion?
+        else if (strcmp(mensaje_split[0], "PROCESS_CREATE") == 0)
         {
-            atender_io(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi((mensaje_split[3])));
+            sys_crear_proceso(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), atoi(mensaje_split[5]));
         }
-        else if (strcmp(mensaje_split[3], "PROCESS_CREATE") == 0)
+        else if (strcmp(mensaje_split[0], "PROCESS_EXIT") == 0)
         {
+            sys_process_exit(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
-        else if (strcmp(mensaje_split[3], "PROCESS_EXIT") == 0)
+        else if (strcmp(mensaje_split[0], "THREAD_CREATE") == 0)
         {
+            sys_thread_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]));
         }
-        else if (strcmp(mensaje_split[3], "THREAD_CREATE") == 0)
+        else if (strcmp(mensaje_split[0], "THREAD_JOIN") == 0)
         {
+            sys_thread_join(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
-        else if (strcmp(mensaje_split[3], "THREAD_JOIN") == 0)
+        else if (strcmp(mensaje_split[0], "THREAD_CANCEL") == 0)
         {
+            sys_thread_cancel(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
-        else if (strcmp(mensaje_split[3], "THREAD_CANCEL") == 0)
+        else if (strcmp(mensaje_split[0], "THREAD_EXIT") == 0)
         {
+            sys_thread_exit(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
-        else if (strcmp(mensaje_split[3], "THREAD_EXIT") == 0)
+        else if (strcmp(mensaje_split[0], "MUTEX_CREATE") == 0)
         {
+            sys_mutex_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
-        else if (strcmp(mensaje_split[3], "MUTEX_CREATE") == 0)
+        else if (strcmp(mensaje_split[0], "MUTEX_LOCK") == 0)
         {
+            sys_mutex_lock(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
-        else if (strcmp(mensaje_split[3], "MUTEX_LOCK") == 0)
+        else if (strcmp(mensaje_split[0], "MUTEX_UNLOCK") == 0)
         {
+            sys_mutex_unlock(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
-        else if (strcmp(mensaje_split[3], "MUTEX_UNLOCK") == 0)
+        else if (strcmp(mensaje_split[0], "DUMP_MEMORY") == 0)
         {
+            sys_dump_memory(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
-        else if (strcmp(mensaje_split[3], "IO") == 0)
+        else if (strcmp(mensaje_split[0], "IO") == 0)
         {
+            sys_io(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
 
         free(buffer);
@@ -416,28 +435,7 @@ void replanificar_hilo(int pid, int tid)
     tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado);
     int index = get_index(tcb_encontrado->prioridad);
     list_add_in_index(QUEUE_READY, index, tcb_encontrado);
-    sem_post(&sem_mutex_colas);
-    log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", tid);
-}
-
-void atender_io(int pid, int tid, int tiempo)
-{
-    bool _es_tcb_buscado(void *elemento)
-    {
-        return es_tcb_buscado(pid, tid, elemento);
-    }
-    t_tcb *tcb_encontrado;
-    sem_wait(&sem_mutex_colas);
-    tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado);
-    list_add(QUEUE_BLOCKED, tcb_encontrado);
-    log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: BLOCKED", tid);
-    sem_post(&sem_mutex_colas);
-    int tiempo_miliseconds = tiempo * 1000;
-    usleep(tiempo_miliseconds * 1000);
-    sem_wait(&sem_mutex_colas);
-    list_remove_element(QUEUE_BLOCKED, tcb_encontrado);
-    int index = get_index(tcb_encontrado->prioridad);
-    list_add_in_index(QUEUE_READY, index, tcb_encontrado);
+    sem_post(&sem_contador_ready);
     sem_post(&sem_mutex_colas);
     log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", tid);
 }
@@ -455,16 +453,65 @@ void desbloquear_hilos_join(int tid_join, int ppid)
                 return es_tcb_buscado(hilo_a_debloquear->ppid, hilo_a_debloquear->tid, elemento);
             }
             t_tcb *tcb_encontrado;
-            sem_wait(&sem_mutex_colas);
             tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado);
-            int index = get_index(tcb_encontrado->prioridad);
-            list_add_in_index(QUEUE_READY, index, tcb_encontrado);
-            sem_post(&sem_mutex_colas);
+            if (strcmp(algoritmo_planificacion, "FIFO") == 0)
+            {
+
+                list_add(QUEUE_READY, tcb_encontrado);
+            }
+            else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, 'CMN') == 0)
+            {
+
+                int index = get_index(tcb_encontrado->prioridad);
+                list_add_in_index(QUEUE_READY, index, tcb_encontrado);
+            }
             log_info(logger, "TID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", tcb_encontrado->tid);
             t_hilo_join *auxiliar_hilo = list_remove(TCB_BLOQUEADOS, i);
             free(auxiliar_hilo);
         }
-        // Agregar escenarios por algoritmo de planificacion
-        // TODO
+    }
+}
+void esperar_respuesta_dump_memory(){
+    
+    t_list *lista;
+    int cod_op = recibir_operacion(socket_memoria);
+    switch (cod_op)
+    {
+    case MENSAJE:
+        int size;
+        char *buffer = recibir_buffer(&size, socket_memoria);
+        char** mensaje_split = string_split(buffer, " ");
+        
+        if (strcmp(mensaje_split[0], "DUMP_MEMORY_SUCCESS") == 0)
+        {
+            int pid_recibido = atoi(mensaje_split[1]);
+            int tid_recibido = atoi(mensaje_split[2]);
+            bool _es_tcb_buscado(void *elemento)
+            {
+                return es_tcb_buscado(pid_recibido, tid_recibido, elemento);
+            }
+            sem_wait(&sem_mutex_colas);
+            t_tcb *tcb_encontrado_blocked = list_find(QUEUE_BLOCKED, _es_tcb_buscado);
+            list_remove_element(QUEUE_BLOCKED, tcb_encontrado_blocked);
+            asignar_a_ready(tcb_encontrado_blocked);
+            sem_post(&sem_mutex_colas);
+            
+        }else if(strcmp(mensaje_split[0], "DUMP_MEMORY_FAIL") == 0){
+            int pid_recibido = atoi(mensaje_split[1]);
+            int tid_recibido = atoi(mensaje_split[2]);
+            finalizar_hilo(pid_recibido, tid_recibido, QUEUE_BLOCKED);
+        }
+        free(buffer);
+        break;
+    case PAQUETE:
+        lista = recibir_paquete(socket_memoria);
+        list_iterate(lista, (void *)iterator);
+        break;
+    case -1:
+        log_error(logger, "el cliente se desconecto.");
+        return EXIT_FAILURE;
+    default:
+        log_warning(logger, "Operacion desconocida. No quieras meter la pata");
+        break;
     }
 }
