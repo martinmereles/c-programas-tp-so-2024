@@ -46,4 +46,6 @@ void dump_memory(int pid, int tid, int socket_cliente);
 void consolidar(int posicion);
 void finalizar_hilo(int pid, int tid, int socket_cliente);
 void finalizar_proceso(int pid, int socket_cliente);
+t_particion *particion_buscada(int pid);
+int obtener_posicion_particion(int pid);
 #endif

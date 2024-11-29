@@ -434,7 +434,7 @@ void read_mem(int direccion_fisica, int pid, int tid, int socket_cliente)
   string_append(&operacion, "READ_MEM");
   agregar_a_paquete(respuesta, operacion, string_length(operacion) + 1);
   void *dato = malloc(4);
-  memcpy(dato, memoria_principal + direccion_fisica,  4);
+  memcpy(dato, memoria_principal + direccion_fisica, 4);
   agregar_a_paquete(respuesta, dato, 4);
   usleep(retardo_respuesta_cpu * 1000);
   log_info(logger, "## Lectura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
@@ -642,5 +642,50 @@ void finalizar_hilo(int pid, int tid, int socket_cliente)
 
 void finalizar_proceso(int pid, int socket_cliente)
 {
-  // TODO
+  t_particion *particion = particion_buscada(pid);
+  if (particion != NULL)
+  {
+    particion->pid = -1;
+  
+  int index = obtener_posicion_particion(pid);
+  t_contexto_proceso *contexto_proceso = find_by_pid(procesos, pid);
+  list_remove_element(procesos, contexto_proceso);
+  log_info(logger, "## Proceso Destruido -  PID: %d - Tamaño: %d", pid, contexto_proceso->LIMITE);
+  free(contexto_proceso);
+  if (esquema == "DINAMICAS" && index != -1)
+  {
+    consolidar(index);
+  }
+  
+  }
+}
+
+t_particion *particion_buscada(int pid)
+{
+
+  bool _pid(void *ptr)
+  {
+    t_particion *particion = (t_particion *)ptr;
+    if (particion->pid == pid)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  return list_find(lista_particiones, _pid);
+}
+
+int obtener_posicion_particion(int pid){
+  int index = -1;
+  t_particion* particion;
+  for(int i =0; list_size(lista_particiones)>i;i++){
+    particion = list_get(lista_particiones,i);
+    if(particion->pid == pid){
+      index = i;
+    }
+  }
+  return index;
 }
