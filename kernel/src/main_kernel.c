@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     TCB_BLOQUEADOS = list_create();
     contador_pid = 0;
     sem_init(&sem_largo_plazo, 0, 0);
-    sem_init(&sem_corto_plazo, 0, 0);
+    sem_init(&sem_corto_plazo, 0, 1);
     sem_init(&sem_contador_ready, 0, 0);
     sem_init(&sem_mutex_colas, 0, 1);
 
@@ -47,18 +47,17 @@ int main(int argc, char **argv)
     {
         quantum = config_get_int_value(config, "QUANTUM");
     }
-    crear_proceso(archivo, tamanio_proceso, 0);
 
-    //Inicia conexion con cpu dispatch
-    char* ip_cpu = config_get_string_value(config, "IP_CPU");
-    char* puerto_cpu_dispatch = config_get_string_value(config, "PUERTO_CPU_DISPATCH");
-    socket_cpu_dispatch = crear_conexion(ip_cpu,puerto_cpu_dispatch);
-    enviar_mensaje("CONEXION_INICIAL_KERNEL_DISPATCH",socket_cpu_dispatch);
+    // Inicia conexion con cpu dispatch
+    char *ip_cpu = config_get_string_value(config, "IP_CPU");
+    char *puerto_cpu_dispatch = config_get_string_value(config, "PUERTO_CPU_DISPATCH");
+    socket_cpu_dispatch = crear_conexion(ip_cpu, puerto_cpu_dispatch);
+    enviar_mensaje("CONEXION_INICIAL_KERNEL_DISPATCH", socket_cpu_dispatch);
 
-    //Inicia conexion con cpu interrupt
-    char* puerto_cpu_interrupt = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");
-    socket_cpu_interrupt = crear_conexion(ip_cpu,puerto_cpu_interrupt);
-    enviar_mensaje("CONEXION_INICIAL_KERNEL_INTERRUPT",socket_cpu_interrupt);
+    // Inicia conexion con cpu interrupt
+    char *puerto_cpu_interrupt = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");
+    socket_cpu_interrupt = crear_conexion(ip_cpu, puerto_cpu_interrupt);
+    enviar_mensaje("CONEXION_INICIAL_KERNEL_INTERRUPT", socket_cpu_interrupt);
 
     // Inicia conexion con memoria
     char *ip_memoria = config_get_string_value(config, "IP_MEMORIA");
@@ -66,13 +65,24 @@ int main(int argc, char **argv)
     socket_memoria = crear_conexion(ip_memoria, puerto_memoria);
     enviar_mensaje("CONEXION_INICIAL_KERNEL", socket_memoria);
 
-    // se inicia hilo planificador de largo plazo
-    pthread_t hilo_planificador_largo;
+    // Se inicia hilo planificador de corto plazo
+    pthread_t hilo_planificador_corto;
+    pthread_create(&hilo_planificador_corto,
+                   NULL,
+                   (void *)planificador_corto_plazo,
+                   NULL);
+    pthread_detach(hilo_planificador_corto);
+
+        // se inicia hilo planificador de largo plazo
+        pthread_t hilo_planificador_largo;
     pthread_create(&hilo_planificador_largo,
                    NULL,
                    (void *)planificador_largo_plazo,
                    NULL);
     sem_post(&sem_largo_plazo);
+
+    crear_proceso(archivo, tamanio_proceso, 0);
+
     pthread_join(hilo_planificador_largo, NULL);
 
     return 0;

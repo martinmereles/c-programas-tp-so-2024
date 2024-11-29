@@ -5,6 +5,7 @@
 #include <commons/string.h>
 #include <commons/temporal.h>
 #include <utils/client-server.h>
+#include <pthread.h>
 
 // variables globales
 extern t_log *logger;

@@ -39,12 +39,10 @@ int main(int argc, char* argv[]) {
     char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
     char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
     socket_memoria = crear_conexion(ip_memoria,puerto_memoria);
-    enviar_mensaje("Me conecto desde cpu!",socket_memoria);
-    enviar_mensaje("Me conecto desde cpu!",socket_memoria);
+    enviar_mensaje("Me conecto desde cpu!", socket_memoria);
 
     //Iniciar hilo servidor dispatch
     char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");
-	//pthread_t hilo_servidor_dispatch = iniciar_hilo_server(puerto_dispatch);
     pthread_t hilo_servidor_dispatch = iniciar_hilo_server_dispatch(puerto_dispatch);
     pthread_detach(hilo_servidor_dispatch);
     
@@ -52,9 +50,6 @@ int main(int argc, char* argv[]) {
     char* puerto_interrupt = config_get_string_value(config, "PUERTO_ESCUCHA_INTERRUPT");
 	pthread_t hilo_servidor_interrupt = iniciar_hilo_server_interrupt(puerto_interrupt);
     pthread_detach(hilo_servidor_interrupt);
-    
-    //PRUEBA CONTEXTO
-    //proximo_proceso("1","0");
 
     sem_wait(&sem_execute);
 

@@ -4,11 +4,11 @@ void fetch(){
 
     char* mensaje = string_new();
     string_append(&mensaje,"PROXIMA_INSTRUCCION ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, PC);
+    string_append(&mensaje, string_itoa(PC));
     enviar_mensaje(mensaje ,socket_memoria);
     
     //Recibir respuesta de memoria PROXIMA_INSTRUCCION "INSTRUCCION"

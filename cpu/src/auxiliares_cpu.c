@@ -223,7 +223,7 @@ void proximo_proceso(char *pid_nuevo, char *tid_nuevo)
     string_append(&mensaje, " ");
     string_append(&mensaje, tid_nuevo);
     enviar_mensaje(mensaje, socket_memoria);
-    log_info(logger, "##TID: %d - Solicito Contexto Ejecución", tid_nuevo);
+    log_info(logger, "##TID: %d - Solicito Contexto Ejecución", tid);
 
     // Esperar respuesta memoria
     t_list *lista;

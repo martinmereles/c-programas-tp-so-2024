@@ -47,9 +47,12 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
 {
 
   // Se valida que haya espacio
+  char *mensaje_resultado = string_new();
   if (!hay_espacio(tamanio))
   {
-    enviar_mensaje("PROCESS_CREATE MEMORIA_INSUFICIENTE", socket_cliente);
+    string_append(&mensaje_resultado, "PROCESS_CREATE_FAIL ");
+    string_append(&mensaje_resultado, string_itoa(pid));
+    enviar_mensaje(mensaje_resultado, socket_cliente);
     return;
   }
 
@@ -66,7 +69,9 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   crear_hilo(archivo_instrucciones, prioridad, pid, 0, socket_cliente);
   usleep(retardo_respuesta_cpu * 1000);
 
-  enviar_mensaje("PROCESS_CREATE OK", socket_cliente);
+  string_append(&mensaje_resultado, "PROCESS_CREATE_OK ");
+  string_append(&mensaje_resultado, string_itoa(pid));
+  enviar_mensaje(mensaje_resultado, socket_cliente);
 }
 
 t_particion *asignar_particion(int tamanio, int pid)
@@ -297,17 +302,18 @@ void atender_cliente_memoria(int socket_cliente)
   char *buffer;
   t_list *lista;
 
-  t_atencion_mensaje *param_atencion_mensaje = malloc(sizeof(t_atencion_mensaje));
-  t_atencion_paquete *param_atencion_paquete = malloc(sizeof(t_atencion_paquete));
   while (1)
   {
+    t_atencion_mensaje *param_atencion_mensaje = malloc(sizeof(t_atencion_mensaje));
+    t_atencion_paquete *param_atencion_paquete = malloc(sizeof(t_atencion_paquete));
     cod_op = recibir_operacion(socket_cliente);
     switch (cod_op)
     {
     case MENSAJE:
       buffer = recibir_buffer(&size, socket_cliente);
 
-      param_atencion_mensaje->buffer = buffer;
+      param_atencion_mensaje->buffer = string_duplicate(buffer);
+      free(buffer);
       param_atencion_mensaje->socket_cliente = socket_cliente;
       pthread_t hiloAtencionMensaje;
       pthread_create(&hiloAtencionMensaje,
@@ -321,7 +327,7 @@ void atender_cliente_memoria(int socket_cliente)
 
       lista = recibir_paquete(socket_cliente);
 
-      param_atencion_paquete->lista = lista;
+      param_atencion_paquete->lista = list_duplicate(lista);
       param_atencion_paquete->socket_cliente = socket_cliente;
       pthread_t hiloAtencionPaquete;
       pthread_create(&hiloAtencionPaquete,
@@ -646,17 +652,16 @@ void finalizar_proceso(int pid, int socket_cliente)
   if (particion != NULL)
   {
     particion->pid = -1;
-  
-  int index = obtener_posicion_particion(pid);
-  t_contexto_proceso *contexto_proceso = find_by_pid(procesos, pid);
-  list_remove_element(procesos, contexto_proceso);
-  log_info(logger, "## Proceso Destruido -  PID: %d - Tamaño: %d", pid, contexto_proceso->LIMITE);
-  free(contexto_proceso);
-  if (esquema == "DINAMICAS" && index != -1)
-  {
-    consolidar(index);
-  }
-  
+
+    int index = obtener_posicion_particion(pid);
+    t_contexto_proceso *contexto_proceso = find_by_pid(procesos, pid);
+    list_remove_element(procesos, contexto_proceso);
+    log_info(logger, "## Proceso Destruido -  PID: %d - Tamaño: %d", pid, contexto_proceso->LIMITE);
+    free(contexto_proceso);
+    if (esquema == "DINAMICAS" && index != -1)
+    {
+      consolidar(index);
+    }
   }
 }
 
@@ -678,12 +683,15 @@ t_particion *particion_buscada(int pid)
   return list_find(lista_particiones, _pid);
 }
 
-int obtener_posicion_particion(int pid){
+int obtener_posicion_particion(int pid)
+{
   int index = -1;
-  t_particion* particion;
-  for(int i =0; list_size(lista_particiones)>i;i++){
-    particion = list_get(lista_particiones,i);
-    if(particion->pid == pid){
+  t_particion *particion;
+  for (int i = 0; list_size(lista_particiones) > i; i++)
+  {
+    particion = list_get(lista_particiones, i);
+    if (particion->pid == pid)
+    {
       index = i;
     }
   }
