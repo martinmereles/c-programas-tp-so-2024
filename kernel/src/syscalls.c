@@ -4,7 +4,7 @@ void sys_crear_proceso(char *archivo, int tamanio, int prioridad, int pid, int t
 {
 
     crear_proceso(archivo, tamanio, prioridad);
-    log_info(logger, "SE EJECUTO LA SYSCALL PROCESS_CREATE");
+
     dispatcher(tid, pid);
 }
 
@@ -12,7 +12,6 @@ void sys_process_exit(int pid, int tid)
 {
 
     finalizar_proceso(pid);
-    log_info(logger, "SE EJECUTO LA SYSCALL PROCESS_EXIT PARA EL PROCESO %d", pid);
     sem_post(&sem_corto_plazo);
     dispatcher(tid, pid);
 }
@@ -25,9 +24,9 @@ void sys_thread_create(char *archivo_ps, int prioridad, int ppid, int tid)
     int index = get_index(new_thread->prioridad);
     list_add_in_index(QUEUE_READY, index, new_thread);
     sem_post(&sem_mutex_colas);
-    log_info(logger, "SE EJECUTO LA SYSCALL PROCESS_CREATE");
     sem_post(&sem_contador_ready);
     dispatcher(tid, ppid);
+    log_info(logger,"“## (%d:%d) Se crea el Hilo - Estado: READY", ppid, tid);
 }
 
 void sys_thread_join(int tid_join, int ppid, int tid)
@@ -37,12 +36,12 @@ void sys_thread_join(int tid_join, int ppid, int tid)
     {
         return es_tcb_buscado(ppid, tid_join, elemento);
     }
-    t_tcb *tcb_encontrado_exec = list_find(QUEUE_EXEC, _es_tcb_buscado);
+    t_tcb *tcb_encontrado_ready = list_find(QUEUE_READY, _es_tcb_buscado);
     t_tcb *tcb_encontrado_blocked = list_find(QUEUE_BLOCKED, _es_tcb_buscado);
 
-    if (tcb_encontrado_blocked == NULL && tcb_encontrado_exec == NULL)
+    if (tcb_encontrado_blocked == NULL && tcb_encontrado_ready == NULL)
     {
-        log_info(logger, "Hilo <%d : %d> no existe", tid_join, ppid);
+        log_info(logger, "## (%d:%d) Hilo no existe", tid_join, ppid);
         dispatcher(tid, ppid);
     }
     else
@@ -57,11 +56,13 @@ void sys_thread_join(int tid_join, int ppid, int tid)
         {
             return es_tcb_buscado(ppid, tid, elemento);
         }
+        sem_wait(&sem_mutex_colas);
         tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado_existe);
+
         // chequeamos que exista el hilo en la cola
         if (tcb_encontrado == NULL)
         {
-            log_info(logger, "Hilo no encontrado");
+            log_info(logger, "## (%d:%d) Hilo no existe", tid_join, ppid);
             return;
         }
         else
@@ -69,8 +70,10 @@ void sys_thread_join(int tid_join, int ppid, int tid)
             // tcb_encontrado->estado = BLOCKED;
             list_add(QUEUE_BLOCKED, tcb_encontrado);
             list_add(TCB_BLOQUEADOS, hilo_a_bloquear);
+            log_info(logger, "## (%d:%d) - Bloqueado por: PTHREAD_JOIN", ppid, tid);
+
         }
-        log_info(logger, "SE EJECUTO LA SYSCALL THREAD_JOIN");
+        sem_post(&sem_mutex_colas);
         sem_post(&sem_corto_plazo);
     }
 }
@@ -88,12 +91,15 @@ void sys_thread_cancel(int tid_cancel, int ppid, int tid)
     if (tcb_encontrado_blocked != NULL)
     {
         finalizar_hilo(tcb_encontrado_blocked->ppid, tid_cancel, QUEUE_BLOCKED);
+        log_info(logger, "## (%d:%d) - Finaliza el hilo", ppid, tid);
     }
     else if (tcb_encontrado_ready != NULL)
     {
         bool resultado = finalizar_hilo(tcb_encontrado_ready->ppid, tid_cancel, QUEUE_READY);
-        if(resultado){
+        if (resultado)
+        {
             sem_post(&sem_contador_ready);
+            log_info(logger, "## (%d:%d) - Finaliza el hilo", ppid, tid);
         }
     }
     dispatcher(tid, ppid);
@@ -103,6 +109,7 @@ void sys_thread_exit(int pid, int tid)
 {
     finalizar_hilo(pid, tid, QUEUE_EXEC);
     sem_post(&sem_corto_plazo);
+    log_info(logger, "## (%d:%d) - Finaliza el hilo", pid, tid);
 }
 
 void sys_mutex_create(char *nombre, int pid, int tid)
@@ -143,12 +150,13 @@ void sys_mutex_lock(char *nombre, int pid, int tid)
             dispatcher(tid, pid);
         }
         else
-        {   
+        {
             sem_wait(&sem_mutex_colas);
             t_tcb *tcb_encontrado = list_remove(QUEUE_EXEC, 0);
             list_add(QUEUE_BLOCKED, tcb_encontrado);
             sem_post(&sem_mutex_colas);
             list_add(mutex_encontrado->bloqueados, tcb_encontrado->tid);
+            log_info(logger, "## (%d:%d) - Bloqueado por: MUTEX", pid, tid);
             sem_post(&sem_corto_plazo);
         }
     }
@@ -206,11 +214,11 @@ void sys_mutex_unlock(char *nombre, int pid, int tid)
 
 void sys_dump_memory(int pid, int tid)
 {
-    //Bloquear hilo
+    // Bloquear hilo
     t_tcb *tcb_encontrado = list_remove(QUEUE_EXEC, 0);
     list_add(QUEUE_BLOCKED, tcb_encontrado);
 
-    //Envio mensaje a memoria
+    // Envio mensaje a memoria
     char *mensaje = string_new();
     string_append(&mensaje, "DUMP_MEMORY");
     string_append(&mensaje, " ");
@@ -219,14 +227,13 @@ void sys_dump_memory(int pid, int tid)
     string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje, socket_memoria);
 
-    //Creo hilo de escucha
+    // Creo hilo de escucha
     pthread_t hilo_respuesta_memoria;
     pthread_create(&hilo_respuesta_memoria,
                    NULL,
                    esperar_respuesta_dump_memory,
                    NULL);
     pthread_detach(hilo_respuesta_memoria);
-
 }
 
 void sys_io(int tiempo, int pid, int tid)
@@ -238,17 +245,21 @@ void sys_io(int tiempo, int pid, int tid)
     t_tcb *tcb_encontrado;
     sem_wait(&sem_mutex_colas);
     tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado);
+    char *mensaje = string_new();
+    string_append(mensaje, string_itoa(tiempo));
+    string_append(mensaje, string_itoa(pid));
+    string_append(mensaje, string_itoa(tid));
     list_add(QUEUE_BLOCKED, tcb_encontrado);
-    log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: BLOCKED", tid);
+    log_info(logger, "## (%d:%d) - Bloqueado por: IO", pid, tid);
     sem_post(&sem_mutex_colas);
-    int tiempo_miliseconds = tiempo * 1000;
-    usleep(tiempo_miliseconds * 1000);
-    sem_wait(&sem_mutex_colas);
-    list_remove_element(QUEUE_BLOCKED, tcb_encontrado);
-    int index = get_index(tcb_encontrado->prioridad);
-    list_add_in_index(QUEUE_READY, index, tcb_encontrado);
-    sem_post(&sem_mutex_colas);
-    log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", tid);
+   // atender_io(mensaje);
+   pthread_t hilo_atencion_io;
+    pthread_create(&hilo_atencion_io,
+                   NULL,
+                   atender_io,
+                   mensaje);
+    pthread_detach(hilo_atencion_io);
+    sem_post(&sem_corto_plazo);
 }
 
 bool es_mutex_buscado(char *nombre, void *elemento)
@@ -274,4 +285,25 @@ void asignar_a_ready(t_tcb *tcb_a_asignar)
 
         list_add_in_index(QUEUE_READY, index, tcb_a_asignar);
     }
+}
+
+void atender_io(char *mensaje)
+{
+    char** parametros = string_split(mensaje, " ");
+
+    int tiempo_miliseconds = atoi(parametros[0]) * 1000;
+    int pid = atoi(parametros[1]);
+    int tid = atoi(parametros[2]);
+    usleep(tiempo_miliseconds);
+    sem_wait(&sem_mutex_colas);
+     bool _es_tcb_buscado(void *elemento)
+    {
+        return es_tcb_buscado(pid, tid, elemento);
+    }
+    t_tcb *tcb_encontrado;
+    sem_wait(&sem_mutex_colas);
+    tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado);
+    asignar_a_ready(tcb_encontrado);
+    sem_post(&sem_mutex_colas);
+    log_info(logger, "# (%d:%d) finalizó IO y pasa a READY",pid, tid);
 }

@@ -46,5 +46,6 @@ void sys_dump_memory(int pid, int tid);
 void sys_io(int tiempo, int pid, int tid);
 bool es_mutex_buscado(char *nombre, void *elemento);
 void asignar_a_ready(t_tcb *tcb_a_asignar);
+void atender_io(char *mensaje);
 
 #endif

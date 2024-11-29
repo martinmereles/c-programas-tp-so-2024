@@ -18,6 +18,7 @@ void crear_proceso(char *archivo, int tamanio, int prioridad)
     pcb->tamanio = tamanio;
 
     list_add(QUEUE_NEW, pcb);
+    log_info(logger, "## (%d:0) - Se crea el proceso - Estado: NEW", pcb->pid);
 }
 
 void finalizar_proceso(int pid)
@@ -45,7 +46,7 @@ void finalizar_proceso(int pid)
     string_append(&mensaje, "PROCESS_EXIT");
     string_append(&mensaje, string_itoa(pcb_encontrado->pid));
     enviar_mensaje(mensaje, socket_memoria);
-    // recibir mensaje de confirmacion de memoria
+    log_info(logger, "## Finaliza el proceso <PID>", pid);
 }
 // funcion que busca pcb segun pid
 bool es_pcb_buscado(int pid_buscado, void *elemento)
@@ -155,7 +156,7 @@ bool finalizar_hilo(int pid, int tid, t_list *cola)
 
         enviar_mensaje(mensaje, socket_memoria);
         // recibir mensaje de confirmacion
-        log_info(logger, "< %i : %i> finaliza el hilo", tcb_encontrado->ppid, tcb_encontrado->tid);
+        log_info(logger, "## (%d:%d)  Finaliza el hilo", tcb_encontrado->ppid, tcb_encontrado->tid);
         desbloquear_hilos_join(tcb_encontrado->tid, tcb_encontrado->ppid);
         validacion = true;
     }
@@ -207,7 +208,6 @@ void ejecutar_fifo()
         t_tcb *tcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
         sem_post(&sem_mutex_colas);
-        log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid);
         char *mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
     }
@@ -224,7 +224,6 @@ void ejecutar_prioridades()
         t_tcb *tcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
         sem_post(&sem_mutex_colas);
-        log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid);
         char *mensaje_cpu = recibir_desde_cpu(socket_cpu_dispatch);
     }
@@ -241,7 +240,6 @@ void ejecutar_cmn()
         t_tcb *tcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_EXEC, tcb_a_enviar);
         sem_post(&sem_mutex_colas);
-        log_info(logger, "TID: %d - Estado Anterior: READY - Estado Actual: RUNNING", tcb_a_enviar->tid);
         dispatcher(tcb_a_enviar->tid, tcb_a_enviar->ppid);
         char *mensaje = string_new();
         string_append(&mensaje, "FIN_QUANTUM ");
@@ -303,8 +301,6 @@ char *recibir_desde_memoria(int socket_cliente)
     case MENSAJE:
         int size;
         char *buffer = recibir_buffer(&size, socket_cliente);
-        log_info(logger, "Me llego el mensaje %s", buffer);
-        // void * mensaje;
         char *mensaje;
         if (string_starts_with(buffer, "PROCESS_CREATE "))
         {
@@ -315,11 +311,10 @@ char *recibir_desde_memoria(int socket_cliente)
         break;
     case PAQUETE:
         lista = recibir_paquete(socket_cliente);
-        log_info(logger, "Me llegaron los siguientes valores:\n");
         list_iterate(lista, (void *)iterator);
         break;
     case -1:
-        log_error(logger, "el cliente se desconecto.");
+        log_error(logger, "El cliente se desconecto.");
         return EXIT_FAILURE;
     default:
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
@@ -333,7 +328,6 @@ void aviso_quantum(char *mensaje)
     int quantum_milisecons = quantum * 1000;
     usleep(quantum_milisecons);
     enviar_mensaje(mensaje, socket_cpu_interrupt);
-    log_info(logger, "Se envia el mensaje %s", mensaje);
 }
 
 char *recibir_desde_cpu(int socket_cliente)
@@ -346,63 +340,68 @@ char *recibir_desde_cpu(int socket_cliente)
     case MENSAJE: // validar que mensajes llegan desde CPU
         int size;
         char *buffer = recibir_buffer(&size, socket_cliente);
-        log_info(logger, "Me llego el mensaje %s", buffer);
         char *mensaje = buffer;
         // void * mensaje;
         char **mensaje_split;
         mensaje_split = string_split(mensaje, " ");
         if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_QUANTUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
         {
-            log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", atoi(mensaje_split[2]));
+            log_info(logger, "“## (%s:%s) - Desalojado por fin de Quantum", mensaje_split[1],mensaje_split[2]);
             replanificar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
-        }
-        else if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_HILO") == 0) // En que escenario CPU envia esta interrupcion?
-        {
-
-            finalizar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]), QUEUE_EXEC);
         }
         else if (strcmp(mensaje_split[0], "PROCESS_CREATE") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: PROCESS_CREATE", mensaje_split[1],mensaje_split[2]);
             sys_crear_proceso(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), atoi(mensaje_split[5]));
         }
         else if (strcmp(mensaje_split[0], "PROCESS_EXIT") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: PROCESS_EXIT", mensaje_split[1],mensaje_split[2]);
             sys_process_exit(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_CREATE") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_CREATE", mensaje_split[1],mensaje_split[2]);
             sys_thread_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_JOIN") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_JOIN", mensaje_split[1],mensaje_split[2]);
             sys_thread_join(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_CANCEL") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_CANCEL", mensaje_split[1],mensaje_split[2]);
             sys_thread_cancel(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_EXIT") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_EXIT", mensaje_split[1],mensaje_split[2]);
             sys_thread_exit(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
         else if (strcmp(mensaje_split[0], "MUTEX_CREATE") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: MUTEX_CREATE", mensaje_split[1],mensaje_split[2]);
             sys_mutex_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "MUTEX_LOCK") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: MUTEX_LOCK", mensaje_split[1],mensaje_split[2]);
             sys_mutex_lock(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "MUTEX_UNLOCK") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: MUTEX_UNLOCK", mensaje_split[1],mensaje_split[2]);
             sys_mutex_unlock(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "DUMP_MEMORY") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: DUMP_MEMORY", mensaje_split[1],mensaje_split[2]);
             sys_dump_memory(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
         else if (strcmp(mensaje_split[0], "IO") == 0)
         {
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: IO", mensaje_split[1],mensaje_split[2]);
             sys_io(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
 
@@ -411,11 +410,10 @@ char *recibir_desde_cpu(int socket_cliente)
         break;
     case PAQUETE:
         lista = recibir_paquete(socket_cliente);
-        log_info(logger, "Me llegaron los siguientes valores:\n");
         list_iterate(lista, (void *)iterator);
         break;
     case -1:
-        log_error(logger, "el cliente se desconecto.");
+        log_error(logger, "El cliente se desconecto.");
         return EXIT_FAILURE;
     default:
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
@@ -437,7 +435,6 @@ void replanificar_hilo(int pid, int tid)
     list_add_in_index(QUEUE_READY, index, tcb_encontrado);
     sem_post(&sem_contador_ready);
     sem_post(&sem_mutex_colas);
-    log_info(logger, "TID: %d - Estado Anterior: EXEC - Estado Actual: READY", tid);
 }
 
 void desbloquear_hilos_join(int tid_join, int ppid)
@@ -465,7 +462,6 @@ void desbloquear_hilos_join(int tid_join, int ppid)
                 int index = get_index(tcb_encontrado->prioridad);
                 list_add_in_index(QUEUE_READY, index, tcb_encontrado);
             }
-            log_info(logger, "TID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", tcb_encontrado->tid);
             t_hilo_join *auxiliar_hilo = list_remove(TCB_BLOQUEADOS, i);
             free(auxiliar_hilo);
         }
@@ -508,7 +504,7 @@ void esperar_respuesta_dump_memory(){
         list_iterate(lista, (void *)iterator);
         break;
     case -1:
-        log_error(logger, "el cliente se desconecto.");
+        log_error(logger, "El cliente se desconecto.");
         return EXIT_FAILURE;
     default:
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
