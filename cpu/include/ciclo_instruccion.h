@@ -3,6 +3,8 @@
 
 /*------------------------LIBRERIAS------------------------*/
 #include <utils/client-server.h>
+#include <../include/auxiliares_cpu.h>
+#include <../include/mmu.h>
 #include <commons/string.h>
 #include <commons/log.h>
 #include <stdint.h>

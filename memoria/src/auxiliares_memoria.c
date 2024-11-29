@@ -533,7 +533,7 @@ void obtener_contexto(int pid, int tid, int socket_cliente)
 
 void actualizar_contexto(t_list *lista, int socket_cliente)
 {
-  t_contexto_hilo *contexto = find_by_pid_tid(hilos, list_get(lista, 1), list_get(lista, 2));
+  t_contexto_hilo *contexto = find_by_pid_tid(hilos, atoi(list_get(lista, 1)), atoi(list_get(lista, 2)));
   contexto->contexto_hilo->PC = atoi(list_get(lista, 3));
   contexto->contexto_hilo->AX = atoi(list_get(lista, 4));
   contexto->contexto_hilo->BX = atoi(list_get(lista, 5));
@@ -544,7 +544,7 @@ void actualizar_contexto(t_list *lista, int socket_cliente)
   contexto->contexto_hilo->GX = atoi(list_get(lista, 10));
   contexto->contexto_hilo->HX = atoi(list_get(lista, 11));
   usleep(retardo_respuesta_cpu * 1000);
-  log_info(logger, "## Contexto Actualizado - (PID:TID) - (%d:%d)", list_get(lista, 1), list_get(lista, 2));
+  log_info(logger, "## Contexto Actualizado - (PID:TID) - (%s:%s)", list_get(lista, 1), list_get(lista, 2));
 
   enviar_mensaje("CONTEXTO_GUARDADO", socket_cliente);
 }

@@ -16,9 +16,9 @@ void process_create(char * arch_instrucciones, char *tamanio, char *prioridad_ti
     string_append(&mensaje, " ");
     string_append(&mensaje, prioridad_tid);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     
     log_info(logger, "##TID: %d - Ejecutando: PROCESS_CREATE - %s %s %s", tid, arch_instrucciones, tamanio, prioridad_tid);
@@ -35,9 +35,9 @@ void process_exit(){
     //enviar mensaje a Kernel PROCESS_EXIT pid_contexto tid_contexto
     char* mensaje = string_new();
     string_append(&mensaje,"PROCESS_EXIT ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: PROCESS_EXIT", tid);
 
@@ -57,11 +57,11 @@ void thread_create(char * arch_instrucciones, char* prioridad){
     string_append(&mensaje, " ");
     string_append(&mensaje, prioridad);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
-    log_info(logger, "##TID: %d - Ejecutando: THREAD_CREATE - %s %s %s", tid, arch_instrucciones, prioridad);
+    log_info(logger, "##TID: %d - Ejecutando: THREAD_CREATE - %s %s ", tid, arch_instrucciones, prioridad);
     
     //para cortar validar si se debe cortar la ejecucion
     se_ejecuto_syscall = true;
@@ -77,9 +77,9 @@ void thread_join(char* tid_var){
     string_append(&mensaje,"THREAD_JOIN ");
     string_append(&mensaje, tid_var);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: THREAD_EXIT - %s", tid, tid_var);
 
@@ -97,9 +97,9 @@ void thread_cancel(char* tid_var){
     string_append(&mensaje,"THREAD_CANCEL ");
     string_append(&mensaje, tid_var);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: THREAD_CANCEL - %s", tid, tid_var);
 
@@ -115,9 +115,9 @@ void thread_exit(){
     //enviar mensaje a Kernel THREAD_EXIT pid_contexto tid_contexto
     char* mensaje = string_new();
     string_append(&mensaje,"THREAD_EXIT ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: THREAD_EXIT", tid);
 
@@ -135,9 +135,9 @@ void mutex_create(char* recurso){
     string_append(&mensaje,"MUTEX_CREATE ");
     string_append(&mensaje, recurso);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: MUTEX_CREATE - %s", tid, recurso);
 
@@ -155,9 +155,9 @@ void mutex_lock(char* recurso){
     string_append(&mensaje,"MUTEX_LOCK ");
     string_append(&mensaje, recurso);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: MUTEX_LOCK - %s", tid, recurso);
 
@@ -175,9 +175,9 @@ void mutex_unlock(char* recurso){
     string_append(&mensaje,"MUTEX_UNLOCK ");
     string_append(&mensaje, recurso);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: MUTEX_LOCK - %s", tid, recurso);
 
@@ -193,9 +193,9 @@ void dump_memory(){
     //enviar mensaje a Kernel DUMP_MEMORY pid_contexto tid_contexto
     char* mensaje = string_new();
     string_append(&mensaje,"DUMP_MEMORY ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: DUMP_MEMORY", tid);
 
@@ -213,9 +213,9 @@ void io(char* tiempo){
     string_append(&mensaje,"IO ");
     string_append(&mensaje, tiempo);
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     enviar_mensaje(mensaje ,socket_kernel_dispatch);
     log_info(logger, "##TID: %d - Ejecutando: IO - %s", tid, tiempo);
 

@@ -13,7 +13,7 @@ void fetch(){
     
     //Recibir respuesta de memoria PROXIMA_INSTRUCCION "INSTRUCCION"
     char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-    instruccion_exec = string_substring_from(respuesta_memoria, 19);
+    instruccion_exec = string_substring_from(respuesta_memoria, 20);
     log_info(logger, "## TID: %d - FETCH - Program Counter: %d", tid, PC);
 }
 

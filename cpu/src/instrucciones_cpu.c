@@ -82,7 +82,7 @@ void write_mem(char *registro_direccion, char *registro_datos)
     int valor_registro_datos = get_valor_registro(registro_datos);
     t_paquete *paquete_memoria = crear_paquete();
     char *operacion = string_new();
-    string_append(&operacion, "READ_MEM");
+    string_append(&operacion, "WRITE_MEM");
     agregar_a_paquete(paquete_memoria, operacion, string_length(operacion) + 1);
     agregar_a_paquete(paquete_memoria, string_itoa(direccion_fisica), string_length(string_itoa(direccion_fisica))+1);
     agregar_a_paquete(paquete_memoria, string_itoa(valor_registro_datos), string_length(string_itoa(valor_registro_datos))+1);
