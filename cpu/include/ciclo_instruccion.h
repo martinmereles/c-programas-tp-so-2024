@@ -18,6 +18,7 @@ extern int socket_memoria;
 extern int socket_kernel_dispatch;
 extern int pid;
 extern int tid;
+extern bool se_ejecuto_syscall;
 extern uint32_t PC;
 extern uint32_t BASE;
 extern char* instruccion_exec;

@@ -13,7 +13,6 @@ void sys_process_exit(int pid, int tid)
 
     finalizar_proceso(pid);
     sem_post(&sem_corto_plazo);
-    dispatcher(tid, pid);
 }
 
 void sys_thread_create(char *archivo_ps, int prioridad, int ppid, int tid)
@@ -26,12 +25,22 @@ void sys_thread_create(char *archivo_ps, int prioridad, int ppid, int tid)
 
     t_tcb *new_thread = crear_hilo(archivo_ps, prioridad, ppid, list_size(pcb_encontrado->tids));
     sem_wait(&sem_mutex_colas);
-    int index = get_index(new_thread->prioridad);
-    list_add_in_index(QUEUE_READY, index, new_thread);
+    if (strcmp(algoritmo_planificacion, "FIFO") == 0)
+    {
+
+        list_add(QUEUE_READY, new_thread);
+    }
+    else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, "CMN") == 0)
+    {
+
+        int index = get_index(new_thread->prioridad);
+
+        list_add_in_index(QUEUE_READY, index, new_thread);
+    }
     sem_post(&sem_mutex_colas);
     sem_post(&sem_contador_ready);
     dispatcher(tid, ppid);
-    log_info(logger,"“## (%d:%d) Se crea el Hilo - Estado: READY", ppid, tid);
+    log_info(logger,"## (%d:%d) Se crea el Hilo - Estado: READY", ppid, tid);
 }
 
 void sys_thread_join(int tid_join, int ppid, int tid)

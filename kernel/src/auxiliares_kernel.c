@@ -133,8 +133,6 @@ void planificador_largo_plazo()
                 {
                     list_add(QUEUE_READY, nuevo_hilo);
 
-                    list_add(PCB_EN_CICLO, list_remove(QUEUE_NEW, 0));
-                    sem_post(&sem_contador_ready);
                 }
                 else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, "CMN") == 0)
                 {
@@ -142,6 +140,8 @@ void planificador_largo_plazo()
 
                     list_add_in_index(QUEUE_READY, index, nuevo_hilo);
                 }
+                list_add(PCB_EN_CICLO, list_remove(QUEUE_NEW, 0));
+                sem_post(&sem_contador_ready);
             }
             else if (strcmp(mensaje_resultado, "PROCESS_CREATE_FAIL") == 0)
             {
@@ -291,20 +291,16 @@ void dispatcher(int tid, int pid)
     enviar_mensaje(mensaje, socket_cpu_dispatch);
 }
 
-int get_index(int prioridad)
-{
-
+int get_index(int prioridad){
     int index = 0;
-    if (list_size(QUEUE_READY) > 0)
-    {
-        t_tcb *elemento = list_get(QUEUE_READY, 0);
+    t_tcb *elemento;
+    while(index < list_size(QUEUE_READY)){
+        elemento = list_get(QUEUE_READY, index);
 
-        while (elemento->prioridad <= prioridad && index < list_size(QUEUE_READY))
-        {
-
-            elemento = list_get(QUEUE_READY, index);
-            index++;
+        if(elemento->prioridad > prioridad){
+            break;
         }
+        index++;
     }
     return index;
 }
@@ -449,6 +445,7 @@ void replanificar_hilo(int pid, int tid)
     list_add_in_index(QUEUE_READY, index, tcb_encontrado);
     sem_post(&sem_contador_ready);
     sem_post(&sem_mutex_colas);
+    sem_post(&sem_corto_plazo);
 }
 
 void desbloquear_hilos_join(int tid_join, int ppid)

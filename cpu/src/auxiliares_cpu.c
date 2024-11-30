@@ -43,7 +43,6 @@ char *recibir_desde_memoria(int socket_cliente)
     case MENSAJE:
         int size;
         char *buffer = recibir_buffer(&size, socket_cliente);
-        log_info(logger, "Me llego el mensaje %s", buffer);
         if (string_starts_with(buffer, "CONTEXTO_GUARDADO") || string_starts_with(buffer, "WRITE_MEM") 
             || string_starts_with(buffer, "PROXIMA_INSTRUCCION") || string_starts_with(buffer, "ACTUALIZAR_CONTEXTO"))
         {
@@ -191,6 +190,7 @@ void atender_cliente_interrupt(int socket_cliente_interrupt)
                 list_add(interrupciones, nueva_interrupcion);
                 log_info(logger, "## Llega interrupción al puerto Interrupt");
             }
+            free(buffer);
             break;
         case PAQUETE:
             lista = recibir_paquete(socket_cliente_interrupt);
