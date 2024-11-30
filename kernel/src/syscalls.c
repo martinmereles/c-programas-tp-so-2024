@@ -164,6 +164,7 @@ void sys_mutex_lock(char *nombre, int pid, int tid)
         }
         else
         {
+            mutex_encontrado->valor--;
             sem_wait(&sem_mutex_colas);
             t_tcb *tcb_encontrado = list_remove(QUEUE_EXEC, 0);
             list_add(QUEUE_BLOCKED, tcb_encontrado);

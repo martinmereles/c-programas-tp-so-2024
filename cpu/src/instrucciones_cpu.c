@@ -1141,7 +1141,7 @@ void sub(char *registro_destino, char *registro_origen)
         }
     }
 
-    log_info(logger, "## PID: %d - Ejecutando: SUB - %s %s", tid, registro_destino, registro_origen);
+    log_info(logger, "## TID: %d - Ejecutando: SUB - %s %s", tid, registro_destino, registro_origen);
 }
 
 void jnz(char *registro, char *instruccion)

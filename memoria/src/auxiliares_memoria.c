@@ -72,7 +72,7 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   string_append(&mensaje_resultado, "PROCESS_CREATE_OK ");
   string_append(&mensaje_resultado, string_itoa(pid));
   enviar_mensaje(mensaje_resultado, socket_cliente);
-  log_info(logger,"## Proceso Creado - PID: - (%d:) - Tamaño: %d", pid, tamanio);
+  log_info(logger,"## Proceso Creado - PID: - (%d) - Tamaño: %d", pid, tamanio);
 }
 
 t_particion *asignar_particion(int tamanio, int pid)
