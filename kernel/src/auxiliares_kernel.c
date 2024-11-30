@@ -169,7 +169,7 @@ bool finalizar_hilo(int pid, int tid, t_list *cola)
 
 bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento)
 {
-    t_tcb *aux = malloc(sizeof(t_pcb));
+    t_tcb *aux = malloc(sizeof(t_tcb));
     aux = elemento;
     bool aux2 = (aux->tid == tid_buscado && aux->ppid == pid_buscado);
     return (aux2);
@@ -357,7 +357,7 @@ char *recibir_desde_cpu(int socket_cliente)
         }
         else if (strcmp(mensaje_split[0], "THREAD_JOIN") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_JOIN", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_JOIN", mensaje_split[2], mensaje_split[3]);
             sys_thread_join(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_CANCEL") == 0)
