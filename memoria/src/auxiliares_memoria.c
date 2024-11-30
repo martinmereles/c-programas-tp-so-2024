@@ -566,7 +566,7 @@ void entender_paquete_memoria(t_atencion_paquete *param_atencion)
   }
   else if (string_starts_with(list_get(lista, 0), "WRITE_MEM"))
   {
-    write_mem(list_get(lista, 1), list_get(lista, 2), list_get(lista, 3), list_get(lista, 4), socket_cliente);
+    write_mem(atoi(list_get(lista, 1)), list_get(lista, 2), atoi(list_get(lista, 3)), atoi(list_get(lista, 4)), socket_cliente);
   }
 }
 

@@ -61,9 +61,9 @@ void read_mem(char *registro_datos, char *registro_direccion)
     string_append(&mensaje,"READ_MEM ");
     string_append(&mensaje, string_itoa(direccion_fisica));
     string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
+    string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, tid);
+    string_append(&mensaje, string_itoa(tid));
     //Enviar mensaje a memoria
     enviar_mensaje(mensaje ,socket_memoria);
     //Esperar paquete resultado READ_MEM 
@@ -1141,7 +1141,7 @@ void sub(char *registro_destino, char *registro_origen)
         }
     }
     
-    log_info(logger, "##PID: %d - Ejecutando: SUB - %s %s", tid, registro_destino, registro_origen);
+    log_info(logger, "## PID: %d - Ejecutando: SUB - %s %s", tid, registro_destino, registro_origen);
 }
 
 void jnz(char *registro, char *instruccion)
