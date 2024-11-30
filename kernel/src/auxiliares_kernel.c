@@ -413,7 +413,7 @@ char *recibir_desde_cpu(int socket_cliente)
         }
         else if (strcmp(mensaje_split[0], "IO") == 0)
         {
-            log_info(logger, "## (%s:%s) - Solicitó syscall: IO", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: IO", mensaje_split[2], mensaje_split[3]);
             sys_io(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
 

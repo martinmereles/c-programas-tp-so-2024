@@ -261,9 +261,11 @@ void sys_io(int tiempo, int pid, int tid)
     sem_wait(&sem_mutex_colas);
     tcb_encontrado = list_remove_by_condition(QUEUE_EXEC, _es_tcb_buscado);
     char *mensaje = string_new();
-    string_append(mensaje, string_itoa(tiempo));
-    string_append(mensaje, string_itoa(pid));
-    string_append(mensaje, string_itoa(tid));
+    string_append(&mensaje, string_itoa(tiempo));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(pid));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(tid));
     list_add(QUEUE_BLOCKED, tcb_encontrado);
     log_info(logger, "## (%d:%d) - Bloqueado por: IO", pid, tid);
     sem_post(&sem_mutex_colas);
@@ -310,7 +312,6 @@ void atender_io(char *mensaje)
     int pid = atoi(parametros[1]);
     int tid = atoi(parametros[2]);
     usleep(tiempo_miliseconds);
-    sem_wait(&sem_mutex_colas);
     bool _es_tcb_buscado(void *elemento)
     {
         return es_tcb_buscado(pid, tid, elemento);
@@ -320,5 +321,6 @@ void atender_io(char *mensaje)
     tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado);
     asignar_a_ready(tcb_encontrado);
     sem_post(&sem_mutex_colas);
-    log_info(logger, "# (%d:%d) finalizó IO y pasa a READY", pid, tid);
+    sem_post(&sem_contador_ready);
+    log_info(logger, "## (%d:%d) finalizó IO y pasa a READY", pid, tid);
 }
