@@ -381,7 +381,7 @@ void entender_mensaje_memoria(t_atencion_mensaje *param_atencion)
   }
   else if (string_starts_with(buffer, "READ_MEM"))
   {
-    read_mem(atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
+    read_mem(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), socket_cliente);
   }
   else if (string_starts_with(buffer, "CONEXION_INICIAL_KERNEL"))
   {

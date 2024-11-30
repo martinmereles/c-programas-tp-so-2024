@@ -56,19 +56,19 @@ void read_mem(char *registro_datos, char *registro_direccion)
 {
     // Lee el valor de memoria correspondiente a la Dirección Lógica
     // que se encuentra en el Registro Dirección y lo almacena en el Registro Datos.
-    //Leer de Registro direccion
-    char* mensaje = string_new();
-    string_append(&mensaje,"READ_MEM ");
+    // Leer de Registro direccion
+    char *mensaje = string_new();
+    string_append(&mensaje, "READ_MEM ");
     string_append(&mensaje, string_itoa(direccion_fisica));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(tid));
-    //Enviar mensaje a memoria
-    enviar_mensaje(mensaje ,socket_memoria);
-    //Esperar paquete resultado READ_MEM 
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-    
+    // Enviar mensaje a memoria
+    enviar_mensaje(mensaje, socket_memoria);
+    // Esperar paquete resultado READ_MEM
+    char *respuesta_memoria = recibir_desde_memoria(socket_memoria);
+
     log_info(logger, "## TID: %d - Acción: LEER - Dirección Física: %d", tid, direccion_fisica);
 
     log_info(logger, "## TID: %d - Ejecutando: READ_MEM - %s %s", tid, registro_datos, registro_direccion);
@@ -78,21 +78,21 @@ void write_mem(char *registro_direccion, char *registro_datos)
 {
     // Lee el valor del Registro Datos y lo escribe en la dirección
     // física de memoria obtenida a partir de la Dirección Lógica almacenada en el Registro Dirección.
-    //Escribir en la direccion
+    // Escribir en la direccion
     int valor_registro_datos = get_valor_registro(registro_datos);
     t_paquete *paquete_memoria = crear_paquete();
     char *operacion = string_new();
     string_append(&operacion, "WRITE_MEM");
     agregar_a_paquete(paquete_memoria, operacion, string_length(operacion) + 1);
-    agregar_a_paquete(paquete_memoria, string_itoa(direccion_fisica), string_length(string_itoa(direccion_fisica))+1);
-    agregar_a_paquete(paquete_memoria, string_itoa(valor_registro_datos), string_length(string_itoa(valor_registro_datos))+1);
-    agregar_a_paquete(paquete_memoria, string_itoa(pid), string_length(string_itoa(pid))+1);
-    agregar_a_paquete(paquete_memoria, string_itoa(tid), string_length(string_itoa(tid))+1);
-    //Enviar paquete a memoria
+    agregar_a_paquete(paquete_memoria, string_itoa(direccion_fisica), string_length(string_itoa(direccion_fisica)) + 1);
+    agregar_a_paquete(paquete_memoria, string_itoa(valor_registro_datos), string_length(string_itoa(valor_registro_datos)) + 1);
+    agregar_a_paquete(paquete_memoria, string_itoa(pid), string_length(string_itoa(pid)) + 1);
+    agregar_a_paquete(paquete_memoria, string_itoa(tid), string_length(string_itoa(tid)) + 1);
+    // Enviar paquete a memoria
     enviar_paquete(paquete_memoria, socket_memoria);
-    //Esperar mensaje resultado WRITE_MEM OK
-    char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-    
+    // Esperar mensaje resultado WRITE_MEM OK
+    char *respuesta_memoria = recibir_desde_memoria(socket_memoria);
+
     log_info(logger, "## TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, direccion_fisica);
 
     log_info(logger, "## TID: %d - Ejecutando: WRITE_MEM - %s %s", tid, registro_direccion, registro_datos);
@@ -101,7 +101,7 @@ void write_mem(char *registro_direccion, char *registro_datos)
 void sum(char *registro_destino, char *registro_origen)
 {
     if (strcmp(registro_destino, "PC") == 0)
-    {   
+    {
         if (strcmp(registro_origen, "PC") == 0)
         {
             PC += PC;
@@ -148,7 +148,7 @@ void sum(char *registro_destino, char *registro_origen)
         }
     }
     if (strcmp(registro_destino, "AX") == 0)
-    {   
+    {
         if (strcmp(registro_origen, "PC") == 0)
         {
             AX += PC;
@@ -622,7 +622,7 @@ void sum(char *registro_destino, char *registro_origen)
 }
 
 void sub(char *registro_destino, char *registro_origen)
-{   
+{
     if (strcmp(registro_destino, "PC") == 0)
     {
         if (strcmp(registro_origen, "PC") == 0)
@@ -1140,7 +1140,7 @@ void sub(char *registro_destino, char *registro_origen)
             LIMITE -= LIMITE;
         }
     }
-    
+
     log_info(logger, "## PID: %d - Ejecutando: SUB - %s %s", tid, registro_destino, registro_origen);
 }
 
@@ -1150,105 +1150,105 @@ void jnz(char *registro, char *instruccion)
     int valorASetear = atoi(instruccion);
 
     if (strcmp(registro, "AX") == 0 && AX != 0)
-    {   
+    {
         AX = valorASetear;
     }
     if (strcmp(registro, "BX") == 0 && BX != 0)
-    {   
+    {
         BX = valorASetear;
     }
     if (strcmp(registro, "CX") == 0 && CX != 0)
-    {   
+    {
         CX = valorASetear;
     }
     if (strcmp(registro, "DX") == 0 && DX != 0)
-    {   
+    {
         DX = valorASetear;
     }
     if (strcmp(registro, "EX") == 0 && EX != 0)
-    {   
+    {
         EX = valorASetear;
     }
     if (strcmp(registro, "FX") == 0 && FX != 0)
-    {   
+    {
         FX = valorASetear;
     }
     if (strcmp(registro, "GX") == 0 && GX != 0)
-    {   
+    {
         GX = valorASetear;
     }
     if (strcmp(registro, "HX") == 0 && HX != 0)
-    {   
+    {
         HX = valorASetear;
     }
     if (strcmp(registro, "BASE") == 0 && BASE != 0)
-    {   
+    {
         BASE = valorASetear;
     }
     if (strcmp(registro, "LIMITE") == 0 && LIMITE != 0)
-    {   
+    {
         LIMITE = valorASetear;
     }
     if (strcmp(registro, "PC") == 0 && PC != 0)
-    {   
+    {
         PC = valorASetear;
     }
-    
+
     log_info(logger, "## TID: %d - Ejecutando: JNZ - %s %s", tid, registro, instruccion);
 }
 
 void log(char *registro)
 {
-   
+
     // Escribe en el archivo de log el valor del registro.
     int valor_a_guardar;
 
     if (strcmp(registro, "AX") == 0)
-    {   
+    {
         valor_a_guardar = AX;
     }
     if (strcmp(registro, "BX") == 0)
-    {   
+    {
         valor_a_guardar = BX;
     }
     if (strcmp(registro, "CX") == 0)
-    {   
+    {
         valor_a_guardar = CX;
     }
     if (strcmp(registro, "DX") == 0)
-    {   
+    {
         valor_a_guardar = DX;
     }
     if (strcmp(registro, "EX") == 0)
-    {   
+    {
         valor_a_guardar = EX;
     }
     if (strcmp(registro, "FX") == 0)
-    {   
+    {
         valor_a_guardar = FX;
     }
     if (strcmp(registro, "GX") == 0)
-    {   
+    {
         valor_a_guardar = GX;
     }
     if (strcmp(registro, "HX") == 0)
-    {   
+    {
         valor_a_guardar = HX;
     }
     if (strcmp(registro, "BASE") == 0)
-    {   
+    {
         valor_a_guardar = BASE;
     }
     if (strcmp(registro, "LIMITE") == 0)
-    {   
+    {
         valor_a_guardar = LIMITE;
     }
     if (strcmp(registro, "PC") == 0)
-    {   
+    {
         valor_a_guardar = PC;
     }
     log_info(logger, "## TID: %d - Ejecutando: LOG - %s", tid, registro);
-    log_info(logger, "## TID: %d - Valor de registro %s: LOG - %d", tid, registro,valor_a_guardar);
+    log_info(logger, "## TID: %d - Valor de registro %s: LOG - %d", tid, registro, valor_a_guardar);
 }
 
 void ejecutarSentencia()
