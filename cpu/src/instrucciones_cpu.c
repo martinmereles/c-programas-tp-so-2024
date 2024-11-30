@@ -69,9 +69,9 @@ void read_mem(char *registro_datos, char *registro_direccion)
     //Esperar paquete resultado READ_MEM 
     char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     
-    log_info(logger, "##TID: %d - Acción: LEER - Dirección Física: %d", tid, direccion_fisica);
+    log_info(logger, "## TID: %d - Acción: LEER - Dirección Física: %d", tid, direccion_fisica);
 
-    log_info(logger, "##TID: %d - Ejecutando: READ_MEM - %s %s", tid, registro_datos, registro_direccion);
+    log_info(logger, "## TID: %d - Ejecutando: READ_MEM - %s %s", tid, registro_datos, registro_direccion);
 }
 
 void write_mem(char *registro_direccion, char *registro_datos)
@@ -93,9 +93,9 @@ void write_mem(char *registro_direccion, char *registro_datos)
     //Esperar mensaje resultado WRITE_MEM OK
     char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
     //TO DO
-    log_info(logger, "##TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, direccion_fisica);
+    log_info(logger, "## TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, direccion_fisica);
 
-    log_info(logger, "##TID: %d - Ejecutando: WRITE_MEM - %s %s", tid, registro_direccion, registro_datos);
+    log_info(logger, "## TID: %d - Ejecutando: WRITE_MEM - %s %s", tid, registro_direccion, registro_datos);
 }
 
 void sum(char *registro_destino, char *registro_origen)
@@ -618,7 +618,7 @@ void sum(char *registro_destino, char *registro_origen)
         }
     }
 
-    log_info(logger, "##tID: %d - Ejecutando: SUM - %s %s", tid, registro_destino, registro_origen);
+    log_info(logger, "## TID: %d - Ejecutando: SUM - %s %s", tid, registro_destino, registro_origen);
 }
 
 void sub(char *registro_destino, char *registro_origen)
@@ -1194,7 +1194,7 @@ void jnz(char *registro, char *instruccion)
         PC = valorASetear;
     }
     
-    log_info(logger, "##TID: %d - Ejecutando: JNZ - %s %s", tid, registro, instruccion);
+    log_info(logger, "## TID: %d - Ejecutando: JNZ - %s %s", tid, registro, instruccion);
 }
 
 void log(char *registro)
@@ -1248,7 +1248,7 @@ void log(char *registro)
         valor_a_guardar = PC;
     }
 
-    log_info(logger, "##TID: %d - Ejecutando: LOG - %s", tid, registro);
+    log_info(logger, "## TID: %d - Ejecutando: LOG - %s", tid, registro);
 }
 
 void ejecutarSentencia()
@@ -1258,7 +1258,7 @@ void ejecutarSentencia()
     if (strcmp(sentenciasSplit[0], "SET") == 0)
     {
         set(sentenciasSplit[1], sentenciasSplit[2]);
-        log_info(logger, "##TID: %d - Ejecutando: SET - %s %s", tid, sentenciasSplit[1], sentenciasSplit[2]);
+        log_info(logger, "## TID: %d - Ejecutando: SET - %s %s", tid, sentenciasSplit[1], sentenciasSplit[2]);
         return;
     }
     if (strcmp(sentenciasSplit[0], "READ_MEM") == 0)

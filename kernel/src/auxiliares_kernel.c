@@ -34,7 +34,7 @@ void finalizar_proceso(int pid)
 
     for (int i = 0; i < list_size(pcb_encontrado->tids); i++)
     {
-        tid_a_remover = list_get(pcb_encontrado->tids, i); // d finalizar_hilo (int pid, int tid, t_list* cola)
+        tid_a_remover = list_get(pcb_encontrado->tids, i);
         bool resultado = finalizar_hilo(pcb_encontrado->pid, tid_a_remover, QUEUE_READY);
         if (resultado)
         {
@@ -132,7 +132,6 @@ void planificador_largo_plazo()
                 if (strcmp(algoritmo_planificacion, "FIFO") == 0)
                 {
                     list_add(QUEUE_READY, nuevo_hilo);
-
                 }
                 else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, "CMN") == 0)
                 {
@@ -291,13 +290,16 @@ void dispatcher(int tid, int pid)
     enviar_mensaje(mensaje, socket_cpu_dispatch);
 }
 
-int get_index(int prioridad){
+int get_index(int prioridad)
+{
     int index = 0;
     t_tcb *elemento;
-    while(index < list_size(QUEUE_READY)){
+    while (index < list_size(QUEUE_READY))
+    {
         elemento = list_get(QUEUE_READY, index);
 
-        if(elemento->prioridad > prioridad){
+        if (elemento->prioridad > prioridad)
+        {
             break;
         }
         index++;
@@ -351,7 +353,7 @@ char *recibir_desde_cpu(int socket_cliente)
         int size;
         char *buffer = recibir_buffer(&size, socket_cliente);
         char *mensaje = buffer;
-        // void * mensaje;
+
         char **mensaje_split;
         mensaje_split = string_split(mensaje, " ");
         if (strcmp(mensaje_split[0], "INTERRUPCION_FIN_QUANTUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
@@ -466,9 +468,8 @@ void desbloquear_hilos_join(int tid_join, int ppid)
             {
 
                 list_add(QUEUE_READY, tcb_encontrado);
-
             }
-            else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, 'CMN') == 0)
+            else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, "CMN") == 0)
             {
 
                 int index = get_index(tcb_encontrado->prioridad);

@@ -60,10 +60,7 @@ int main(int argc, char* argv[]) {
 		execute();
 		check_interrupt();
 
-        if(se_ejecuto_syscall){
-            se_ejecuto_syscall = false;
-            sem_wait(&sem_execute);
-        }
+        
 	}
     
     //pthread_join(hilo_servidor_interrupt, NULL);

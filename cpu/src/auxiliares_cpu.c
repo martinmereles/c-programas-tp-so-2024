@@ -27,7 +27,7 @@ void *crear_paquete_contexto()
 
     // Enviar paquete a memoria
     enviar_paquete(new_paquete, socket_memoria);
-    log_info(logger, "##TID: %d - Actualizo Contexto Ejecución", tid);
+    log_info(logger, "## TID: %d - Actualizo Contexto Ejecución", tid);
     //Esperar mensaje resultado CONTEXTO_GUARDADO
     char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
 }
@@ -222,7 +222,7 @@ void proximo_proceso(char *pid_nuevo, char *tid_nuevo)
     string_append(&mensaje, " ");
     string_append(&mensaje, tid_nuevo);
     enviar_mensaje(mensaje, socket_memoria);
-    log_info(logger, "##TID: %d - Solicito Contexto Ejecución", tid);
+    log_info(logger, "## TID: %d - Solicito Contexto Ejecución", tid);
 
     // Esperar respuesta memoria
     t_list *lista;

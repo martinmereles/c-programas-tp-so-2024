@@ -17,7 +17,7 @@ void sys_process_exit(int pid, int tid)
 
 void sys_thread_create(char *archivo_ps, int prioridad, int ppid, int tid)
 {
-     bool _es_pcb_buscado(void *elemento)
+    bool _es_pcb_buscado(void *elemento)
     {
         return es_pcb_buscado(ppid, elemento);
     }
@@ -40,7 +40,7 @@ void sys_thread_create(char *archivo_ps, int prioridad, int ppid, int tid)
     sem_post(&sem_mutex_colas);
     sem_post(&sem_contador_ready);
     dispatcher(tid, ppid);
-    log_info(logger,"## (%d:%d) Se crea el Hilo - Estado: READY", ppid, tid);
+    log_info(logger, "## (%d:%d) Se crea el Hilo - Estado: READY", ppid, tid);
 }
 
 void sys_thread_join(int tid_join, int ppid, int tid)
@@ -85,7 +85,6 @@ void sys_thread_join(int tid_join, int ppid, int tid)
             list_add(QUEUE_BLOCKED, tcb_encontrado);
             list_add(TCB_BLOQUEADOS, hilo_a_bloquear);
             log_info(logger, "## (%d:%d) - Bloqueado por: PTHREAD_JOIN", ppid, tid);
-
         }
         sem_post(&sem_mutex_colas);
         sem_post(&sem_corto_plazo);
@@ -266,8 +265,8 @@ void sys_io(int tiempo, int pid, int tid)
     list_add(QUEUE_BLOCKED, tcb_encontrado);
     log_info(logger, "## (%d:%d) - Bloqueado por: IO", pid, tid);
     sem_post(&sem_mutex_colas);
-   // atender_io(mensaje);
-   pthread_t hilo_atencion_io;
+
+    pthread_t hilo_atencion_io;
     pthread_create(&hilo_atencion_io,
                    NULL,
                    atender_io,
@@ -292,7 +291,7 @@ void asignar_a_ready(t_tcb *tcb_a_asignar)
 
         list_add(QUEUE_READY, tcb_a_asignar);
     }
-    else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, 'CMN') == 0)
+    else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, "CMN") == 0)
     {
 
         int index = get_index(tcb_a_asignar->prioridad);
@@ -303,14 +302,14 @@ void asignar_a_ready(t_tcb *tcb_a_asignar)
 
 void atender_io(char *mensaje)
 {
-    char** parametros = string_split(mensaje, " ");
+    char **parametros = string_split(mensaje, " ");
 
     int tiempo_miliseconds = atoi(parametros[0]) * 1000;
     int pid = atoi(parametros[1]);
     int tid = atoi(parametros[2]);
     usleep(tiempo_miliseconds);
     sem_wait(&sem_mutex_colas);
-     bool _es_tcb_buscado(void *elemento)
+    bool _es_tcb_buscado(void *elemento)
     {
         return es_tcb_buscado(pid, tid, elemento);
     }
@@ -319,5 +318,5 @@ void atender_io(char *mensaje)
     tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado);
     asignar_a_ready(tcb_encontrado);
     sem_post(&sem_mutex_colas);
-    log_info(logger, "# (%d:%d) finalizó IO y pasa a READY",pid, tid);
+    log_info(logger, "# (%d:%d) finalizó IO y pasa a READY", pid, tid);
 }
