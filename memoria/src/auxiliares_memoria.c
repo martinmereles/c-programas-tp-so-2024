@@ -72,6 +72,7 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
   string_append(&mensaje_resultado, "PROCESS_CREATE_OK ");
   string_append(&mensaje_resultado, string_itoa(pid));
   enviar_mensaje(mensaje_resultado, socket_cliente);
+  log_info(logger,"## Proceso Creado - PID: - (%d:) - Tamaño: %d", pid, tamanio);
 }
 
 t_particion *asignar_particion(int tamanio, int pid)
@@ -238,6 +239,7 @@ void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, in
   hilo->contexto_hilo->HX = 0;
   leer_instrucciones(archivo_instrucciones, hilo->instrucciones);
   list_add(hilos, hilo);
+  log_info(logger,"## Hilo Creado - (PID:TID) - (%d:%d)", pid, tid);
 }
 
 void leer_instrucciones(char *path, t_list *lista_instrucciones)
@@ -360,6 +362,10 @@ void entender_mensaje_memoria(t_atencion_mensaje *param_atencion)
   else if (string_starts_with(buffer, "OBTENER_CONTEXTO"))
   {
     obtener_contexto(atoi(mensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
+  }
+   else if (string_starts_with(buffer, "FINALIZAR_HILO"))
+  {
+    finalizar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
   }
   else if (string_starts_with(buffer, "PROCESS_CREATE"))
   {
@@ -642,6 +648,7 @@ void finalizar_hilo(int pid, int tid, int socket_cliente)
     list_destroy(hilo_a_eliminar->instrucciones);
     list_remove_element(hilos, hilo_a_eliminar);
     free(hilo_a_eliminar);
+    log_info(logger,"## Hilo Destruido - (PID:TID) - (%d:%d)", pid, tid);
   }
   enviar_mensaje("OK", socket_cliente);
 }
