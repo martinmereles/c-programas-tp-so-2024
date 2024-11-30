@@ -166,7 +166,6 @@ bool finalizar_hilo(int pid, int tid, t_list *cola)
     // chequeamos que exista el hilo en la cola
     if (tcb_encontrado == NULL)
     {
-        log_info(logger, "Hilo no encontrado");
         validacion = false;
     }
     else
@@ -184,7 +183,6 @@ bool finalizar_hilo(int pid, int tid, t_list *cola)
 
         enviar_mensaje(mensaje, socket_memoria);
         // recibir mensaje de confirmacion
-        log_info(logger, "## (%d:%d)  Finaliza el hilo", tcb_encontrado->ppid, tcb_encontrado->tid);
         desbloquear_hilos_join(tcb_encontrado->tid, tcb_encontrado->ppid);
         validacion = true;
     }
@@ -362,62 +360,62 @@ char *recibir_desde_cpu(int socket_cliente)
         mensaje_split = string_split(mensaje, " ");
         if (strcmp(mensaje_split[0], "INTERRUPCION_FIN_QUANTUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
         {
-            log_info(logger, "“## (%s:%s) - Desalojado por fin de Quantum", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Desalojado por fin de Quantum", mensaje_split[1], mensaje_split[2]);
             replanificar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
         else if (strcmp(mensaje_split[0], "PROCESS_CREATE") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: PROCESS_CREATE", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: PROCESS_CREATE", mensaje_split[1], mensaje_split[2]);
             sys_crear_proceso(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), atoi(mensaje_split[5]));
         }
         else if (strcmp(mensaje_split[0], "PROCESS_EXIT") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: PROCESS_EXIT", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: PROCESS_EXIT", mensaje_split[1], mensaje_split[2]);
             sys_process_exit(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_CREATE") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_CREATE", mensaje_split[3], mensaje_split[4]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: THREAD_CREATE", mensaje_split[3], mensaje_split[4]);
             sys_thread_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_JOIN") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_JOIN", mensaje_split[2], mensaje_split[3]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: THREAD_JOIN", mensaje_split[2], mensaje_split[3]);
             sys_thread_join(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_CANCEL") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_CANCEL", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: THREAD_CANCEL", mensaje_split[1], mensaje_split[2]);
             sys_thread_cancel(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_EXIT") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_EXIT", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: THREAD_EXIT", mensaje_split[1], mensaje_split[2]);
             sys_thread_exit(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
         else if (strcmp(mensaje_split[0], "MUTEX_CREATE") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: MUTEX_CREATE", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: MUTEX_CREATE", mensaje_split[1], mensaje_split[2]);
             sys_mutex_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "MUTEX_LOCK") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: MUTEX_LOCK", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: MUTEX_LOCK", mensaje_split[1], mensaje_split[2]);
             sys_mutex_lock(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "MUTEX_UNLOCK") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: MUTEX_UNLOCK", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: MUTEX_UNLOCK", mensaje_split[1], mensaje_split[2]);
             sys_mutex_unlock(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "DUMP_MEMORY") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: DUMP_MEMORY", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: DUMP_MEMORY", mensaje_split[1], mensaje_split[2]);
             sys_dump_memory(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
         }
         else if (strcmp(mensaje_split[0], "IO") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: IO", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: IO", mensaje_split[1], mensaje_split[2]);
             sys_io(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
 
@@ -471,6 +469,7 @@ void desbloquear_hilos_join(int tid_join, int ppid)
             {
 
                 list_add(QUEUE_READY, tcb_encontrado);
+
             }
             else if (strcmp(algoritmo_planificacion, "PRIORIDADES") == 0 || strcmp(algoritmo_planificacion, 'CMN') == 0)
             {
@@ -480,6 +479,7 @@ void desbloquear_hilos_join(int tid_join, int ppid)
             }
             t_hilo_join *auxiliar_hilo = list_remove(TCB_BLOQUEADOS, i);
             free(auxiliar_hilo);
+            sem_post(&sem_contador_ready);
         }
     }
 }
