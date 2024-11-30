@@ -200,7 +200,7 @@ void sys_mutex_unlock(char *nombre, int pid, int tid)
             if (mutex_encontrado->valor == 1)
             {
                 mutex_encontrado->tid_asignado = NULL;
-                dispatcher(tid, pid);
+                
             }
             else if (mutex_encontrado->valor < 1)
             {
@@ -215,6 +215,7 @@ void sys_mutex_unlock(char *nombre, int pid, int tid)
                 list_remove_element(QUEUE_BLOCKED, tcb_encontrado_blocked);
                 asignar_a_ready(tcb_encontrado_blocked);
                 sem_post(&sem_mutex_colas);
+                sem_post(&sem_contador_ready);
             }
 
             dispatcher(tid, pid);

@@ -363,7 +363,7 @@ char *recibir_desde_cpu(int socket_cliente)
         }
         else if (strcmp(mensaje_split[0], "PROCESS_CREATE") == 0)
         {
-            log_info(logger, "## (%s:%s) - Solicitó syscall: PROCESS_CREATE", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: PROCESS_CREATE", mensaje_split[4], mensaje_split[5]);
             sys_crear_proceso(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), atoi(mensaje_split[5]));
         }
         else if (strcmp(mensaje_split[0], "PROCESS_EXIT") == 0)
@@ -393,7 +393,7 @@ char *recibir_desde_cpu(int socket_cliente)
         }
         else if (strcmp(mensaje_split[0], "MUTEX_CREATE") == 0)
         {
-            log_info(logger, "## (%s:%s) - Solicitó syscall: MUTEX_CREATE", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "## (%s:%s) - Solicitó syscall: MUTEX_CREATE", mensaje_split[2], mensaje_split[3]);
             sys_mutex_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]));
         }
         else if (strcmp(mensaje_split[0], "MUTEX_LOCK") == 0)
