@@ -65,6 +65,14 @@ int main(int argc, char **argv)
     socket_memoria = crear_conexion(ip_memoria, puerto_memoria);
     enviar_mensaje("CONEXION_INICIAL_KERNEL", socket_memoria);
 
+    //se inicia hilo para recibir mensajes desde cpu
+    pthread_t hilo_mensajes_cpu;
+    pthread_create(&hilo_mensajes_cpu,
+                   NULL,
+                   recibir_mensajes_cpu,
+                   NULL);
+    pthread_detach(hilo_mensajes_cpu);
+
     // Se inicia hilo planificador de corto plazo
     pthread_t hilo_planificador_corto;
     pthread_create(&hilo_planificador_corto,
@@ -84,6 +92,10 @@ int main(int argc, char **argv)
     crear_proceso(archivo, tamanio_proceso, 0);
 
     pthread_join(hilo_planificador_largo, NULL);
+    
+    
+    
+
 
     return 0;
 }

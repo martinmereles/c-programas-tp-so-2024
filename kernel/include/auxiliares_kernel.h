@@ -9,6 +9,7 @@
 #include <commons/collections/list.h>
 #include <semaphore.h>
 #include <commons/string.h>
+#include <../include/syscalls.h>
 
 /*------------------------VARIABLES------------------------*/
 extern t_log *logger;
@@ -52,5 +53,6 @@ char *recibir_desde_cpu(int socket_cliente);
 void replanificar_hilo(int pid, int tid);
 void desbloquear_hilos_join(int tid_join, int ppid);
 void esperar_respuesta_dump_memory();
+void recibir_mensajes_cpu ();
 
 #endif

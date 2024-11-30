@@ -44,10 +44,10 @@ void finalizar_proceso(int pid)
         finalizar_hilo(pcb_encontrado->pid, tid_a_remover, QUEUE_EXEC);
     }
     char *mensaje = string_new();
-    string_append(&mensaje, "PROCESS_EXIT");
+    string_append(&mensaje, "PROCESS_EXIT ");
     string_append(&mensaje, string_itoa(pcb_encontrado->pid));
     enviar_mensaje(mensaje, socket_memoria);
-    log_info(logger, "## Finaliza el proceso <PID>", pid);
+    log_info(logger, "## Finaliza el proceso %d", pid);
 }
 // funcion que busca pcb segun pid
 bool es_pcb_buscado(int pid_buscado, void *elemento)
@@ -335,7 +335,7 @@ char *recibir_desde_cpu(int socket_cliente)
         // void * mensaje;
         char **mensaje_split;
         mensaje_split = string_split(mensaje, " ");
-        if (strcmp(mensaje_split[3], "INTERRUPCION_FIN_QUANTUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
+        if (strcmp(mensaje_split[0], "INTERRUPCION_FIN_QUANTUM") == 0) // "INTERRUPCION_FIN_QUATUM",  "INTERRUPCION_FIN_HILO", "INTERRUPCION_I_O"
         {
             log_info(logger, "“## (%s:%s) - Desalojado por fin de Quantum", mensaje_split[1], mensaje_split[2]);
             replanificar_hilo(atoi(mensaje_split[1]), atoi(mensaje_split[2]));
@@ -352,7 +352,7 @@ char *recibir_desde_cpu(int socket_cliente)
         }
         else if (strcmp(mensaje_split[0], "THREAD_CREATE") == 0)
         {
-            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_CREATE", mensaje_split[1], mensaje_split[2]);
+            log_info(logger, "“## (%s:%s) - Solicitó syscall: THREAD_CREATE", mensaje_split[3], mensaje_split[4]);
             sys_thread_create(mensaje_split[1], atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]));
         }
         else if (strcmp(mensaje_split[0], "THREAD_JOIN") == 0)
@@ -502,5 +502,11 @@ void esperar_respuesta_dump_memory()
     default:
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
         break;
+    }
+}
+
+void recibir_mensajes_cpu (){
+    while(1){
+        recibir_desde_cpu(socket_cpu_dispatch);
     }
 }
