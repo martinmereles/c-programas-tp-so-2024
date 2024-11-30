@@ -36,7 +36,7 @@ extern sem_t sem_mutex_colas;
 void crear_proceso(char *archivo, int tamanio, int prioridad);
 void finalizar_proceso(int pid);
 bool es_pcb_buscado(int pid_buscado, void *elemento);
-t_tcb *crear_hilo(int prioridad, int ppid, int tid);
+t_tcb *crear_hilo(char *archivo, int prioridad, int ppid, int tid);
 void planificador_largo_plazo();
 bool finalizar_hilo(int pid, int tid, t_list *cola);
 bool es_tcb_buscado(int pid_buscado, int tid_buscado, void *elemento);

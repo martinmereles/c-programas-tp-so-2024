@@ -18,8 +18,13 @@ void sys_process_exit(int pid, int tid)
 
 void sys_thread_create(char *archivo_ps, int prioridad, int ppid, int tid)
 {
+     bool _es_pcb_buscado(void *elemento)
+    {
+        return es_pcb_buscado(ppid, elemento);
+    }
+    t_pcb *pcb_encontrado = list_find(PCB_EN_CICLO, _es_pcb_buscado);
 
-    t_tcb *new_thread = crear_hilo(prioridad, ppid, tid);
+    t_tcb *new_thread = crear_hilo(archivo_ps, prioridad, ppid, list_size(pcb_encontrado->tids));
     sem_wait(&sem_mutex_colas);
     int index = get_index(new_thread->prioridad);
     list_add_in_index(QUEUE_READY, index, new_thread);

@@ -58,15 +58,37 @@ bool es_pcb_buscado(int pid_buscado, void *elemento)
     return (aux2);
 }
 
-t_tcb *crear_hilo(int prioridad, int ppid, int tid)
+t_tcb *crear_hilo(char *archivo, int prioridad, int ppid, int tid)
 {
-
+    bool _es_pcb_buscado(void *elemento)
+    {
+        return es_pcb_buscado(ppid, elemento);
+    }
+    t_pcb *pcb_encontrado;
+    if (tid == 0)
+    {
+        pcb_encontrado = list_find(QUEUE_NEW, _es_pcb_buscado);
+    }
+    else
+    {
+        pcb_encontrado = list_find(PCB_EN_CICLO, _es_pcb_buscado);
+    }
     t_tcb *tcb = malloc(sizeof(t_tcb));
-    // inicializo
-    // tcb->estado = READY;
     tcb->ppid = ppid;
     tcb->tid = tid;
     tcb->prioridad = prioridad;
+    list_add(pcb_encontrado->tids, tcb->tid);
+
+    char *mensaje = string_new();
+    string_append(&mensaje, "THREAD_CREATE ");
+    string_append(&mensaje, archivo);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(prioridad));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(ppid));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(tid));
+    enviar_mensaje(mensaje, socket_memoria);
 
     return tcb;
 }
@@ -101,12 +123,16 @@ void planificador_largo_plazo()
             // validar segun respuesta de memoria
             if (string_starts_with(mensaje_resultado, "PROCESS_CREATE_OK"))
             {
+                t_tcb *nuevo_hilo = malloc(sizeof(t_tcb));
+                nuevo_hilo->ppid = pcb->pid;
+                nuevo_hilo->tid = 0;
+                nuevo_hilo->prioridad = pcb->prioridad_hilo_main;
+                list_add(pcb->tids, nuevo_hilo->tid);
 
-                t_tcb *nuevo_hilo = crear_hilo(pcb->prioridad_hilo_main, pcb->pid, 0);
-                if (strcmp(algoritmo_planificacion, "FIFO")==0)
+                if (strcmp(algoritmo_planificacion, "FIFO") == 0)
                 {
                     list_add(QUEUE_READY, nuevo_hilo);
-                    
+
                     list_add(PCB_EN_CICLO, list_remove(QUEUE_NEW, 0));
                     sem_post(&sem_contador_ready);
                 }
@@ -123,7 +149,6 @@ void planificador_largo_plazo()
             }
         }
         sem_post(&sem_mutex_colas);
-        
     }
 }
 
@@ -505,8 +530,10 @@ void esperar_respuesta_dump_memory()
     }
 }
 
-void recibir_mensajes_cpu (){
-    while(1){
+void recibir_mensajes_cpu()
+{
+    while (1)
+    {
         recibir_desde_cpu(socket_cpu_dispatch);
     }
 }
