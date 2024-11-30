@@ -13,6 +13,7 @@ void sys_process_exit(int pid, int tid)
 
     finalizar_proceso(pid);
     sem_post(&sem_corto_plazo);
+    sem_post(&sem_largo_plazo);
 }
 
 void sys_thread_create(char *archivo_ps, int prioridad, int ppid, int tid)
@@ -105,15 +106,15 @@ void sys_thread_cancel(int tid_cancel, int ppid, int tid)
     {
         finalizar_hilo(tcb_encontrado_blocked->ppid, tid_cancel, QUEUE_BLOCKED);
         log_info(logger, "## (%d:%d) - Finaliza el hilo", ppid, tid);
+        sem_post(&sem_largo_plazo);
     }
     else if (tcb_encontrado_ready != NULL)
     {
-        bool resultado = finalizar_hilo(tcb_encontrado_ready->ppid, tid_cancel, QUEUE_READY);
-        if (resultado)
-        {
-            sem_post(&sem_contador_ready);
-            log_info(logger, "## (%d:%d) - Finaliza el hilo", ppid, tid);
-        }
+        
+        finalizar_hilo(tcb_encontrado_ready->ppid, tid_cancel, QUEUE_READY);
+        log_info(logger, "## (%d:%d) - Finaliza el hilo", ppid, tid);
+        sem_post(&sem_largo_plazo);
+        
     }
     dispatcher(tid, ppid);
 }
@@ -200,8 +201,7 @@ void sys_mutex_unlock(char *nombre, int pid, int tid)
             if (mutex_encontrado->valor == 1)
             {
                 mutex_encontrado->tid_asignado = NULL;
-                
-            }
+                        }
             else if (mutex_encontrado->valor < 1)
             {
                 int tid_a_desbloquear = list_remove(mutex_encontrado->bloqueados, 0);
