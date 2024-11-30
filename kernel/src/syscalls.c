@@ -4,7 +4,7 @@ void sys_crear_proceso(char *archivo, int tamanio, int prioridad, int pid, int t
 {
 
     crear_proceso(archivo, tamanio, prioridad);
-
+    sem_post(&sem_largo_plazo);
     dispatcher(tid, pid);
 }
 
