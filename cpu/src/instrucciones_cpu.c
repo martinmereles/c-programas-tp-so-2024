@@ -92,7 +92,7 @@ void write_mem(char *registro_direccion, char *registro_datos)
     enviar_paquete(paquete_memoria, socket_memoria);
     //Esperar mensaje resultado WRITE_MEM OK
     char* respuesta_memoria = recibir_desde_memoria(socket_memoria);
-    //TO DO
+    
     log_info(logger, "## TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, direccion_fisica);
 
     log_info(logger, "## TID: %d - Ejecutando: WRITE_MEM - %s %s", tid, registro_direccion, registro_datos);
@@ -1199,7 +1199,7 @@ void jnz(char *registro, char *instruccion)
 
 void log(char *registro)
 {
-    // TO DO
+   
     // Escribe en el archivo de log el valor del registro.
     int valor_a_guardar;
 
@@ -1247,8 +1247,8 @@ void log(char *registro)
     {   
         valor_a_guardar = PC;
     }
-
     log_info(logger, "## TID: %d - Ejecutando: LOG - %s", tid, registro);
+    log_info(logger, "## TID: %d - Valor de registro %s: LOG - %d", tid, registro,valor_a_guardar);
 }
 
 void ejecutarSentencia()
