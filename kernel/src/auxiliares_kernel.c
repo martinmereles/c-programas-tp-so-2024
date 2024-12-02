@@ -95,6 +95,11 @@ t_tcb *crear_hilo(char *archivo, int prioridad, int ppid, int tid)
 
 void planificador_largo_plazo()
 {
+
+    char *ip_memoria = config_get_string_value(config, "IP_MEMORIA");
+    char *puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
+    int socket_memoria_largo_plazo = crear_conexion(ip_memoria, puerto_memoria);
+
     while (true)
     {
         sem_wait(&sem_largo_plazo);
@@ -102,9 +107,9 @@ void planificador_largo_plazo()
         int tamanio_cola = list_size(QUEUE_NEW);
 
         sem_wait(&sem_mutex_colas);
-        for (int i = 0; i < tamanio_cola; i++)
+        while (list_size(QUEUE_NEW)>0)
         {
-            t_pcb *pcb = list_get(QUEUE_NEW, i);
+            t_pcb *pcb = list_get(QUEUE_NEW, 0);
             // armo mensaje para memoria
             char *mensaje = string_new();
             string_append(&mensaje, "PROCESS_CREATE ");
@@ -116,9 +121,9 @@ void planificador_largo_plazo()
             string_append(&mensaje, " ");
             string_append(&mensaje, string_itoa(pcb->pid));
             // envio mensaje a memoria
-            enviar_mensaje(mensaje, socket_memoria);
+            enviar_mensaje(mensaje, socket_memoria_largo_plazo);
 
-            char *mensaje_resultado = recibir_desde_memoria(socket_memoria);
+            char *mensaje_resultado = recibir_desde_memoria(socket_memoria_largo_plazo);
 
             // validar segun respuesta de memoria
             if (string_starts_with(mensaje_resultado, "PROCESS_CREATE_OK"))
@@ -142,7 +147,7 @@ void planificador_largo_plazo()
                 list_add(PCB_EN_CICLO, list_remove(QUEUE_NEW, 0));
                 sem_post(&sem_contador_ready);
             }
-            else if (strcmp(mensaje_resultado, "PROCESS_CREATE_FAIL") == 0)
+            else if (string_starts_with(mensaje_resultado, "PROCESS_CREATE_FAIL"))
             {
                 break;
             }

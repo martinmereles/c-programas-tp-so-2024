@@ -45,13 +45,14 @@ bool hay_espacio(int tamanio_necesario)
 
 void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int pid, int socket_cliente)
 {
-
+  sem_wait(&sem_memoria);
   // Se valida que haya espacio
   char *mensaje_resultado = string_new();
   if (!hay_espacio(tamanio))
   {
     string_append(&mensaje_resultado, "PROCESS_CREATE_FAIL ");
     string_append(&mensaje_resultado, string_itoa(pid));
+    sem_post(&sem_memoria);
     enviar_mensaje(mensaje_resultado, socket_cliente);
     return;
   }
@@ -71,6 +72,7 @@ void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int 
 
   string_append(&mensaje_resultado, "PROCESS_CREATE_OK ");
   string_append(&mensaje_resultado, string_itoa(pid));
+  sem_post(&sem_memoria);
   enviar_mensaje(mensaje_resultado, socket_cliente);
   log_info(logger,"## Proceso Creado - PID: - (%d) - Tamaño: %d", pid, tamanio);
 }
@@ -640,7 +642,7 @@ void consolidar(int posicion)
 
 void finalizar_hilo(int pid, int tid, int socket_cliente)
 {
-
+  
   t_contexto_hilo *hilo_a_eliminar = find_by_pid_tid(hilos, pid, tid);
   if (hilo_a_eliminar != NULL)
   {
@@ -650,11 +652,13 @@ void finalizar_hilo(int pid, int tid, int socket_cliente)
     free(hilo_a_eliminar);
     log_info(logger,"## Hilo Destruido - (PID:TID) - (%d:%d)", pid, tid);
   }
+  
   enviar_mensaje("OK", socket_cliente);
 }
 
 void finalizar_proceso(int pid, int socket_cliente)
 {
+  sem_wait(&sem_memoria);
   t_particion *particion = particion_buscada(pid);
   if (particion != NULL)
   {
@@ -669,7 +673,7 @@ void finalizar_proceso(int pid, int socket_cliente)
     {
       consolidar(index);
     }
-  }
+  }sem_post(&sem_memoria);
 }
 
 t_particion *particion_buscada(int pid)

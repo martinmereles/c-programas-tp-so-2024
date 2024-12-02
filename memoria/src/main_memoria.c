@@ -13,6 +13,7 @@ int retardo_respuesta_cpu;
 void *memoria_principal;
 int socket_kernel;
 char *path_instrucciones;
+sem_t sem_memoria;
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
     config = iniciar_config("./memoria.config");
     char *log_level_string = config_get_string_value(config, "LOG_LEVEL");
     logger = iniciar_logger("./memoria.log", "memoria", log_level_string);
-
+    sem_init(&sem_memoria, 0, 1);
     esquema = config_get_string_value(config, "ESQUEMA");
     algoritmo = config_get_string_value(config, "ALGORITMO_BUSQUEDA");
     retardo_respuesta_cpu = config_get_int_value(config, "RETARDO_RESPUESTA");

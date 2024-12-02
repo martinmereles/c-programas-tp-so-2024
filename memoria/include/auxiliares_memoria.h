@@ -21,6 +21,7 @@ extern char *algoritmo;
 extern void *memoria_principal;
 extern int socket_kernel;
 extern char* path_instrucciones;
+extern sem_t sem_memoria;
 
 void crear_proceso(char *archivo_instrucciones, int tamanio, int prioridad, int pid, int socket_cliente);
 void crear_hilo(char *archivo_instrucciones, int prioridad, int pid, int tid, int socket_cliente);
