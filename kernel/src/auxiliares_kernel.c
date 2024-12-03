@@ -47,6 +47,7 @@ void finalizar_proceso(int pid)
     string_append(&mensaje, "PROCESS_EXIT ");
     string_append(&mensaje, string_itoa(pcb_encontrado->pid));
     enviar_mensaje(mensaje, socket_memoria);
+    char *mensaje_resultado = recibir_desde_memoria(socket_memoria);
     log_info(logger, "## Finaliza el proceso %d", pid);
 }
 // funcion que busca pcb segun pid
@@ -187,6 +188,7 @@ bool finalizar_hilo(int pid, int tid, t_list *cola)
 
         enviar_mensaje(mensaje, socket_memoria);
         // recibir mensaje de confirmacion
+        char *mensaje_resultado = recibir_desde_memoria(socket_memoria);
         desbloquear_hilos_join(tcb_encontrado->tid, tcb_encontrado->ppid);
         validacion = true;
     }

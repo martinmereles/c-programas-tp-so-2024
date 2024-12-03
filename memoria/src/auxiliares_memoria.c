@@ -10,7 +10,7 @@ void iniciar_memoria_fija(char **particiones_array)
     particion->pid = -1;
     particion->BASE = posicion;
     posicion += atoi(particiones_array[i]);
-    particion->LIMITE = particiones_array[i];
+    particion->LIMITE = atoi(particiones_array[i]);
     list_add(lista_particiones, particion);
     i++;
   }
@@ -674,6 +674,7 @@ void finalizar_proceso(int pid, int socket_cliente)
       consolidar(index);
     }
   }sem_post(&sem_memoria);
+  enviar_mensaje("PROCESS_EXIT OK", socket_cliente);
 }
 
 t_particion *particion_buscada(int pid)
