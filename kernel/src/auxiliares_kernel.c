@@ -488,16 +488,16 @@ void desbloquear_hilos_join(int tid_join, int ppid)
         }
     }
 }
-void esperar_respuesta_dump_memory()
+void esperar_respuesta_dump_memory(int socket_memoria_dump)
 {
 
     t_list *lista;
-    int cod_op = recibir_operacion(socket_memoria);
+    int cod_op = recibir_operacion(socket_memoria_dump);
     switch (cod_op)
     {
     case MENSAJE:
         int size;
-        char *buffer = recibir_buffer(&size, socket_memoria);
+        char *buffer = recibir_buffer(&size, socket_memoria_dump);
         char **mensaje_split = string_split(buffer, " ");
 
         if (strcmp(mensaje_split[0], "DUMP_MEMORY_SUCCESS") == 0)
@@ -513,6 +513,7 @@ void esperar_respuesta_dump_memory()
             list_remove_element(QUEUE_BLOCKED, tcb_encontrado_blocked);
             asignar_a_ready(tcb_encontrado_blocked);
             sem_post(&sem_mutex_colas);
+            sem_post(&sem_contador_ready);
         }
         else if (strcmp(mensaje_split[0], "DUMP_MEMORY_FAIL") == 0)
         {
@@ -523,7 +524,7 @@ void esperar_respuesta_dump_memory()
         free(buffer);
         break;
     case PAQUETE:
-        lista = recibir_paquete(socket_memoria);
+        lista = recibir_paquete(socket_memoria_dump);
         list_iterate(lista, (void *)iterator);
         break;
     case -1:
@@ -533,6 +534,7 @@ void esperar_respuesta_dump_memory()
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
         break;
     }
+    liberar_conexion(socket_memoria_dump);
 }
 
 void recibir_mensajes_cpu()

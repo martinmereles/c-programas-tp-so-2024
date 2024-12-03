@@ -233,6 +233,11 @@ void sys_dump_memory(int pid, int tid)
     t_tcb *tcb_encontrado = list_remove(QUEUE_EXEC, 0);
     list_add(QUEUE_BLOCKED, tcb_encontrado);
 
+    char *ip_memoria = config_get_string_value(config, "IP_MEMORIA");
+    char *puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
+    int socket_memoria_dump = crear_conexion(ip_memoria, puerto_memoria);
+
+
     // Envio mensaje a memoria
     char *mensaje = string_new();
     string_append(&mensaje, "DUMP_MEMORY");
@@ -240,15 +245,17 @@ void sys_dump_memory(int pid, int tid)
     string_append(&mensaje, string_itoa(pid));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(tid));
-    enviar_mensaje(mensaje, socket_memoria);
+    enviar_mensaje(mensaje, socket_memoria_dump);
+    sem_post(&sem_corto_plazo);
 
     // Creo hilo de escucha
     pthread_t hilo_respuesta_memoria;
     pthread_create(&hilo_respuesta_memoria,
                    NULL,
                    esperar_respuesta_dump_memory,
-                   NULL);
+                   socket_memoria_dump);
     pthread_detach(hilo_respuesta_memoria);
+    
 }
 
 void sys_io(int tiempo, int pid, int tid)

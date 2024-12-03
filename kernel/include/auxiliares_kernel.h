@@ -52,7 +52,7 @@ void aviso_quantum(char *mensaje);
 char *recibir_desde_cpu(int socket_cliente);
 void replanificar_hilo(int pid, int tid);
 void desbloquear_hilos_join(int tid_join, int ppid);
-void esperar_respuesta_dump_memory();
+void esperar_respuesta_dump_memory(int socket_memoria_dump);
 void recibir_mensajes_cpu ();
 
 #endif

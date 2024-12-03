@@ -6,7 +6,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/bin/${workspaceFolderBasename}",
-      "args": ["MEM_DINAMICA_BASE", "128" ],
+      "args": ["PRUEBA_FS", "8" ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
