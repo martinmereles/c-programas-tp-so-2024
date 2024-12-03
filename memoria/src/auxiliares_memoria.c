@@ -150,12 +150,14 @@ t_particion *best_fit(int tamanio_necesario, int pid)
   }
 
   i++;
+  int index_best_fit = i;
   for (i; i < list_size(lista_particiones); i++)
   {
     particion_aux = list_get(lista_particiones, i);
     if (particion_aux->pid == -1 && tamanio_necesario <= particion_aux->LIMITE && particion_aux->LIMITE < particion_best->LIMITE)
     {
       particion_best = particion_aux;
+      index_best_fit = i;
     }
   }
 
@@ -170,7 +172,7 @@ t_particion *best_fit(int tamanio_necesario, int pid)
       particion_siguiente->LIMITE = particion_best->LIMITE - tamanio_necesario;
 
       particion_best->LIMITE = tamanio_necesario;
-      list_add_in_index(lista_particiones, i + 1, particion_siguiente);
+      list_add_in_index(lista_particiones, index_best_fit, particion_siguiente);
     }
   }
 
@@ -638,6 +640,13 @@ void consolidar(int posicion)
       }
     }
   }
+
+
+//BORRAR!!!!!!!!!!!!!!!!!!!
+  for(int i = 0; i<list_size(lista_particiones);i++){
+    t_particion* part = list_get(lista_particiones,i);
+    printf("PID:%d,TAM:%d-",part->pid,part->LIMITE);
+  }printf("\n");
 }
 
 void finalizar_hilo(int pid, int tid, int socket_cliente)
@@ -662,14 +671,14 @@ void finalizar_proceso(int pid, int socket_cliente)
   t_particion *particion = particion_buscada(pid);
   if (particion != NULL)
   {
-    particion->pid = -1;
 
     int index = obtener_posicion_particion(pid);
+    particion->pid = -1;
     t_contexto_proceso *contexto_proceso = find_by_pid(procesos, pid);
     list_remove_element(procesos, contexto_proceso);
     log_info(logger, "## Proceso Destruido -  PID: %d - Tamaño: %d", pid, contexto_proceso->LIMITE);
     free(contexto_proceso);
-    if (esquema == "DINAMICAS" && index != -1)
+    if ((strcmp(esquema,"DINAMICAS")==0) && (index != -1))
     {
       consolidar(index);
     }
