@@ -48,6 +48,11 @@ void finalizar_proceso(int pid)
     string_append(&mensaje, string_itoa(pcb_encontrado->pid));
     enviar_mensaje(mensaje, socket_memoria);
     char *mensaje_resultado = recibir_desde_memoria(socket_memoria);
+
+    list_remove_element(PCB_EN_CICLO,pcb_encontrado);
+    list_destroy(pcb_encontrado->tids);
+    free(pcb_encontrado->mutex);
+    free(pcb_encontrado);
     log_info(logger, "## Finaliza el proceso %d", pid);
 }
 // funcion que busca pcb segun pid
@@ -191,7 +196,10 @@ bool finalizar_hilo(int pid, int tid, t_list *cola)
         char *mensaje_resultado = recibir_desde_memoria(socket_memoria);
         desbloquear_hilos_join(tcb_encontrado->tid, tcb_encontrado->ppid);
         validacion = true;
+        free(tcb_encontrado);
     }
+
+    
     sem_post(&sem_mutex_colas);
     return validacion;
 }

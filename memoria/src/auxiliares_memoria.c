@@ -603,7 +603,8 @@ void consolidar(int posicion)
       if (particion_posterior->pid == -1)
       {
         particion->LIMITE = particion->LIMITE + particion_posterior->LIMITE;
-        list_remove(lista_particiones, posicion + 1);
+        t_particion* particion_a_eliminar =list_remove(lista_particiones, posicion + 1);
+        free(particion_a_eliminar);
       }
     }
     else if (posicion > 0 && posicion < list_size(lista_particiones) - 1)
@@ -615,18 +616,22 @@ void consolidar(int posicion)
       if (particion_anterior->pid == -1 && particion_posterior->pid == -1)
       {
         particion_anterior->LIMITE = particion_anterior->LIMITE + particion_posterior->LIMITE + particion->LIMITE;
-        list_remove(lista_particiones, posicion + 1);
-        list_remove(lista_particiones, posicion);
+        t_particion* particion_a_eliminar_post = list_remove(lista_particiones, posicion + 1);
+        t_particion* particion_a_eliminar = list_remove(lista_particiones, posicion);
+        free(particion_a_eliminar_post);
+        free(particion_a_eliminar);
       }
       else if (particion_anterior->pid != -1 && particion_posterior->pid == -1)
       {
         particion->LIMITE = particion_posterior->LIMITE + particion->LIMITE;
-        list_remove(lista_particiones, posicion + 1);
+        t_particion* particion_a_eliminar = list_remove(lista_particiones, posicion + 1);
+        free(particion_a_eliminar);
       }
       else if (particion_anterior->pid == -1 && particion_posterior->pid != -1)
       {
         particion_anterior->LIMITE = particion_anterior->LIMITE + particion->LIMITE;
-        list_remove(lista_particiones, posicion);
+        t_particion* particion_a_eliminar = list_remove(lista_particiones, posicion);
+        free(particion_a_eliminar);
       }
     }
     else if (posicion == list_size(lista_particiones) - 1)
@@ -636,7 +641,8 @@ void consolidar(int posicion)
       if (particion_anterior->pid == -1)
       {
         particion_anterior->LIMITE = particion_anterior->LIMITE + particion->LIMITE;
-        list_remove(lista_particiones, posicion);
+        t_particion* particion_a_eliminar = list_remove(lista_particiones, posicion);
+        free(particion_a_eliminar);
       }
     }
   }
