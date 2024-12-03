@@ -641,12 +641,6 @@ void consolidar(int posicion)
     }
   }
 
-
-//BORRAR!!!!!!!!!!!!!!!!!!!
-  for(int i = 0; i<list_size(lista_particiones);i++){
-    t_particion* part = list_get(lista_particiones,i);
-    printf("PID:%d,TAM:%d-",part->pid,part->LIMITE);
-  }printf("\n");
 }
 
 void finalizar_hilo(int pid, int tid, int socket_cliente)
