@@ -458,7 +458,7 @@ void replanificar_hilo(int pid, int tid)
 }
 
 void desbloquear_hilos_join(int tid_join, int ppid)
-{
+{   sem_wait(&sem_tcb_bloqueados);
     int tamanio_lista_bloqueados = list_size(TCB_BLOQUEADOS);
     for (int i = 0; i < tamanio_lista_bloqueados; i++)
     {
@@ -487,6 +487,7 @@ void desbloquear_hilos_join(int tid_join, int ppid)
             sem_post(&sem_contador_ready);
         }
     }
+    sem_post(&sem_tcb_bloqueados);
 }
 void esperar_respuesta_dump_memory(int socket_memoria_dump)
 {

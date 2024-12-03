@@ -31,6 +31,7 @@ extern sem_t sem_largo_plazo;
 extern sem_t sem_corto_plazo;
 extern sem_t sem_contador_ready;
 extern sem_t sem_mutex_colas;
+extern sem_t sem_tcb_bloqueados;
 
 /*------------------------DECLARACIONES------------------------*/
 void sys_process_create(char *archivo, int tamanio, int prioridad, int pid, int tid);

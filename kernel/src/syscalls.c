@@ -83,8 +83,11 @@ void sys_thread_join(int tid_join, int ppid, int tid)
         else
         {
             // tcb_encontrado->estado = BLOCKED;
+            
             list_add(QUEUE_BLOCKED, tcb_encontrado);
+            sem_wait(&sem_tcb_bloqueados);
             list_add(TCB_BLOQUEADOS, hilo_a_bloquear);
+            sem_post(&sem_tcb_bloqueados);
             log_info(logger, "## (%d:%d) - Bloqueado por: PTHREAD_JOIN", ppid, tid);
         }
         sem_post(&sem_mutex_colas);

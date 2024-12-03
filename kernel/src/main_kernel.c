@@ -14,6 +14,7 @@ t_list *PCB_EN_CICLO;
 t_list *TCB_BLOQUEADOS;
 int contador_pid;
 sem_t sem_largo_plazo;
+sem_t sem_tcb_bloqueados;
 sem_t sem_corto_plazo;
 sem_t sem_contador_ready;
 sem_t sem_mutex_colas;
@@ -37,6 +38,7 @@ int main(int argc, char **argv)
     contador_pid = 0;
     sem_init(&sem_largo_plazo, 0, 0);
     sem_init(&sem_corto_plazo, 0, 1);
+    sem_init(&sem_tcb_bloqueados, 0, 1);
     sem_init(&sem_contador_ready, 0, 0);
     sem_init(&sem_mutex_colas, 0, 1);
 
