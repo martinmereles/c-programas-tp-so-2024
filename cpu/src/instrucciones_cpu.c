@@ -1151,43 +1151,43 @@ void jnz(char *registro, char *instruccion)
 
     if (strcmp(registro, "AX") == 0 && AX != 0)
     {
-        AX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "BX") == 0 && BX != 0)
     {
-        BX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "CX") == 0 && CX != 0)
     {
-        CX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "DX") == 0 && DX != 0)
     {
-        DX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "EX") == 0 && EX != 0)
     {
-        EX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "FX") == 0 && FX != 0)
     {
-        FX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "GX") == 0 && GX != 0)
     {
-        GX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "HX") == 0 && HX != 0)
     {
-        HX = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "BASE") == 0 && BASE != 0)
     {
-        BASE = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "LIMITE") == 0 && LIMITE != 0)
     {
-        LIMITE = valorASetear;
+        PC = valorASetear;
     }
     if (strcmp(registro, "PC") == 0 && PC != 0)
     {
