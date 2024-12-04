@@ -299,3 +299,7 @@ uint32_t get_valor_registro(char * registro){
     if(strcmp(registro,"BASE") == 0){return BASE;}
     if(strcmp(registro,"LIMITE") == 0){return LIMITE;}
 }
+
+void destruir_chars(void* elemento){
+    free(elemento);
+}

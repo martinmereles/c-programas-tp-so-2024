@@ -69,7 +69,7 @@ void check_interrupt()
         break;
     }
     se_ejecuto_syscall = false;
-    list_clean(interrupciones);
+    list_clean_and_destroy_elements(interrupciones,destruir_chars);
     if (se_ejecuto_interrupcion)
     {
         char *mensaje = string_new();

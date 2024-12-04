@@ -54,5 +54,8 @@ int main(int argc, char *argv[])
 
     pthread_join(hilo_servidor, NULL);
 
+    log_destroy(logger);
+    config_destroy(config);
+
     return 0;
 }

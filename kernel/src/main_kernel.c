@@ -97,7 +97,15 @@ int main(int argc, char **argv)
     
     
     
-
+    log_destroy(logger);
+    config_destroy(config);
+    list_destroy(QUEUE_NEW);
+    list_destroy(QUEUE_READY);
+    list_destroy(QUEUE_EXEC);
+    list_destroy(QUEUE_BLOCKED);
+    list_destroy(QUEUE_EXIT);
+    list_destroy(PCB_EN_CICLO);
+    list_destroy(TCB_BLOQUEADOS);
 
     return 0;
 }

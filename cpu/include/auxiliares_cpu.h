@@ -39,5 +39,5 @@ void entender_paquete_memoria(t_list*  lista);
 void actualizar_contexto_cpu(t_list* lista);
 void actualizar_registro(char* dato);
 uint32_t get_valor_registro(char * registro);
-
+void destruir_chars(void* elemento);
 #endif

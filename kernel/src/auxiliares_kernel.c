@@ -49,7 +49,7 @@ void finalizar_proceso(int pid)
     enviar_mensaje(mensaje, socket_memoria);
     char *mensaje_resultado = recibir_desde_memoria(socket_memoria);
 
-    list_remove_element(PCB_EN_CICLO,pcb_encontrado);
+    list_remove_element(PCB_EN_CICLO, pcb_encontrado);
     list_destroy(pcb_encontrado->tids);
     free(pcb_encontrado->mutex);
     free(pcb_encontrado);
@@ -113,7 +113,7 @@ void planificador_largo_plazo()
         int tamanio_cola = list_size(QUEUE_NEW);
 
         sem_wait(&sem_mutex_colas);
-        while (list_size(QUEUE_NEW)>0)
+        while (list_size(QUEUE_NEW) > 0)
         {
             t_pcb *pcb = list_get(QUEUE_NEW, 0);
             // armo mensaje para memoria
@@ -199,7 +199,6 @@ bool finalizar_hilo(int pid, int tid, t_list *cola)
         free(tcb_encontrado);
     }
 
-    
     sem_post(&sem_mutex_colas);
     return validacion;
 }
@@ -264,10 +263,11 @@ void ejecutar_prioridades()
 
 void ejecutar_cmn()
 {
+    sem_wait(&sem_contador_ready);
+        sem_wait(&sem_corto_plazo);
     while (1)
     {
-        sem_wait(&sem_contador_ready);
-        sem_wait(&sem_corto_plazo);
+        
         sem_wait(&sem_mutex_colas);
 
         t_tcb *tcb_a_enviar = list_remove(QUEUE_READY, 0);
@@ -286,6 +286,9 @@ void ejecutar_cmn()
                        aviso_quantum,
                        mensaje);
         pthread_detach(hilo_quantum);
+        sem_wait(&sem_contador_ready);
+        sem_wait(&sem_corto_plazo);
+        pthread_cancel(hilo_quantum);
     }
 }
 
@@ -466,7 +469,8 @@ void replanificar_hilo(int pid, int tid)
 }
 
 void desbloquear_hilos_join(int tid_join, int ppid)
-{   sem_wait(&sem_tcb_bloqueados);
+{
+    sem_wait(&sem_tcb_bloqueados);
     int tamanio_lista_bloqueados = list_size(TCB_BLOQUEADOS);
     for (int i = 0; i < tamanio_lista_bloqueados; i++)
     {
@@ -528,7 +532,40 @@ void esperar_respuesta_dump_memory(int socket_memoria_dump)
         {
             int pid_recibido = atoi(mensaje_split[1]);
             int tid_recibido = atoi(mensaje_split[2]);
-            finalizar_hilo(pid_recibido, tid_recibido, QUEUE_BLOCKED);
+
+            bool _es_tcb_buscado(void *elemento)
+            {
+                return es_tcb_buscado(pid_recibido, tid_recibido, elemento);
+            }
+
+            sem_wait(&sem_mutex_colas);
+            t_tcb *tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado);
+
+            // chequeamos que exista el hilo en la cola
+            if (tcb_encontrado != NULL)
+            {
+
+                // tcb_encontrado->estado = EXIT;
+                list_add(QUEUE_EXIT, tcb_encontrado);
+
+                // enviamos mensaje a memoria para finalizar hilo
+                char *mensaje = string_new();
+                string_append(&mensaje, "FINALIZAR_HILO ");
+                string_append(&mensaje, string_itoa(tcb_encontrado->ppid));
+                string_append(&mensaje, " ");
+                string_append(&mensaje, string_itoa(tcb_encontrado->tid));
+
+                enviar_mensaje(mensaje, socket_memoria_dump);
+                // recibir mensaje de confirmacion
+                char *mensaje_resultado = recibir_desde_memoria(socket_memoria_dump);
+                desbloquear_hilos_join(tcb_encontrado->tid, tcb_encontrado->ppid);
+
+                free(tcb_encontrado);
+            }
+
+            sem_post(&sem_mutex_colas);
+
+            log_info(logger, "## (%d:%d) - Finaliza el hilo", pid_recibido, tid_recibido);
         }
         free(buffer);
         break;
