@@ -233,9 +233,10 @@ void sys_mutex_unlock(char *nombre, int pid, int tid)
 void sys_dump_memory(int pid, int tid)
 {
     // Bloquear hilo
+    sem_wait(&sem_mutex_colas);
     t_tcb *tcb_encontrado = list_remove(QUEUE_EXEC, 0);
     list_add(QUEUE_BLOCKED, tcb_encontrado);
-
+    sem_post(&sem_mutex_colas);
     char *ip_memoria = config_get_string_value(config, "IP_MEMORIA");
     char *puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
     int socket_memoria_dump = crear_conexion(ip_memoria, puerto_memoria);
