@@ -6,7 +6,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/bin/${workspaceFolderBasename}",
-      "args": ["THE_EMPTINESS_MACHINE", "16" ],
+      "args": ["RECURSOS_MUTEX_PROC", "32" ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],

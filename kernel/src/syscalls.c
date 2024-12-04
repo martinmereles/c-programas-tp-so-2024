@@ -56,7 +56,7 @@ void sys_thread_join(int tid_join, int ppid, int tid)
 
     if (tcb_encontrado_blocked == NULL && tcb_encontrado_ready == NULL)
     {
-        log_info(logger, "## (%d:%d) Hilo no existe", tid_join, ppid);
+        log_info(logger, "## (%d:%d) Hilo no existe", ppid, tid_join);
         dispatcher(tid, ppid);
     }
     else
@@ -77,7 +77,7 @@ void sys_thread_join(int tid_join, int ppid, int tid)
         // chequeamos que exista el hilo en la cola
         if (tcb_encontrado == NULL)
         {
-            log_info(logger, "## (%d:%d) Hilo no existe", tid_join, ppid);
+            log_info(logger, "## (%d:%d) Hilo no existe", ppid, tid_join);
             return;
         }
         else
