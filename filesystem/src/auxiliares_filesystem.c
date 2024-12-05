@@ -69,7 +69,7 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
     if (cantidad_bloques_necesarios > cantidad_bloques_libres)
     {
         char** nombre_split = string_split(nombre_archivo, "-");
-
+        sem_post(&fs_en_uso);
         char* mensaje_memoria = string_new();
         string_append(&mensaje_memoria, "DUMP_MEMORY_FAIL");
         string_append(&mensaje_memoria, " ");

@@ -285,9 +285,10 @@ void ejecutar_cmn()
                        NULL,
                        aviso_quantum,
                        mensaje);
-        pthread_detach(hilo_quantum);
+        
         sem_wait(&sem_contador_ready);
         sem_wait(&sem_corto_plazo);
+        
         pthread_cancel(hilo_quantum);
     }
 }
@@ -533,13 +534,13 @@ void esperar_respuesta_dump_memory(int socket_memoria_dump)
             int pid_recibido = atoi(mensaje_split[1]);
             int tid_recibido = atoi(mensaje_split[2]);
 
-            bool _es_tcb_buscado(void *elemento)
+            bool _es_tcb_buscado_fail(void *elemento)
             {
                 return es_tcb_buscado(pid_recibido, tid_recibido, elemento);
             }
 
             sem_wait(&sem_mutex_colas);
-            t_tcb *tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado);
+            t_tcb *tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado_fail);
 
             // chequeamos que exista el hilo en la cola
             if (tcb_encontrado != NULL)
@@ -580,7 +581,7 @@ void esperar_respuesta_dump_memory(int socket_memoria_dump)
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
         break;
     }
-    liberar_conexion(socket_memoria_dump);
+     liberar_conexion(socket_memoria_dump);liberar_conexion(socket_memoria_dump);
 }
 
 void recibir_mensajes_cpu()
