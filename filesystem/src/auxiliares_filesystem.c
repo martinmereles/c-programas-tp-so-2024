@@ -47,6 +47,8 @@ void iniciar_fs()
         sem_wait(&fs_en_uso);
         bitmap_bloques_libres = bitarray_create_with_mode(bitmap, block_count / 8, LSB_FIRST);
         fread(bitmap_bloques_libres->bitarray, sz, 1, file_bitmap);
+
+       
         sem_post(&fs_en_uso);
         fclose(file_bitmap);
         fclose(file_bloques);
@@ -226,7 +228,7 @@ int primer_bloque_libre()
         posicion++;
     }
 
-    if (posicion >= (bitmap_bloques_libres->size * 8 - 1))
+    if (posicion > (bitmap_bloques_libres->size * 8 - 1))
     {
         posicion = -1;
     }

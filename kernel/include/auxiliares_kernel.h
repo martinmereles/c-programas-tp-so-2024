@@ -55,5 +55,6 @@ void replanificar_hilo(int pid, int tid);
 void desbloquear_hilos_join(int tid_join, int ppid);
 void esperar_respuesta_dump_memory(int socket_memoria_dump);
 void recibir_mensajes_cpu ();
+bool existen_hilos(int pid);
 
 #endif

@@ -264,10 +264,10 @@ void ejecutar_prioridades()
 void ejecutar_cmn()
 {
     sem_wait(&sem_contador_ready);
-        sem_wait(&sem_corto_plazo);
+    sem_wait(&sem_corto_plazo);
     while (1)
     {
-        
+
         sem_wait(&sem_mutex_colas);
 
         t_tcb *tcb_a_enviar = list_remove(QUEUE_READY, 0);
@@ -285,10 +285,10 @@ void ejecutar_cmn()
                        NULL,
                        aviso_quantum,
                        mensaje);
-        
+
         sem_wait(&sem_contador_ready);
         sem_wait(&sem_corto_plazo);
-        
+
         pthread_cancel(hilo_quantum);
     }
 }
@@ -541,7 +541,7 @@ void esperar_respuesta_dump_memory(int socket_memoria_dump)
 
             sem_wait(&sem_mutex_colas);
             t_tcb *tcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_tcb_buscado_fail);
-
+            log_info(logger, "## (%d:%d) - Finaliza el hilo", pid_recibido, tid_recibido);
             // chequeamos que exista el hilo en la cola
             if (tcb_encontrado != NULL)
             {
@@ -561,12 +561,34 @@ void esperar_respuesta_dump_memory(int socket_memoria_dump)
                 char *mensaje_resultado = recibir_desde_memoria(socket_memoria_dump);
                 desbloquear_hilos_join(tcb_encontrado->tid, tcb_encontrado->ppid);
 
+                if (!existen_hilos(pid_recibido))
+                {
+                    bool _es_pcb_buscado(void *elemento)
+                    {
+                        return es_pcb_buscado(pid_recibido, elemento);
+                    }
+                    t_pcb *pcb_encontrado = list_find(PCB_EN_CICLO, _es_pcb_buscado);
+                  
+             
+                    char *mensaje = string_new();
+                    string_append(&mensaje, "PROCESS_EXIT ");
+                    string_append(&mensaje, string_itoa(pcb_encontrado->pid));
+                    enviar_mensaje(mensaje, socket_memoria_dump);
+                    char *mensaje_resultado = recibir_desde_memoria(socket_memoria_dump);
+
+                    list_remove_element(PCB_EN_CICLO, pcb_encontrado);
+                    list_destroy(pcb_encontrado->tids);
+                    free(pcb_encontrado->mutex);
+                    free(pcb_encontrado);
+                    log_info(logger, "## Finaliza el proceso %d", pid_recibido);
+                }
+
                 free(tcb_encontrado);
             }
 
             sem_post(&sem_mutex_colas);
 
-            log_info(logger, "## (%d:%d) - Finaliza el hilo", pid_recibido, tid_recibido);
+            
         }
         free(buffer);
         break;
@@ -581,7 +603,7 @@ void esperar_respuesta_dump_memory(int socket_memoria_dump)
         log_warning(logger, "Operacion desconocida. No quieras meter la pata");
         break;
     }
-     liberar_conexion(socket_memoria_dump);liberar_conexion(socket_memoria_dump);
+    liberar_conexion(socket_memoria_dump);
 }
 
 void recibir_mensajes_cpu()
@@ -590,4 +612,32 @@ void recibir_mensajes_cpu()
     {
         recibir_desde_cpu(socket_cpu_dispatch);
     }
+}
+
+bool existen_hilos(int pid)
+{
+    bool _es_pcb_buscado(void *elemento)
+    {
+        return es_pcb_buscado(pid, elemento);
+    }
+    t_pcb *pcb_encontrado = list_find(PCB_EN_CICLO, _es_pcb_buscado);
+    int tid;
+    bool existe = false;
+    for (int i; i < list_size(pcb_encontrado->tids); i++)
+    {
+        tid = list_get(pcb_encontrado->tids, i);
+        bool _es_tcb_buscado(void *elemento)
+        {
+            return es_tcb_buscado(pid, tid, elemento);
+        }
+        t_tcb *tcb_encontrado_blocked = list_find(QUEUE_BLOCKED, _es_tcb_buscado);
+        t_tcb *tcb_encontrado_ready = list_find(QUEUE_READY, _es_tcb_buscado);
+
+        if (tcb_encontrado_blocked != NULL || tcb_encontrado_ready != NULL)
+        {
+            existe = true;
+            return existe;
+        }
+    }
+    return existe;
 }
