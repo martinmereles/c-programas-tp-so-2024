@@ -5,6 +5,7 @@
 #include <utils/estructuras.h>
 #include <utils/client-server.h>
 #include <commons/string.h>
+#include <../include/instrucciones_cpu.h>
 
 /*------------------------VARIABLES------------------------*/
 extern int socket_kernel_dispatch;

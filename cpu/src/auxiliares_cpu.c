@@ -280,7 +280,7 @@ void actualizar_registro(void* dato){
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     char *registro_datos = instruccion_exec_split[1];
     
-    int a = (int)dato;
+    int a = *(intptr_t*)dato;
     set(registro_datos, string_itoa(a));
 
 }
