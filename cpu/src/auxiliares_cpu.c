@@ -276,10 +276,13 @@ void actualizar_contexto_cpu(t_list *lista)
     sem_post(&sem_execute);
 }
 
-void actualizar_registro(char* dato){
+void actualizar_registro(void* dato){
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     char *registro_datos = instruccion_exec_split[1];
-    set(registro_datos, dato);
+    
+    int a = (int)dato;
+    set(registro_datos, string_itoa(a));
+
 }
 
 void validar_interrupcion(char* pid, char* tid){

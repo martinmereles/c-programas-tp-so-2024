@@ -37,7 +37,7 @@ void atender_cliente_interrupt(int socket_cliente);
 void proximo_proceso(char* pid_nuevo, char* tid_nuevo);
 void entender_paquete_memoria(t_list*  lista);
 void actualizar_contexto_cpu(t_list* lista);
-void actualizar_registro(char* dato);
+void actualizar_registro(void* dato);
 uint32_t get_valor_registro(char * registro);
 void destruir_chars(void* elemento);
 #endif
