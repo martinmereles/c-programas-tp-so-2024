@@ -140,28 +140,35 @@ void fs_create(char *nombre_archivo, int tamanio, void *contenido, int socket_me
 
     // Grabamos bloques de datos
     int bloque_dato;
-    unsigned char *restante = (unsigned char *)contenido;
-    char *a_escribir;
-    while (!list_is_empty(bloques_datos))
-    {
-
-        if (string_length(restante) > block_size)
-        {
-            a_escribir = string_substring(restante, 0, block_size);
-            restante = string_substring_from(restante, block_size);
+    void* a_escribir = calloc(block_size, 1);
+    void* restante = calloc(tamanio, 1);
+    memcpy(restante, contenido, tamanio);
+    void* aux = calloc(tamanio, 1);
+    int tamanio_a_escribir;
+    while( !list_is_empty(bloques_datos) && tamanio > 0){
+        if(tamanio > block_size){
+            tamanio_a_escribir = block_size;
+            memcpy(aux, restante, tamanio);
+            tamanio -= block_size;
+            free(a_escribir);
+            a_escribir = calloc(block_size, 1);
+            free(restante);
+            restante = calloc(tamanio, 1);
+            memcpy(a_escribir, aux, block_size);
+            memcpy(restante, (char*)aux+block_size, tamanio);
+        }else{
+            tamanio_a_escribir = tamanio;
+            free(a_escribir);
+            a_escribir = calloc(tamanio, 1);
+            memcpy(a_escribir, restante, tamanio);
         }
-        else
-        {
-            a_escribir = restante;
-        }
-
         bloque_dato = list_remove(bloques_datos, 0);
         fseek(file_bloques, block_size * bloque_dato, SEEK_SET);
-        fwrite(a_escribir, string_length(a_escribir), 1, file_bloques);
+        fwrite(a_escribir, tamanio_a_escribir, 1, file_bloques);
         usleep(retardo * 1000);
-
         log_info(logger, "## Acceso Bloque - Archivo: %s - Tipo Bloque: DATOS - Bloque File System %d", nombre_archivo, bloque_dato);
     }
+
     fclose(file_bloques);
     list_destroy(bloques_reservados);
     list_destroy(bloques_datos);
