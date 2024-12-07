@@ -459,11 +459,12 @@ void read_mem(int direccion_fisica, int pid, int tid, int socket_cliente)
 
 void write_mem(int direccion_fisica, void *datos, int pid, int tid, int socket_cliente)
 {
-  memcpy(((char*)memoria_principal) + direccion_fisica, datos, sizeof(uint32_t));
+  memcpy(memoria_principal + direccion_fisica, datos, 4);
   usleep(retardo_respuesta_cpu * 1000);
   char *respuesta = string_new();
-  string_append(&respuesta, "WRITE_MEM OK");
+  usleep(retardo_respuesta_cpu * 1000);
   log_info(logger, "## Escritura - (PID:TID) - (%d:%d) - Dir. Física: %d - Tamaño: 4", pid, tid, direccion_fisica);
+  string_append(&respuesta, "WRITE_MEM OK");
   enviar_mensaje(respuesta, socket_cliente);
 }
 

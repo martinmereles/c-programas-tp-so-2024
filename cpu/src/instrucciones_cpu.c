@@ -79,65 +79,23 @@ void write_mem(char *registro_direccion, char *registro_datos)
     // Lee el valor del Registro Datos y lo escribe en la dirección
     // física de memoria obtenida a partir de la Dirección Lógica almacenada en el Registro Dirección.
     // Escribir en la direccion
-    log_info(logger, "## TID: %d - Ejecutando: WRITE_MEM - %s %s", tid, registro_direccion, registro_datos);
+    int valor_registro_datos = get_valor_registro(registro_datos);
     t_paquete *paquete_memoria = crear_paquete();
     char *operacion = string_new();
     string_append(&operacion, "WRITE_MEM");
     agregar_a_paquete(paquete_memoria, operacion, string_length(operacion) + 1);
     agregar_a_paquete(paquete_memoria, string_itoa(direccion_fisica), string_length(string_itoa(direccion_fisica)) + 1);
-    void *dato_a_escribir = malloc(4);
-    if (strcmp(registro_datos, "PC") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &PC, 4);
-    }
-    if (strcmp(registro_datos, "AX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &AX, 4);
-    }
-    if (strcmp(registro_datos, "BX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &BX, 4);
-    }
-    if (strcmp(registro_datos, "CX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &CX, 4);
-    }
-    if (strcmp(registro_datos, "DX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &DX, 4);
-    }
-    if (strcmp(registro_datos, "EX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &EX, 4);
-    }
-    if (strcmp(registro_datos, "FX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &FX, 4);
-    }
-    if (strcmp(registro_datos, "GX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &GX, 4);
-    }
-    if (strcmp(registro_datos, "HX") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &HX, 4);
-    }
-    if (strcmp(registro_datos, "BASE") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &BASE, 4);
-    }
-    if (strcmp(registro_datos, "LIMITE") == 0)
-    {
-        agregar_a_paquete(paquete_memoria, &LIMITE, 4);
-    }
-    
+    agregar_a_paquete(paquete_memoria, string_itoa(valor_registro_datos), string_length(string_itoa(valor_registro_datos)) + 1);
     agregar_a_paquete(paquete_memoria, string_itoa(pid), string_length(string_itoa(pid)) + 1);
     agregar_a_paquete(paquete_memoria, string_itoa(tid), string_length(string_itoa(tid)) + 1);
     // Enviar paquete a memoria
     enviar_paquete(paquete_memoria, socket_memoria);
     // Esperar mensaje resultado WRITE_MEM OK
     char *respuesta_memoria = recibir_desde_memoria(socket_memoria);
+
     log_info(logger, "## TID: %d - Acción: ESCRIBIR - Dirección Física: %d", tid, direccion_fisica);
+
+    log_info(logger, "## TID: %d - Ejecutando: WRITE_MEM - %s %s", tid, registro_direccion, registro_datos);
 }
 
 void sum(char *registro_destino, char *registro_origen)
